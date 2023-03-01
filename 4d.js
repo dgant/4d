@@ -3,10 +3,7 @@ import * as THREE from 'three';
 import { PointerLockControls } from '/node_modules/three/examples/jsm/controls/PointerLockControls.js';
 import { MeshBVH, MeshBVHVisualizer, StaticGeometryGenerator } from '/node_modules/three-mesh-bvh/build/index.module.js';
 
-
-let camera, scene, renderer, controls, protagMesh;
-
-const colliders = [];
+let camera, collider, controls, protagMesh, renderer, scene;
 
 let moveForward = false;
 let moveBackward = false;
@@ -40,11 +37,13 @@ const protagHeight = gridSize;
 setup();
 loop();
 
-function setup() {  
+function setup() {
+  // Generate camera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
   camera.position.y = protagEyeLevel;
   controls = new PointerLockControls(camera, document.body);
 
+  // Generate scene
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xfff0f0);
   scene.fog = new THREE.Fog(0xfff0f0, 0, 400);
@@ -53,34 +52,39 @@ function setup() {
   scene.add(light);
   scene.add(controls.getObject());
 
+  // Generate renderer
+  renderer = new THREE.WebGLRenderer({antialias: true});
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+ 
+  // Attach listeners
+  document.addEventListener('keydown', onKeyDown);
+  document.addEventListener('keyup', onKeyUp);
+  window.addEventListener('resize', onWindowResize);
+
+  // Create environment
+  const environment = new THREE.Group();
+
   // Generate floor
   let floorGeometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
   floorGeometry.rotateX(- Math.PI / 2);
-  let position = floorGeometry.attributes.position;
-  for (let i = 0, l = position.count; i < l; ++i) {
-    vertex.fromBufferAttribute(position, i);
-    vertex.x += Math.random() * gridSize - 0.5 * gridSize;
-    vertex.y += Math.random() * 2;
-    vertex.z += Math.random() * gridSize - 0.5 * gridSize;
-    position.setXYZ(i, vertex.x, vertex.y, vertex.z);
-  }
   floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
-  position = floorGeometry.attributes.position;
   const colorsFloor = [];
-  for (let i = 0, l = position.count; i < l; ++i) {
+  for (let i = 0, l = floorGeometry.attributes.position.count; i < l; ++i) {
     color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
     colorsFloor.push(color.r, color.g, color.b);
   }
   floorGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsFloor, 3));
   const floorMaterial = new THREE.MeshBasicMaterial({ vertexColors: true });
   const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-  scene.add(floor);
+  //scene.add(floor);  
+  environment.attach(floor);
  
   // Generate cubes
   const boxGeometry = new THREE.BoxGeometry(gridSize, gridSize, gridSize).toNonIndexed();
-  position = boxGeometry.attributes.position;
   const colorsBox = [];
-  for (let i = 0, l = position.count; i < l; ++i) {
+  for (let i = 0, l = boxGeometry.attributes.position.count; i < l; ++i) {
     color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
     colorsBox.push(color.r, color.g, color.b);
   }
@@ -92,8 +96,8 @@ function setup() {
     box.position.x = Math.floor(mapSize * (Math.random() * 2 - 1)) * gridSize;
     box.position.y = Math.floor(mapSize * (Math.random() * 2    )) * gridSize + gridSize / 2;
     box.position.z = Math.floor(mapSize * (Math.random() * 2 - 1)) * gridSize;
-    scene.add(box);
-    colliders.push(box);
+    //scene.add(box);
+    environment.attach(box);
   }
 
   // Generate protag
@@ -102,14 +106,24 @@ function setup() {
   protagMesh = new THREE.Mesh(protagGeometry, protagMaterial);
   protagMesh.translateY(protagHeight / 2);
 
-  renderer = new THREE.WebGLRenderer({antialias: true});
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
- 
-  document.addEventListener('keydown', onKeyDown);
-  document.addEventListener('keyup', onKeyUp);
-  window.addEventListener('resize', onWindowResize);
+  // Collisions/physics ///////////////////////////////////////////////////////////////////  
+  
+  scene.add(environment);
+  const staticGenerator = new StaticGeometryGenerator( environment );
+  staticGenerator.attributes = [ 'position' ];
+
+  const mergedGeometry = staticGenerator.generate();
+  mergedGeometry.boundsTree = new MeshBVH( mergedGeometry, { lazyGeneration: false } );
+
+  collider = new THREE.Mesh(mergedGeometry);
+  //collider.material.wireframe = true;
+  //collider.material.opacity = 0.5;
+  //collider.material.transparent = true;
+
+  const visualizer = new MeshBVHVisualizer(collider, 10);
+  scene.add(visualizer);
+	//scene.add( collider );
+	//scene.add( environment 
 }
 
 function onKeyDown (event) {
@@ -154,13 +168,7 @@ function loop() {
   const deltaMs = (nowMs - prevMs) / 1000;
 
   if (controls.isLocked === true) {
-    let onObject = false;
-    for (const collider of colliders) {
-      // This treats protag as square
-      if (protagMesh.position.manhattanDistanceTo(collider.position) <= gridSize + protagRadius) {
-        onObject = true;
-      }
-    }
+    let onObject = false;    
 
     // Movement
     protagV.x -= protagV.x * protagDecel * deltaMs;
