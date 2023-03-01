@@ -1,5 +1,8 @@
-import * as THREE from './node_modules/three/build/three.module.js';
-import { PointerLockControls } from './node_modules/three/examples/jsm/controls/PointerLockControls.js';
+//import * as THREE from '/node_modules/three/build/three.module.js';
+import * as THREE from 'three';
+import { PointerLockControls } from '/node_modules/three/examples/jsm/controls/PointerLockControls.js';
+import { MeshBVH, MeshBVHVisualizer, StaticGeometryGenerator } from '/node_modules/three-mesh-bvh/build/index.module.js';
+
 
 let camera, scene, renderer, controls, protagMesh;
 
@@ -37,7 +40,10 @@ const protagHeight = gridSize;
 setup();
 loop();
 
-function setup() {
+function setup() {  
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+  camera.position.y = protagEyeLevel;
+  controls = new PointerLockControls(camera, document.body);
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xfff0f0);
@@ -45,42 +51,7 @@ function setup() {
   const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
   light.position.set(0.5, 1, 0.75);
   scene.add(light);
-
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-  camera.position.y = protagEyeLevel;
-  controls = new PointerLockControls(camera, document.body);
   scene.add(controls.getObject());
-  const onKeyDown = function (event) {
-    controls.lock();
-    switch (event.code) {
-      case 'ArrowUp': case 'KeyW': moveForward = true; break;
-      case 'ArrowLeft': case 'KeyA': moveLeft = true; break;
-      case 'ArrowDown': case 'KeyS': moveBackward = true; break;
-      case 'ArrowRight': case 'KeyD': moveRight = true; break;
-      case 'ShiftLeft': case 'ShiftRight': running = true; break;
-      case 'ControlLeft': case 'ControlRight': crouching = ! jumping; break;
-      case 'Space':
-        if (canJump === true) {
-          protagV.y = protagJumpVelocity;
-          jumping = true;
-          crouching = false;
-        }
-        canJump = false;
-        break;
-    }
-  };
-  const onKeyUp = function (event) {
-    switch (event.code) {
-      case 'ArrowUp': case 'KeyW': moveForward = false; break;
-      case 'ArrowLeft': case 'KeyA': moveLeft = false; break;
-      case 'ArrowDown': case 'KeyS': moveBackward = false; break;
-      case 'ArrowRight': case 'KeyD': moveRight = false; break;
-      case 'ShiftLeft': case 'ShiftRight': running = false; break;
-      case 'ControlLeft': case 'ControlRight': crouching = false; break;
-    }
-  };
-  document.addEventListener('keydown', onKeyDown);
-  document.addEventListener('keyup', onKeyUp);
 
   // Generate floor
   let floorGeometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
@@ -135,10 +106,41 @@ function setup() {
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
-
+ 
+  document.addEventListener('keydown', onKeyDown);
+  document.addEventListener('keyup', onKeyUp);
   window.addEventListener('resize', onWindowResize);
 }
 
+function onKeyDown (event) {
+  controls.lock(); // Must call this during a user-initiated event
+  switch (event.code) {
+    case 'ArrowUp': case 'KeyW': moveForward = true; break;
+    case 'ArrowLeft': case 'KeyA': moveLeft = true; break;
+    case 'ArrowDown': case 'KeyS': moveBackward = true; break;
+    case 'ArrowRight': case 'KeyD': moveRight = true; break;
+    case 'ShiftLeft': case 'ShiftRight': running = true; break;
+    case 'ControlLeft': case 'ControlRight': crouching = ! jumping; break;
+    case 'Space':
+      if (canJump === true) {
+        protagV.y = protagJumpVelocity;
+        jumping = true;
+        crouching = false;
+      }
+      canJump = false;
+      break;
+  }
+}
+function onKeyUp(event) {
+  switch (event.code) {
+    case 'ArrowUp': case 'KeyW': moveForward = false; break;
+    case 'ArrowLeft': case 'KeyA': moveLeft = false; break;
+    case 'ArrowDown': case 'KeyS': moveBackward = false; break;
+    case 'ArrowRight': case 'KeyD': moveRight = false; break;
+    case 'ShiftLeft': case 'ShiftRight': running = false; break;
+    case 'ControlLeft': case 'ControlRight': crouching = false; break;
+  }
+}
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
