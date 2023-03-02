@@ -3,7 +3,12 @@ import * as THREE from 'three';
 import { PointerLockControls } from '/node_modules/three/examples/jsm/controls/PointerLockControls.js';
 import { MeshBVH, MeshBVHVisualizer, StaticGeometryGenerator } from '/node_modules/three-mesh-bvh/build/index.module.js';
 
-let camera, collider, controls, protagMesh, renderer, scene;
+let camera, collider, controls, protagCapsule, renderer, scene;
+const tempBox = new THREE.Box3();
+const tempMat = new THREE.Matrix4();
+const tempSegment = new THREE.Line3();
+const tempVector = new THREE.Vector3();
+const tempVector2 = new THREE.Vector3();
 
 let moveForward = false;
 let moveBackward = false;
@@ -21,7 +26,7 @@ const vertex = new THREE.Vector3();
 const color = new THREE.Color();
 
 const gridSize = 20;
-const mapSize = 30;
+const mapSize = 15;
 const protagDecel = 10;
 const protagAccel = 50;
 const protagGravity = 1000;
@@ -63,8 +68,8 @@ function setup() {
   document.addEventListener('keyup', onKeyUp);
   window.addEventListener('resize', onWindowResize);
 
-  // Create environment
-  const environment = new THREE.Group();
+  // Create terrain
+  const terrainGroup = new THREE.Group();
 
   // Generate floor
   let floorGeometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
@@ -78,8 +83,7 @@ function setup() {
   floorGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsFloor, 3));
   const floorMaterial = new THREE.MeshBasicMaterial({ vertexColors: true });
   const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-  //scene.add(floor);  
-  environment.attach(floor);
+  terrainGroup.attach(floor);
  
   // Generate cubes
   const boxGeometry = new THREE.BoxGeometry(gridSize, gridSize, gridSize).toNonIndexed();
@@ -89,41 +93,39 @@ function setup() {
     colorsBox.push(color.r, color.g, color.b);
   }
   boxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsBox, 3));
-  for (let i = 0; i < 8000; ++i) {
+  for (let i = 0; i < 500; ++i) {
     const boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, vertexColors: true });
     boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
     const box = new THREE.Mesh(boxGeometry, boxMaterial);
     box.position.x = Math.floor(mapSize * (Math.random() * 2 - 1)) * gridSize;
     box.position.y = Math.floor(mapSize * (Math.random() * 2    )) * gridSize + gridSize / 2;
     box.position.z = Math.floor(mapSize * (Math.random() * 2 - 1)) * gridSize;
-    //scene.add(box);
-    environment.attach(box);
+    terrainGroup.attach(box);
   }
 
   // Generate protag
-  const protagGeometry = new THREE.CylinderGeometry(protagRadius, protagRadius, protagHeight);
-  const protagMaterial = new THREE.MeshBasicMaterial({});
-  protagMesh = new THREE.Mesh(protagGeometry, protagMaterial);
-  protagMesh.translateY(protagHeight / 2);
+  protagCapsule = {
+		radius: protagRadius,
+		segment: new THREE.Line3(new THREE.Vector3(), new THREE.Vector3(0, - protagHeight, 0.0))
+	};
 
   // Collisions/physics ///////////////////////////////////////////////////////////////////  
   
-  scene.add(environment);
-  const staticGenerator = new StaticGeometryGenerator( environment );
+  const staticGenerator = new StaticGeometryGenerator( terrainGroup );
   staticGenerator.attributes = [ 'position' ];
 
   const mergedGeometry = staticGenerator.generate();
   mergedGeometry.boundsTree = new MeshBVH( mergedGeometry, { lazyGeneration: false } );
 
   collider = new THREE.Mesh(mergedGeometry);
-  //collider.material.wireframe = true;
-  //collider.material.opacity = 0.5;
-  //collider.material.transparent = true;
+  collider.material.wireframe = true;
+  collider.material.opacity = 0.5;
+  collider.material.transparent = true;
 
   const visualizer = new MeshBVHVisualizer(collider, 10);
   scene.add(visualizer);
-	//scene.add( collider );
-	//scene.add( environment 
+	scene.add(collider);
+	scene.add(terrainGroup);
 }
 
 function onKeyDown (event) {
@@ -163,40 +165,78 @@ function onWindowResize() {
 
 function loop() {
   requestAnimationFrame(loop);
-
   const nowMs = performance.now();  
   const deltaMs = (nowMs - prevMs) / 1000;
 
-  if (controls.isLocked === true) {
-    let onObject = false;    
+  // Movement
+  protagV.x -= protagV.x * protagDecel * deltaMs;
+  protagV.z -= protagV.z * protagDecel * deltaMs;
+  protagV.y -= protagGravity * deltaMs;
+  protagD.z = Number(moveForward) - Number(moveBackward);
+  protagD.x = Number(moveRight) - Number(moveLeft);
+  protagD.normalize(); // this ensures consistent movements in all protagDs
 
-    // Movement
-    protagV.x -= protagV.x * protagDecel * deltaMs;
-    protagV.z -= protagV.z * protagDecel * deltaMs;
-    protagV.y -= protagGravity * deltaMs;
-    protagD.z = Number(moveForward) - Number(moveBackward);
-    protagD.x = Number(moveRight) - Number(moveLeft);
-    protagD.normalize(); // this ensures consistent movements in all protagDs
+  const deltaV = running ? protagSpeedRun : protagSpeedWalk;
+  if (moveLeft    || moveRight)    protagV.x -= protagD.x * deltaV * deltaMs;
+  if (moveForward || moveBackward) protagV.z -= protagD.z * deltaV * deltaMs;
 
-    const deltaV = running ? protagSpeedRun : protagSpeedWalk;
-    if (moveLeft    || moveRight)    protagV.x -= protagD.x * deltaV * deltaMs;
-    if (moveForward || moveBackward) protagV.z -= protagD.z * deltaV * deltaMs;
-
-    if (onObject === true) {
-      protagV.y = Math.max(0, protagV.y);
-      canJump = true;
+  // Physics
+  // Adjust player position based on collisions
+  //protagMesh.updateMatrixWorld(); -- this would be controls.getObject().updateMatrixWorld() now?
+  tempBox.makeEmpty();
+  tempMat.copy(collider.matrixWorld).invert();
+	// Get the position of the capsule in the local space of the collider
+  tempSegment.copy(protagCapsule.segment);
+  tempSegment.start.applyMatrix4(controls.getObject().matrixWorld).applyMatrix4(tempMat);
+  tempSegment.end.applyMatrix4(controls.getObject().matrixWorld).applyMatrix4(tempMat);
+  // Get the axis-aligned bounding box of the capsule
+  tempBox.expandByPoint(tempSegment.start);
+  tempBox.expandByPoint(tempSegment.end);
+  tempBox.min.addScalar( - protagCapsule.radius);
+  tempBox.max.addScalar(   protagCapsule.radius);
+  collider.geometry.boundsTree.shapecast({
+    intersectsBounds: box => box.intersectsBox(tempBox),
+    intersectsTriangle: tri => {
+      // Adjust the capsule position if the triangle is intersecting it
+      const triPoint = tempVector;
+      const capsulePoint = tempVector2;
+      const distance = tri.closestPointToSegment(tempSegment, triPoint, capsulePoint);
+      if (distance < protagCapsule.radius) {
+        const depth = protagCapsule.radius - distance;
+        const direction = capsulePoint.sub(triPoint).normalize();
+        tempSegment.start.addScaledVector(direction, depth);
+        tempSegment.end.addScaledVector(direction, depth);
+        console.log(direction);
+      }
     }
-
-    controls.moveRight(- protagV.x * deltaMs);
-    controls.moveForward(- protagV.z * deltaMs);
-    controls.getObject().position.y += (protagV.y * deltaMs);
-    if (controls.getObject().position.y < protagEyeLevel) {
-      protagV.y = 0;
-      controls.getObject().position.y = protagEyeLevel;
-      canJump = true;
-    }
-    protagMesh.position.set(controls.getObject().position);
+  });
+  // Get the adjusted position of the capsule collider in world space after checking triangle collisions and moving it.
+  // protagCapsule.segment.start is assumed to be the origin of the player model.
+  const newPosition = tempVector;
+  newPosition.copy(tempSegment.start).applyMatrix4(collider.matrixWorld);
+  // Check how much the collider was moved
+  const deltaVector = tempVector2;
+  deltaVector.subVectors(newPosition, controls.getObject().position);
+  // If the player was primarily adjusted vertically, treat it as standing on a surface
+  const onObject = deltaVector.y > Math.abs(deltaMs * protagV.y * 0.25);
+  // Resolve collision
+  controls.getObject().position.add(deltaVector);
+  if (onObject) {
+    canJump = true;
+    protagV.y = Math.max(0, protagV.y);
+  } else {
+    deltaVector.normalize();
+    protagV.addScaledVector(deltaVector, - deltaVector.dot(protagV));
   }
+  controls.moveRight(- protagV.x * deltaMs);
+  controls.moveForward(- protagV.z * deltaMs);
+  controls.getObject().position.y += (protagV.y * deltaMs);
+  if (controls.getObject().position.y < protagEyeLevel) {
+    protagV.y = 0;
+    controls.getObject().position.y = protagEyeLevel;
+    canJump = true;
+  }
+
   prevMs = nowMs;
   renderer.render(scene, camera);
 }
