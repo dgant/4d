@@ -1,12 +1,10 @@
-//import * as THREE from '/node_modules/three/build/three.module.js';
 import * as THREE from 'three';
-import { PointerLockControls } from '/node_modules/three/examples/jsm/controls/PointerLockControls.js';
 import { MeshBVH, MeshBVHVisualizer, StaticGeometryGenerator } from '/node_modules/three-mesh-bvh/build/index.module.js';
 
 const gridSize = 20;
 const mapSize = 15;
 const protagDecel = 10;
-const protagAccel = 30;
+const protagAccel = protagDecel + 2; // We always apply decel, so this must be higher
 const protagGravity = 1000;
 const protagJumpVelocity = 450;
 const protagSpeedCrouch = 150;
@@ -17,7 +15,7 @@ const protagEyeLevel = 16.0;
 const protagRadius = 3;
 const protagHeight = gridSize;
 
-let camera, collider, controls, gui, renderer, scene;
+let camera, collider, controls, renderer, scene;
 const tempBox = new THREE.Box3();
 const tempMat = new THREE.Matrix4();
 const tempSegment = new THREE.Line3();
@@ -37,18 +35,71 @@ let jumping = false;
 let crouching = false;
 
 let prevMs = performance.now();
-const protagV = new THREE.Vector3();
-const protagD = new THREE.Vector3();
+const protagV = new THREE.Vector3(0, 0, 0);
+const protagControlV3 = new THREE.Vector3(0, 0, 0);
 const color = new THREE.Color();
 
-setup();
-loop();
+// Based on THREE.PointerLockControls
+class FPSControls extends THREE.EventDispatcher {
+	constructor(camera, domElement) {
+    const _euler = new THREE.Euler(0, 0, 0, 'YXZ');
+    const _changeEvent = { type: 'change' };
+    const _lockEvent = { type: 'lock' };
+    const _unlockEvent = { type: 'unlock' };
+    const _HALF_PI = Math.PI / 2;
+		super();    
+		this.domElement = domElement;
+		this.isLocked = false;
+		this.minPolarAngle = 0; // radians
+		this.maxPolarAngle = Math.PI; // radians
+		this.pointerSpeed = 1.0;
+		const scope = this;
+		function onMouseMove(event) {
+			if (scope.isLocked === false) return;
+			const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+			const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+			_euler.setFromQuaternion(camera.quaternion);
+			_euler.y -= movementX * 0.002 * scope.pointerSpeed;
+			_euler.x -= movementY * 0.002 * scope.pointerSpeed;
+			_euler.x = Math.max(_HALF_PI - scope.maxPolarAngle, Math.min(_HALF_PI - scope.minPolarAngle, _euler.x));
+			camera.quaternion.setFromEuler(_euler);
+			scope.dispatchEvent(_changeEvent);
+		}
+		function onPointerlockChange() {
+      scope.isLocked = scope.domElement.ownerDocument.pointerLockElement === scope.domElement;
+			scope.dispatchEvent(scope.isLocked ? _lockEvent : _unlockEvent);
+		}
+		function onPointerlockError() { console.error('FPSControls: Unable to use Pointer Lock API'); }
+		this.connect = function () {
+			scope.domElement.ownerDocument.addEventListener('mousemove', onMouseMove);
+			scope.domElement.ownerDocument.addEventListener('pointerlockchange', onPointerlockChange);
+			scope.domElement.ownerDocument.addEventListener('pointerlockerror', onPointerlockError);
+		};
+		this.disconnect = function() {
+			scope.domElement.ownerDocument.removeEventListener('mousemove', onMouseMove);
+			scope.domElement.ownerDocument.removeEventListener('pointerlockchange', onPointerlockChange);
+			scope.domElement.ownerDocument.removeEventListener('pointerlockerror', onPointerlockError);
+		};
+		this.dispose = function() { this.disconnect(); };
+		this.getDirection = function() {
+			const direction = new THREE.Vector3(0, 0, - 1);
+			return function(v) { return v.copy(direction).applyQuaternion(camera.quaternion); };
+		}();
+		this.lock = function() {
+      scope.domElement.requestPointerLock();
+    }
+		this.unlock = function() {
+      scope.domElement.ownerDocument.exitPointerLock;
+    }
+		this.connect();
+	}
+}
 
 function setup() {
   // Generate camera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
   camera.position.y = protagEyeLevel;
-  controls = new PointerLockControls(camera, document.body);
+  controls = new FPSControls(camera, document.body);
 
   // Generate scene
   scene = new THREE.Scene();
@@ -56,8 +107,6 @@ function setup() {
   scene.fog = new THREE.Fog(0xfff0f0, 0, 400);
   const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
   light.position.set(0.5, 1, 0.75);
-  scene.add(light);
-  scene.add(controls.getObject());
 
   // Generate renderer
   renderer = new THREE.WebGLRenderer({antialias: true});
@@ -107,7 +156,7 @@ function setup() {
 
   // Collisions/physics ///////////////////////////////////////////////////////////////////  
   
-  const staticGenerator = new StaticGeometryGenerator( terrainGroup );
+  const staticGenerator = new StaticGeometryGenerator(terrainGroup);
   staticGenerator.attributes = [ 'position' ];
 
   const mergedGeometry = staticGenerator.generate();
@@ -118,10 +167,13 @@ function setup() {
   collider.material.opacity = 0.5;
   collider.material.transparent = true;
 
-  const visualizer = new MeshBVHVisualizer(collider, 10);
+  const visualizer = new MeshBVHVisualizer(collider, 10);  
+  scene.add(light);
+  scene.add(camera);
   scene.add(visualizer);
 	scene.add(collider);
 	scene.add(terrainGroup);
+  loop();
 }
 
 function onKeyDown (event) {
@@ -167,35 +219,57 @@ function loop() {
   const nowMs = performance.now();  
   const deltaMs = (nowMs - prevMs) / 1000;  
   updatePhysics(deltaMs)
-  logToId("controlXYZ", controls.getObject().position);
+  logToId("cameraXYZ", camera.position);
+  logToId("controlXYZ", protagControlV3);
   logToId("velocityXYZ", protagV);
+  logToId("crouching", crouching);
+  logToId("jumping", jumping);
+  logToId("running", running);
   prevMs = nowMs;
   renderer.render(scene, camera);
 }
 
 function updatePhysics(deltaMs) {
   // Movement
-  // Remember that the X is relative to first-person strafing, Z to first-person forward/backward, and Y to gravity
-  protagV.x -= protagV.x * protagDecel * deltaMs;
-  protagV.z -= protagV.z * protagDecel * deltaMs;
-  protagV.y -= protagGravity * deltaMs;
-  protagD.z = Number(moveForward) - Number(moveBackward);
-  protagD.x = Number(moveRight) - Number(moveLeft);
-  protagD.normalize(); // this ensures consistent movements in all protagDs
+  // Apply XZ deceleration
+  const protagVYBefore = protagV.y;
+  protagV.y = 0;
+  protagV.clampLength(0, deltaMs * Math.max(0, protagV.length() - protagDecel));
+  // Apply XZ controller movement
+  controls.getDirection(tempVector);
+  tempVector.y = 0;
+  tempVector.normalize();
+  protagControlV3
+    .set(Number(moveRight) - Number(moveLeft), 0, Number(moveForward) - Number(moveBackward))
+    .applyAxisAngle(new THREE.Vector3(0, 1, 0), protagControlV3.angleTo(tempVector))
+    .clampLength(0.0, 1.0);
+  protagV.addScaledVector(protagControlV3, deltaMs * protagAccel);
+  protagV.y = protagVYBefore;
+
+  // Move forward
+  // _vector.setFromMatrixColumn(camera.matrix, 0);
+  // _vector.crossVectors(camera.up, _vector);
+  // camera.position.addScaledVector(_vector, distance);
+  // Move right
+  // _vector.setFromMatrixColumn(camera.matrix, 0);
+  // camera.position.addScaledVector(_vector, distance);
+    
+  protagControlV3.normalize(); // this ensures consistent movement in all protagControlV3s
 
   const diagonal = (moveLeft || moveRight) && (moveForward || moveBackward);
   const deltaV = (running ? protagSpeedRun : protagSpeedWalk) * (diagonal ? Math.SQRT2 / 2 : 1);
-  if (moveLeft    || moveRight)    protagV.x -= protagD.x * deltaV * deltaMs;
-  if (moveForward || moveBackward) protagV.z -= protagD.z * deltaV * deltaMs;
+  if (moveLeft    || moveRight)    protagV.x -= protagControlV3.x * deltaV * deltaMs;
+  if (moveForward || moveBackward) protagV.z -= protagControlV3.z * deltaV * deltaMs;
 
-  // Physics
-  // Adjust player position based on collisions
-  controls.getObject().updateMatrixWorld(); // Cargo-culted from BVH example  
+  // Collisions
+  // The renderer will automatically update the camera's world matrix,
+  // but if we apply physics out of phase with rendering we need to update it manually.
+  camera.updateMatrixWorld(); 
 	// Get the position of the capsule in the local space of the collider
   tempMat.copy(collider.matrixWorld).invert();
   tempSegment.copy(protagCapsule);
-  tempSegment.start.applyMatrix4(controls.getObject().matrixWorld).applyMatrix4(tempMat);
-  tempSegment.end.applyMatrix4(controls.getObject().matrixWorld).applyMatrix4(tempMat);
+  tempSegment.start.applyMatrix4(camera.matrixWorld).applyMatrix4(tempMat);
+  tempSegment.end.applyMatrix4(camera.matrixWorld).applyMatrix4(tempMat);
   // Get the axis-aligned bounding box of the capsule
   tempBox.makeEmpty();
   tempBox.expandByPoint(tempSegment.start);
@@ -223,7 +297,7 @@ function updatePhysics(deltaMs) {
   newPosition.copy(tempSegment.start).applyMatrix4(collider.matrixWorld);
   // Check how much the collider was moved
   const deltaVector = capsuleIntersection;
-  deltaVector.subVectors(newPosition, controls.getObject().position);
+  deltaVector.subVectors(newPosition, camera.position);
   // If the player was primarily adjusted vertically, treat it as standing on a surface
   const onObject = deltaVector.y > Math.abs(deltaMs * protagV.y * 0.25);
   // Resolve collision
@@ -234,15 +308,15 @@ function updatePhysics(deltaMs) {
   } else {
     //deltaVector.normalize();
     //protagV.addScaledVector(deltaVector, - deltaVector.dot(protagV));
-  }
-  controls.moveRight  ( - protagV.x * deltaMs);
-  controls.moveForward( - protagV.z * deltaMs);  
-  controls.getObject().position.add(deltaVector);
-  controls.getObject().position.y += (protagV.y * deltaMs);
-  if (controls.getObject().position.y < protagEyeLevel) {
+  }  
+  camera.position.add(deltaVector);
+  camera.position.y += (protagV.y * deltaMs);
+  if (camera.position.y < protagEyeLevel) {
     protagV.y = 0;
-    controls.getObject().position.y = protagEyeLevel;
+    camera.position.y = protagEyeLevel;
     canJump = true;
     console.log("Teleporting to surface");
   }
 }
+
+setup();
