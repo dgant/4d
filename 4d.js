@@ -3,9 +3,10 @@ import { MeshBVH, MeshBVHVisualizer, StaticGeometryGenerator } from '/node_modul
 
 const gridSize = 20;
 const mapSize = 15;
-const protagDecel = 10;
-const protagAccel = protagDecel + 2; // We always apply decel, so this must be higher
-const protagGravity = 1000;
+const protagDecel = 400;
+const protagAccelWalk = protagDecel + 30; // We always apply decel, so this must be higher
+const protagAccelRun = protagDecel + 75; // We always apply decel, so this must be higher
+const protagGravity = 1000; 
 const protagJumpVelocity = 450;
 const protagSpeedCrouch = 150;
 const protagSpeedCrouchRun = 250;
@@ -85,6 +86,12 @@ class FPSControls extends THREE.EventDispatcher {
 			const direction = new THREE.Vector3(0, 0, - 1);
 			return function(v) { return v.copy(direction).applyQuaternion(camera.quaternion); };
 		}();
+    this.getAzimuthalDirection = function(v) {
+			const output = this.getDirection(v);
+      output.y = 0;
+      output.normalize();
+      return output;
+		}
 		this.lock = function() {
       scope.domElement.requestPointerLock();
     }
@@ -219,9 +226,10 @@ function loop() {
   const nowMs = performance.now();  
   const deltaMs = (nowMs - prevMs) / 1000;  
   updatePhysics(deltaMs)
-  logToId("cameraXYZ", camera.position);
-  logToId("controlXYZ", protagControlV3);
-  logToId("velocityXYZ", protagV);
+  logToId("camera", camera.position);
+  logToId("azimuth", controls.getAzimuthalDirection(tempVector));
+  logToId("keyboard", protagControlV3);
+  logToId("velocity", protagV);
   logToId("crouching", crouching);
   logToId("jumping", jumping);
   logToId("running", running);
@@ -230,21 +238,21 @@ function loop() {
 }
 
 function updatePhysics(deltaMs) {
-  // Movement
-  // Apply XZ deceleration
+  // Protagonist movement
+  const forward = new THREE.Vector3(0, 0, -1);
+  const azimuth = controls.getAzimuthalDirection(new THREE.Vector3());
+  protagControlV3.set(Number(moveRight) - Number(moveLeft), 0, Number(moveBackward) - Number(moveForward));
+  protagControlV3.applyAxisAngle(
+    camera.up,
+    forward.angleTo(azimuth)
+    * Math.sign(new THREE.Vector3().crossVectors(forward, azimuth).y));
+  protagControlV3.clampLength(0.0, 1.0);  
   const protagVYBefore = protagV.y;
   protagV.y = 0;
-  protagV.clampLength(0, deltaMs * Math.max(0, protagV.length() - protagDecel));
-  // Apply XZ controller movement
-  controls.getDirection(tempVector);
-  tempVector.y = 0;
-  tempVector.normalize();
-  protagControlV3
-    .set(Number(moveRight) - Number(moveLeft), 0, Number(moveForward) - Number(moveBackward))
-    .applyAxisAngle(new THREE.Vector3(0, 1, 0), protagControlV3.angleTo(tempVector))
-    .clampLength(0.0, 1.0);
-  protagV.addScaledVector(protagControlV3, deltaMs * protagAccel);
-  protagV.y = protagVYBefore;
+  protagV.clampLength(0, Math.max(0, protagV.length() - deltaMs * protagDecel));
+  protagV.addScaledVector(protagControlV3, deltaMs * (running ? protagAccelRun : protagAccelWalk));
+  protagV.clampLength(0, running ? protagSpeedRun : protagSpeedWalk);
+  protagV.y = protagVYBefore - deltaMs * protagGravity;
 
   // Move forward
   // _vector.setFromMatrixColumn(camera.matrix, 0);
@@ -253,14 +261,6 @@ function updatePhysics(deltaMs) {
   // Move right
   // _vector.setFromMatrixColumn(camera.matrix, 0);
   // camera.position.addScaledVector(_vector, distance);
-    
-  protagControlV3.normalize(); // this ensures consistent movement in all protagControlV3s
-
-  const diagonal = (moveLeft || moveRight) && (moveForward || moveBackward);
-  const deltaV = (running ? protagSpeedRun : protagSpeedWalk) * (diagonal ? Math.SQRT2 / 2 : 1);
-  if (moveLeft    || moveRight)    protagV.x -= protagControlV3.x * deltaV * deltaMs;
-  if (moveForward || moveBackward) protagV.z -= protagControlV3.z * deltaV * deltaMs;
-
   // Collisions
   // The renderer will automatically update the camera's world matrix,
   // but if we apply physics out of phase with rendering we need to update it manually.
@@ -287,7 +287,6 @@ function updatePhysics(deltaMs) {
         const direction = capsuleIntersection.sub(triangleIntersection).normalize();
         tempSegment.start.addScaledVector(direction, depth);
         tempSegment.end.addScaledVector(direction, depth);
-        console.log(direction);
       }
     }
   });
@@ -309,13 +308,13 @@ function updatePhysics(deltaMs) {
     //deltaVector.normalize();
     //protagV.addScaledVector(deltaVector, - deltaVector.dot(protagV));
   }  
-  camera.position.add(deltaVector);
-  camera.position.y += (protagV.y * deltaMs);
+  //camera.position.add(deltaVector);
+  camera.position.addScaledVector(protagV, deltaMs);
   if (camera.position.y < protagEyeLevel) {
     protagV.y = 0;
     camera.position.y = protagEyeLevel;
     canJump = true;
-    console.log("Teleporting to surface");
+    //console.log("Teleporting to surface");
   }
 }
 
