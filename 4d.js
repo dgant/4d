@@ -176,10 +176,10 @@ function setup() {
   collider.material.opacity = 0.5;
   collider.material.transparent = true;
 
-  const visualizer = new MeshBVHVisualizer(collider, 10);  
+  //const visualizer = new MeshBVHVisualizer(collider, 10);  
   scene.add(light);
   scene.add(camera);
-  scene.add(visualizer);
+  //scene.add(visualizer);
 	scene.add(collider);
 	scene.add(terrainGroup);
   loop();
@@ -221,7 +221,9 @@ function logToId(id, value) {
 function loop() {
   requestAnimationFrame(loop);
   const nowMs = performance.now();
-  const deltaS = (nowMs - prevMs) * 0.001;
+  // Cap the amount of time that can elapse between update
+  // For example, alt-tabbing out of the window should not result in a ton of updates
+  const deltaS = Math.min(physicsMaxStep * 10, (nowMs - prevMs) * 0.001);
   let deltaRemainingS = deltaS;
   while (deltaRemainingS > 0) {
     const deltaStepS = Math.min(deltaRemainingS, physicsMaxStep);
