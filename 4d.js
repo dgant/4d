@@ -1,20 +1,28 @@
 import * as THREE from 'three';
 import { MeshBVH, MeshBVHVisualizer, StaticGeometryGenerator } from '/node_modules/three-mesh-bvh/build/index.module.js';
 
-const gridSize = 20;
+// Units:
+// * 1 distance unit = 1 meter
+// * 1 unit of time = 1 ms
+const gridSize = 2;
 const mapSize = 15;
-const protagDecel = 400;
-const protagAccelWalk = protagDecel + 30; // We always apply decel, so this must be higher
-const protagAccelRun = protagDecel + 75; // We always apply decel, so this must be higher
-const protagGravity = 1000; 
-const protagJumpVelocity = 450;
-const protagSpeedCrouch = 150;
-const protagSpeedCrouchRun = 250;
-const protagSpeedWalk = 400; // Humans: 2.5-4mph
-const protagSpeedRun = 1100; // Humans: 6mph jog, 18mph sprint
-const protagEyeLevel = 16.0;
-const protagRadius = 3;
-const protagHeight = gridSize;
+const playerGravity = 4 * 9.8; // 9.8 would be realistic, but due to higher jump height feels too floaty.
+const playerJumpHeight = gridSize * 1.2;
+const playerJumpVelocity = Math.sqrt(2 * playerGravity * playerJumpHeight);
+const playerTopSpeed = 8; // Humans: 8m/s sprint, 3m/s jog, 1.8 m/s walk
+const playerTopSpeedWalkMultiplier = 0.4;
+const playerStrafeMultiplier = 0.65;
+const playerDecelTime = 0.6;
+const playerAccelTime = 1.0;
+const playerDecel = playerTopSpeed / playerDecelTime;
+const playerAccel = playerTopSpeed / playerAccelTime + playerDecel;
+
+// Height/eye level taken as gender-averaged from
+// https://www.firstinarchitecture.co.uk/average-male-and-female-dimensions/
+const playerHeight = 1.675;
+const playerEyeLevel = 1.567;
+const playerRadius = .25;
+
 
 let camera, collider, controls, renderer, scene;
 const tempBox = new THREE.Box3();
@@ -22,9 +30,9 @@ const tempMat = new THREE.Matrix4();
 const tempSegment = new THREE.Line3();
 const tempVector = new THREE.Vector3();
 const capsuleIntersection = new THREE.Vector3();
-const protagCapsule = new THREE.Line3(
-  new THREE.Vector3(0,   0,            0),
-  new THREE.Vector3(0, - protagHeight, 0))
+const playerCapsule = new THREE.Line3(
+  new THREE.Vector3(0, 0,            0),
+  new THREE.Vector3(0, playerHeight, 0))
 
 let moveForward = false;
 let moveBackward = false;
@@ -33,11 +41,12 @@ let moveRight = false;
 let canJump = false;
 let running = false;
 let jumping = false;
-let crouching = false;
 
 let prevMs = performance.now();
-const protagV = new THREE.Vector3(0, 0, 0);
-const protagControlV3 = new THREE.Vector3(0, 0, 0);
+const playerV = new THREE.Vector3(0, 0, 0);
+const playerControlV3 = new THREE.Vector3(0, 0, 0);
+const playerDecelV3 = new THREE.Vector3(0, 0, 0);
+const playerAccelV3 = new THREE.Vector3(0, 0, 0);
 const color = new THREE.Color();
 
 // Based on THREE.PointerLockControls
@@ -105,13 +114,13 @@ class FPSControls extends THREE.EventDispatcher {
 function setup() {
   // Generate camera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-  camera.position.y = protagEyeLevel;
+  camera.position.y = playerEyeLevel;
   controls = new FPSControls(camera, document.body);
 
   // Generate scene
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xfff0f0);
-  scene.fog = new THREE.Fog(0xfff0f0, 0, 400);
+  scene.fog = new THREE.Fog(0xfff0f0, 0, 20);
   const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
   light.position.set(0.5, 1, 0.75);
 
@@ -191,12 +200,10 @@ function onKeyDown (event) {
     case 'ArrowDown': case 'KeyS': moveBackward = true; break;
     case 'ArrowRight': case 'KeyD': moveRight = true; break;
     case 'ShiftLeft': case 'ShiftRight': running = true; break;
-    case 'ControlLeft': case 'ControlRight': crouching = ! jumping; break;
     case 'Space':
       if (canJump === true) {
-        protagV.y = protagJumpVelocity;
+        playerV.y = playerJumpVelocity;
         jumping = true;
-        crouching = false;        
         canJump = false;
       }
       break;
@@ -209,7 +216,6 @@ function onKeyUp(event) {
     case 'ArrowDown': case 'KeyS': moveBackward = false; break;
     case 'ArrowRight': case 'KeyD': moveRight = false; break;
     case 'ShiftLeft': case 'ShiftRight': running = false; break;
-    case 'ControlLeft': case 'ControlRight': crouching = false; break;
   }
 }
 function onWindowResize() {
@@ -223,67 +229,86 @@ function logToId(id, value) {
 }
 function loop() {
   requestAnimationFrame(loop);
-  const nowMs = performance.now();  
-  const deltaMs = (nowMs - prevMs) / 1000;  
-  updatePhysics(deltaMs)
+  const nowMs = performance.now();
+  const deltaS = (nowMs - prevMs) * 0.001;
+  updatePhysics(deltaS)
   logToId("camera", camera.position);
   logToId("azimuth", controls.getAzimuthalDirection(tempVector));
-  logToId("keyboard", protagControlV3);
-  logToId("velocity", protagV);
-  logToId("crouching", crouching);
+  logToId("keyboard", playerControlV3);
+  logToId("velocity", playerV);
+  logToId("acceleration", playerAccelV3);
+  logToId("deceleration", playerDecelV3);
   logToId("jumping", jumping);
   logToId("running", running);
   prevMs = nowMs;
   renderer.render(scene, camera);
 }
 
-function updatePhysics(deltaMs) {
+function updatePhysics(deltaS) {
   // Protagonist movement
-  const forward = new THREE.Vector3(0, 0, -1);
-  const azimuth = controls.getAzimuthalDirection(new THREE.Vector3());
-  protagControlV3.set(Number(moveRight) - Number(moveLeft), 0, Number(moveBackward) - Number(moveForward));
-  protagControlV3.applyAxisAngle(
-    camera.up,
-    forward.angleTo(azimuth)
-    * Math.sign(new THREE.Vector3().crossVectors(forward, azimuth).y));
-  protagControlV3.clampLength(0.0, 1.0);  
-  const protagVYBefore = protagV.y;
-  protagV.y = 0;
-  protagV.clampLength(0, Math.max(0, protagV.length() - deltaMs * protagDecel));
-  protagV.addScaledVector(protagControlV3, deltaMs * (running ? protagAccelRun : protagAccelWalk));
-  protagV.clampLength(0, running ? protagSpeedRun : protagSpeedWalk);
-  protagV.y = protagVYBefore - deltaMs * protagGravity;
 
-  // Move forward
-  // _vector.setFromMatrixColumn(camera.matrix, 0);
-  // _vector.crossVectors(camera.up, _vector);
-  // camera.position.addScaledVector(_vector, distance);
-  // Move right
-  // _vector.setFromMatrixColumn(camera.matrix, 0);
-  // camera.position.addScaledVector(_vector, distance);
+  const forward         = new THREE.Vector3(0, 0, -1);
+  const azimuth         = controls.getAzimuthalDirection(new THREE.Vector3());
+  const cameraAngle     = forward.angleTo(azimuth) * Math.sign(new THREE.Vector3().crossVectors(forward, azimuth).y);
+  const topSpeed        = playerTopSpeed * (running ? 1.0 : playerTopSpeedWalkMultiplier);
+  const playerVYBefore  = playerV.y;
+  
+  // Treat player movement as 2d until later  
+  playerV.y = 0;
+
+  // Vectorize keyboard input. This is respective to the "forward" orientation
+  playerControlV3.set(
+      Number(moveRight)     * playerStrafeMultiplier
+    - Number(moveLeft)      * playerStrafeMultiplier,
+      0,
+      Number(moveBackward)  * playerStrafeMultiplier
+    - Number(moveForward)   * 1.0);
+
+  // 1. Decelerate against the direction of velocity
+  // 2. Reorient deceleration in the same "forward" orientation the player controls have, for clear distinction between X/Z
+  // 3. Restrict deceleration in directions the player is moving
+  // 4. Flip deceleration to oppose velocity, then reorient it back to the camera frame
+  // TODO: We allow some deceleration in the direction of travel to account for running -> strafing.
+  //       This likely results in excessive deceleration
+  playerDecelV3.copy(playerV).applyAxisAngle(camera.up, -cameraAngle).clampLength(0, 1);
+  playerDecelV3.x = playerDecelV3.x > 0
+    ? Math.max(0, playerDecelV3.x - Math.max(0, playerControlV3.x))
+    : Math.min(0, playerDecelV3.x - Math.min(0, playerControlV3.x));
+  playerDecelV3.z = playerDecelV3.z > 0
+    ? Math.max(0, playerDecelV3.z - Math.max(0, playerControlV3.z))
+    : Math.min(0, playerDecelV3.z - Math.min(0, playerControlV3.z));  
+  playerDecelV3.negate().applyAxisAngle(camera.up, cameraAngle);
+
+  // Accelerate according to player controls, oriented towards camera, clamped to avoid diagonal speeding
+  playerAccelV3.copy(playerControlV3).applyAxisAngle(camera.up, cameraAngle).clampLength(0.0, 1.0);
+  playerV.addScaledVector(playerDecelV3, deltaS * playerDecel);
+  playerV.addScaledVector(playerAccelV3, deltaS * playerAccel);
+  playerV.clampLength(0, topSpeed);
+  playerV.y = playerVYBefore - deltaS * playerGravity;
+
   // Collisions
   // The renderer will automatically update the camera's world matrix,
   // but if we apply physics out of phase with rendering we need to update it manually.
   camera.updateMatrixWorld(); 
 	// Get the position of the capsule in the local space of the collider
   tempMat.copy(collider.matrixWorld).invert();
-  tempSegment.copy(protagCapsule);
+  tempSegment.copy(playerCapsule);
   tempSegment.start.applyMatrix4(camera.matrixWorld).applyMatrix4(tempMat);
   tempSegment.end.applyMatrix4(camera.matrixWorld).applyMatrix4(tempMat);
   // Get the axis-aligned bounding box of the capsule
   tempBox.makeEmpty();
   tempBox.expandByPoint(tempSegment.start);
   tempBox.expandByPoint(tempSegment.end);
-  tempBox.min.addScalar( - protagRadius);
-  tempBox.max.addScalar(   protagRadius);
+  tempBox.min.addScalar( - playerRadius);
+  tempBox.max.addScalar(   playerRadius);
   collider.geometry.boundsTree.shapecast({
     intersectsBounds: box => box.intersectsBox(tempBox),
     intersectsTriangle: tri => {
       // Adjust the capsule position if the triangle is intersecting it
       const triangleIntersection = tempVector;
       const distance = tri.closestPointToSegment(tempSegment, triangleIntersection, capsuleIntersection);
-      if (distance < protagRadius) {
-        const depth = protagRadius - distance;
+      if (distance < playerRadius) {
+        const depth = playerRadius - distance;
         const direction = capsuleIntersection.sub(triangleIntersection).normalize();
         tempSegment.start.addScaledVector(direction, depth);
         tempSegment.end.addScaledVector(direction, depth);
@@ -291,30 +316,29 @@ function updatePhysics(deltaMs) {
     }
   });
   // Get the adjusted position of the capsule collider in world space after checking triangle collisions and moving it.
-  // protagCapsule.start is assumed to be the origin of the player model.
+  // playerCapsule.start is assumed to be the origin of the player model.
   const newPosition = tempVector;
   newPosition.copy(tempSegment.start).applyMatrix4(collider.matrixWorld);
   // Check how much the collider was moved
   const deltaVector = capsuleIntersection;
   deltaVector.subVectors(newPosition, camera.position);
   // If the player was primarily adjusted vertically, treat it as standing on a surface
-  const onObject = deltaVector.y > Math.abs(deltaMs * protagV.y * 0.25);
+  const onObject = deltaVector.y > Math.abs(deltaS * playerV.y * 0.25);
   // Resolve collision
   if (onObject) {
     canJump = true;
-    protagV.y = Math.max(0, protagV.y);
+    playerV.y = Math.max(0, playerV.y);
     console.log("Standing");
   } else {
     //deltaVector.normalize();
-    //protagV.addScaledVector(deltaVector, - deltaVector.dot(protagV));
+    //playerV.addScaledVector(deltaVector, - deltaVector.dot(playerV));
   }  
   //camera.position.add(deltaVector);
-  camera.position.addScaledVector(protagV, deltaMs);
-  if (camera.position.y < protagEyeLevel) {
-    protagV.y = 0;
-    camera.position.y = protagEyeLevel;
+  camera.position.addScaledVector(playerV, deltaS);
+  if (camera.position.y < playerEyeLevel) {
+    playerV.y = 0;
+    camera.position.y = playerEyeLevel;
     canJump = true;
-    //console.log("Teleporting to surface");
   }
 }
 
