@@ -5,23 +5,25 @@ import { MeshBVH, MeshBVHVisualizer, StaticGeometryGenerator } from '/node_modul
 // * 1 distance unit = 1 meter
 // * 1 unit of time = 1 ms
 const gridSize = 2;
-const mapSize = 15;
-const playerGravity = 4 * 9.8; // 9.8 would be realistic, but due to higher jump height feels too floaty.
-const playerJumpHeight = gridSize * 1.2;
-const playerJumpVelocity = Math.sqrt(2 * playerGravity * playerJumpHeight);
-const playerTopSpeed = 8; // Humans: 8m/s sprint, 3m/s jog, 1.8 m/s walk
-const playerTopSpeedWalkMultiplier = 0.4;
-const playerStrafeMultiplier = 0.65;
-const playerDecelTime = 0.6;
-const playerAccelTime = 1.0;
-const playerDecel = playerTopSpeed / playerDecelTime;
-const playerAccel = playerTopSpeed / playerAccelTime + playerDecel;
+const mapSize = 12;
 
 // Height/eye level taken as gender-averaged from
 // https://www.firstinarchitecture.co.uk/average-male-and-female-dimensions/
 const playerHeight = 1.675;
 const playerEyeLevel = 1.567;
 const playerRadius = 0.25;
+const playerGravity = 4 * 9.8; // 9.8 would be realistic, but due to higher jump height feels too floaty.
+const playerJumpHeight = gridSize * 1.2;
+const playerJumpVelocity = Math.sqrt(2 * playerGravity * playerJumpHeight);
+const playerTopSpeedRun = 8; // Humans: 8m/s sprint, 3m/s jog, 1.8 m/s walk
+const playerTopSpeedWalkMultiplier = 0.4;
+const playerTopSpeedTotal = 64; // Top speed including falling; restricted to allow setting physicsMaxStep
+const playerStrafeMultiplier = 0.65;
+const playerDecelTime = 0.6;
+const playerAccelTime = 1.0;
+const playerDecel = playerTopSpeedRun / playerDecelTime;
+const playerAccel = playerTopSpeedRun / playerAccelTime + playerDecel;
+const physicsMaxStep = playerRadius / playerTopSpeedTotal / 3; // Ensure we update frequently enough to collide properly
 
 let camera, collider, controls, renderer, scene;
 
@@ -130,7 +132,7 @@ function setup() {
   const terrainGroup = new THREE.Group();
 
   // Generate floor
-  let floorGeometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
+  let floorGeometry = new THREE.PlaneGeometry(400, 400, 100, 100);
   floorGeometry.rotateX(- Math.PI / 2);
   floorGeometry = floorGeometry.toNonIndexed(); // ensure each face has unique vertices
   const colorsFloor = [];
@@ -151,7 +153,7 @@ function setup() {
     colorsBox.push(color.r, color.g, color.b);
   }
   boxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsBox, 3));
-  for (let i = 0; i < 500; ++i) {
+  for (let i = 0; i < 1000; ++i) {
     const boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, vertexColors: true });
     boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
     const box = new THREE.Mesh(boxGeometry, boxMaterial);
@@ -220,7 +222,12 @@ function loop() {
   requestAnimationFrame(loop);
   const nowMs = performance.now();
   const deltaS = (nowMs - prevMs) * 0.001;
-  updatePhysics(deltaS)
+  let deltaRemainingS = deltaS;
+  while (deltaRemainingS > 0) {
+    const deltaStepS = Math.min(deltaRemainingS, physicsMaxStep);
+    deltaRemainingS -= deltaStepS;
+    updatePhysics(deltaStepS);
+  }
   logToId("camera", camera.position);
   logToId("azimuth", controls.getAzimuthalDirection(new THREE.Vector3()));
   logToId("keyboard", playerControlV3);
@@ -240,7 +247,7 @@ function updatePhysics(deltaS) {
   const forward         = new THREE.Vector3(0, 0, -1);
   const azimuth         = controls.getAzimuthalDirection(new THREE.Vector3());
   const cameraAngle     = forward.angleTo(azimuth) * Math.sign(new THREE.Vector3().crossVectors(forward, azimuth).y);
-  const topSpeed        = playerTopSpeed * (running ? 1.0 : playerTopSpeedWalkMultiplier);
+  const topSpeedRun     = playerTopSpeedRun * (running ? 1.0 : playerTopSpeedWalkMultiplier);
   const playerVYBefore  = playerV.y;
   
   // Treat player movement as 2d until later  
@@ -274,8 +281,9 @@ function updatePhysics(deltaS) {
   playerAccelV3.copy(playerControlV3).applyAxisAngle(camera.up, cameraAngle).clampLength(0.0, 1.0);
   playerV.addScaledVector(playerDecelV3, deltaS * playerDecel);
   playerV.addScaledVector(playerAccelV3, deltaS * playerAccel);
-  playerV.clampLength(0, topSpeed);
+  playerV.clampLength(0, topSpeedRun);
   playerV.y = playerVYBefore - deltaS * playerGravity;
+  playerV.clampLength(0, playerTopSpeedTotal);
   camera.position.addScaledVector(playerV, deltaS);
 
   // Player collisions
