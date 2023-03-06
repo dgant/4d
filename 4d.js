@@ -23,17 +23,14 @@ const playerHeight = 1.675;
 const playerEyeLevel = 1.567;
 const playerRadius = 0.25;
 
-
 let camera, collider, controls, renderer, scene;
-const capsuleIntersection = new THREE.Vector3();
 
 let moveForward = false;
 let moveBackward = false;
 let moveLeft = false;
 let moveRight = false;
-let canJump = false;
 let running = false;
-let jumping = false;
+let grounded = false;
 let colliding = false;
 
 let prevMs = performance.now();
@@ -107,7 +104,7 @@ class FPSControls extends THREE.EventDispatcher {
 
 function setup() {
   // Generate camera
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5 * playerRadius, 1000);
   camera.position.y = playerEyeLevel;
   controls = new FPSControls(camera, document.body);
 
@@ -144,9 +141,7 @@ function setup() {
   floorGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsFloor, 3));
   const floorMaterial = new THREE.MeshBasicMaterial({ vertexColors: true });
   const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-  // TEmporary while testing collisions
-  scene.add(floor);
-  //terrainGroup.attach(floor);
+  terrainGroup.attach(floor);
  
   // Generate cubes
   const boxGeometry = new THREE.BoxGeometry(gridSize, gridSize, gridSize).toNonIndexed();
@@ -197,10 +192,8 @@ function onKeyDown (event) {
     case 'ArrowRight': case 'KeyD': moveRight = true; break;
     case 'ShiftLeft': case 'ShiftRight': running = true; break;
     case 'Space':
-      if (canJump === true) {
+      if (grounded === true) {
         playerV.y = playerJumpVelocity;
-        jumping = true;
-        canJump = false;
       }
       break;
   }
@@ -234,10 +227,9 @@ function loop() {
   logToId("velocity", playerV);
   logToId("acceleration", playerAccelV3);
   logToId("deceleration", playerDecelV3);
-  logToId("canjump", canJump);
-  logToId("jumping", jumping);
   logToId("running", running);
   logToId("colliding", colliding);
+  logToId("grounded", grounded);
   prevMs = nowMs;
   renderer.render(scene, camera);
 }
@@ -268,6 +260,7 @@ function updatePhysics(deltaS) {
   // 4. Flip deceleration to oppose velocity, then reorient it back to the camera frame
   // TODO: We allow some deceleration in the direction of travel to account for running -> strafing.
   //       This likely results in excessive deceleration
+  // TODO: Could this just be playerDecelV3.addScaledVector(playerControlV3, - playerDecelV3.dot(playerControlV3)) ?
   playerDecelV3.copy(playerV).applyAxisAngle(camera.up, -cameraAngle).clampLength(0, 1);
   playerDecelV3.x = playerDecelV3.x > 0
     ? Math.max(0, playerDecelV3.x - Math.max(0, playerControlV3.x))
@@ -289,67 +282,55 @@ function updatePhysics(deltaS) {
   
   // The renderer will automatically update the camera's world matrix,
   // but if we apply physics out of phase with rendering we need to update it manually.
-  camera.updateMatrixWorld(); 
-	// Get the position of the capsule in the local space of the collider
-  const colliderRotation = new THREE.Matrix4();
-  colliderRotation.copy(collider.matrixWorld).invert();
-  const colliderDisplacement = new THREE.Line3();
-  colliderDisplacement.start.copy(camera.position);
-  colliderDisplacement.end.copy(camera.position);
-  colliderDisplacement.start.y = camera.position.y - playerEyeLevel + playerRadius;
-  colliderDisplacement.end.y   = camera.position.y - playerEyeLevel - playerRadius + playerHeight;
-  //colliderDisplacement.start.applyMatrix4(camera.matrixWorld).applyMatrix4(colliderRotation);
-  //colliderDisplacement.end.applyMatrix4(camera.matrixWorld).applyMatrix4(colliderRotation);
+  camera.updateMatrixWorld();
+  const footBeforeV3 = new THREE.Vector3().copy(camera.position);
+  footBeforeV3.y = footBeforeV3.y - playerEyeLevel
+  const playerCapsule = new THREE.Line3();  
+  playerCapsule.start.copy(footBeforeV3);
+  playerCapsule.end.copy(footBeforeV3);
+  playerCapsule.start.y = footBeforeV3.y + playerRadius
+  playerCapsule.end.y   = footBeforeV3.y + playerHeight - playerRadius;
 
   // Get the axis-aligned bounding box of the capsule
   const capsuleBoundingBox = new THREE.Box3();
   capsuleBoundingBox.makeEmpty();
-  capsuleBoundingBox.expandByPoint(colliderDisplacement.start);
-  capsuleBoundingBox.expandByPoint(colliderDisplacement.end);
+  capsuleBoundingBox.expandByPoint(playerCapsule.start);
+  capsuleBoundingBox.expandByPoint(playerCapsule.end);
   capsuleBoundingBox.min.addScalar( - playerRadius);
   capsuleBoundingBox.max.addScalar(   playerRadius);
 
-  const collisionV3 = new THREE.Vector3(0, 0, 0);
+  const collisionObjectV3 = new THREE.Vector3(0, 0, 0);
+  const collisionPlayerV3 = new THREE.Vector3(0, 0, 0);
   colliding = false;
   collider.geometry.boundsTree.shapecast({
     intersectsBounds: box => box.intersectsBox(capsuleBoundingBox),
     intersectsTriangle: tri => {
-      // Adjust the capsule position if the triangle is intersecting it
-      const triangleIntersection = collisionV3;
-      const distance = tri.closestPointToSegment(colliderDisplacement, triangleIntersection, capsuleIntersection);
+      const distance = tri.closestPointToSegment(playerCapsule, collisionObjectV3, collisionPlayerV3);
       if (distance < playerRadius) {
         const depth = playerRadius - distance;
-        const direction = capsuleIntersection.sub(triangleIntersection).normalize();
-        colliderDisplacement.start.addScaledVector(direction, depth);
-        colliderDisplacement.end.addScaledVector(direction, depth);
+        const direction = collisionPlayerV3.sub(collisionObjectV3).normalize();
+        playerCapsule.start.addScaledVector(direction, depth);
+        playerCapsule.end.addScaledVector(direction, depth);
         colliding = true;
       }
     }
   });
 
-  // Get the adjusted position of the capsule collider in world space after checking triangle collisions and moving it.
-  // playerCapsule.start is assumed to be the origin of the player model.
-  const newPosition = new THREE.Vector3().copy(colliderDisplacement.start).applyMatrix4(collider.matrixWorld);
-  // Check how much the collider was moved
-  const deltaVector = capsuleIntersection;
-  deltaVector.subVectors(newPosition, camera.position);
-  // If the player was primarily adjusted vertically, treat it as standing on a surface
-  const onObject = deltaVector.y > Math.abs(deltaS * playerV.y * 0.25);
-  // Resolve collision
-  if (onObject) {
-    canJump = true;
-    playerV.y = Math.max(0, playerV.y);
-    console.log("Standing");
-  } else {
-    //deltaVector.normalize();
-    //playerV.addScaledVector(deltaVector, - deltaVector.dot(playerV));
-  }  
-  //camera.position.add(deltaVector);
+  grounded &&= colliding;
+  if (colliding) {
+    const footAfterV3 = new THREE.Vector3().copy(playerCapsule.start);
+    footAfterV3.y = footAfterV3.y - playerRadius;
+    const displacementV3 = new THREE.Vector3().copy(footAfterV3).sub(footBeforeV3);
+    grounded = Math.abs(displacementV3.y) >= displacementV3.length() / 2;
+    camera.position.add(displacementV3);
+    displacementV3.normalize();
+    playerV.addScaledVector(displacementV3, - displacementV3.dot(playerV));    
+  }
   if (camera.position.y < playerEyeLevel) {
     playerV.y = 0;
     camera.position.y = playerEyeLevel;
-    canJump = true;
-    jumping = false;
+    grounded = true;
+    console.log("Fell through Earth");
   }
 }
 
