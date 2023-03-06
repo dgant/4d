@@ -21,18 +21,11 @@ const playerAccel = playerTopSpeed / playerAccelTime + playerDecel;
 // https://www.firstinarchitecture.co.uk/average-male-and-female-dimensions/
 const playerHeight = 1.675;
 const playerEyeLevel = 1.567;
-const playerRadius = .25;
+const playerRadius = 0.25;
 
 
 let camera, collider, controls, renderer, scene;
-const tempBox = new THREE.Box3();
-const tempMat = new THREE.Matrix4();
-const tempSegment = new THREE.Line3();
-const tempVector = new THREE.Vector3();
 const capsuleIntersection = new THREE.Vector3();
-const playerCapsule = new THREE.Line3(
-  new THREE.Vector3(0, 0,            0),
-  new THREE.Vector3(0, playerHeight, 0))
 
 let moveForward = false;
 let moveBackward = false;
@@ -41,6 +34,7 @@ let moveRight = false;
 let canJump = false;
 let running = false;
 let jumping = false;
+let colliding = false;
 
 let prevMs = performance.now();
 const playerV = new THREE.Vector3(0, 0, 0);
@@ -150,7 +144,9 @@ function setup() {
   floorGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsFloor, 3));
   const floorMaterial = new THREE.MeshBasicMaterial({ vertexColors: true });
   const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-  terrainGroup.attach(floor);
+  // TEmporary while testing collisions
+  scene.add(floor);
+  //terrainGroup.attach(floor);
  
   // Generate cubes
   const boxGeometry = new THREE.BoxGeometry(gridSize, gridSize, gridSize).toNonIndexed();
@@ -233,13 +229,15 @@ function loop() {
   const deltaS = (nowMs - prevMs) * 0.001;
   updatePhysics(deltaS)
   logToId("camera", camera.position);
-  logToId("azimuth", controls.getAzimuthalDirection(tempVector));
+  logToId("azimuth", controls.getAzimuthalDirection(new THREE.Vector3()));
   logToId("keyboard", playerControlV3);
   logToId("velocity", playerV);
   logToId("acceleration", playerAccelV3);
   logToId("deceleration", playerDecelV3);
+  logToId("canjump", canJump);
   logToId("jumping", jumping);
   logToId("running", running);
+  logToId("colliding", colliding);
   prevMs = nowMs;
   renderer.render(scene, camera);
 }
@@ -285,40 +283,53 @@ function updatePhysics(deltaS) {
   playerV.addScaledVector(playerAccelV3, deltaS * playerAccel);
   playerV.clampLength(0, topSpeed);
   playerV.y = playerVYBefore - deltaS * playerGravity;
+  camera.position.addScaledVector(playerV, deltaS);
 
-  // Collisions
+  // Player collisions
+  
   // The renderer will automatically update the camera's world matrix,
   // but if we apply physics out of phase with rendering we need to update it manually.
   camera.updateMatrixWorld(); 
 	// Get the position of the capsule in the local space of the collider
-  tempMat.copy(collider.matrixWorld).invert();
-  tempSegment.copy(playerCapsule);
-  tempSegment.start.applyMatrix4(camera.matrixWorld).applyMatrix4(tempMat);
-  tempSegment.end.applyMatrix4(camera.matrixWorld).applyMatrix4(tempMat);
+  const colliderRotation = new THREE.Matrix4();
+  colliderRotation.copy(collider.matrixWorld).invert();
+  const colliderDisplacement = new THREE.Line3();
+  colliderDisplacement.start.copy(camera.position);
+  colliderDisplacement.end.copy(camera.position);
+  colliderDisplacement.start.y = camera.position.y - playerEyeLevel + playerRadius;
+  colliderDisplacement.end.y   = camera.position.y - playerEyeLevel - playerRadius + playerHeight;
+  //colliderDisplacement.start.applyMatrix4(camera.matrixWorld).applyMatrix4(colliderRotation);
+  //colliderDisplacement.end.applyMatrix4(camera.matrixWorld).applyMatrix4(colliderRotation);
+
   // Get the axis-aligned bounding box of the capsule
-  tempBox.makeEmpty();
-  tempBox.expandByPoint(tempSegment.start);
-  tempBox.expandByPoint(tempSegment.end);
-  tempBox.min.addScalar( - playerRadius);
-  tempBox.max.addScalar(   playerRadius);
+  const capsuleBoundingBox = new THREE.Box3();
+  capsuleBoundingBox.makeEmpty();
+  capsuleBoundingBox.expandByPoint(colliderDisplacement.start);
+  capsuleBoundingBox.expandByPoint(colliderDisplacement.end);
+  capsuleBoundingBox.min.addScalar( - playerRadius);
+  capsuleBoundingBox.max.addScalar(   playerRadius);
+
+  const collisionV3 = new THREE.Vector3(0, 0, 0);
+  colliding = false;
   collider.geometry.boundsTree.shapecast({
-    intersectsBounds: box => box.intersectsBox(tempBox),
+    intersectsBounds: box => box.intersectsBox(capsuleBoundingBox),
     intersectsTriangle: tri => {
       // Adjust the capsule position if the triangle is intersecting it
-      const triangleIntersection = tempVector;
-      const distance = tri.closestPointToSegment(tempSegment, triangleIntersection, capsuleIntersection);
+      const triangleIntersection = collisionV3;
+      const distance = tri.closestPointToSegment(colliderDisplacement, triangleIntersection, capsuleIntersection);
       if (distance < playerRadius) {
         const depth = playerRadius - distance;
         const direction = capsuleIntersection.sub(triangleIntersection).normalize();
-        tempSegment.start.addScaledVector(direction, depth);
-        tempSegment.end.addScaledVector(direction, depth);
+        colliderDisplacement.start.addScaledVector(direction, depth);
+        colliderDisplacement.end.addScaledVector(direction, depth);
+        colliding = true;
       }
     }
   });
+
   // Get the adjusted position of the capsule collider in world space after checking triangle collisions and moving it.
   // playerCapsule.start is assumed to be the origin of the player model.
-  const newPosition = tempVector;
-  newPosition.copy(tempSegment.start).applyMatrix4(collider.matrixWorld);
+  const newPosition = new THREE.Vector3().copy(colliderDisplacement.start).applyMatrix4(collider.matrixWorld);
   // Check how much the collider was moved
   const deltaVector = capsuleIntersection;
   deltaVector.subVectors(newPosition, camera.position);
@@ -334,11 +345,11 @@ function updatePhysics(deltaS) {
     //playerV.addScaledVector(deltaVector, - deltaVector.dot(playerV));
   }  
   //camera.position.add(deltaVector);
-  camera.position.addScaledVector(playerV, deltaS);
   if (camera.position.y < playerEyeLevel) {
     playerV.y = 0;
     camera.position.y = playerEyeLevel;
     canJump = true;
+    jumping = false;
   }
 }
 
