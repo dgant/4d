@@ -3,7 +3,20 @@ import constants from './constants.js';
 import player from './player.js';
 import global from './global.js';
 
-function updatePhysics(deltaS) {
+let prevMs = performance.now();
+function updatePhysics() {  
+  const nowMs = performance.now();
+  // Cap the amount of time that can elapse between updates
+  // For example, alt-tabbing out of the window should not result in a ton of updates
+  let deltaRemainingS = Math.min(constants.physicsMaxStepS * 10, (nowMs - prevMs) * 0.001);
+  while (deltaRemainingS > 0) {
+    const deltaStepS = Math.min(deltaRemainingS, constants.physicsMaxStepS);
+    deltaRemainingS -= deltaStepS;
+    stepPhysics(deltaStepS);
+  }
+  prevMs = nowMs;
+}
+function stepPhysics(deltaS) {
   // Protagonist movement
   const forward         = new THREE.Vector3(0, 0, -1);
   const azimuth         = global.controls.getAzimuthalDirection(new THREE.Vector3());
@@ -14,7 +27,7 @@ function updatePhysics(deltaS) {
   // Treat player movement as 2d until later  
   player.velocityV3.y = 0;
 
-  // Vectorize keyboard input. This is respective to the "forward" orientation
+  // Vectorize keyboard input. This is with respect to the "forward" orientation
   player.keyboardV3.set(
       Number(player.moveRight)     * constants.playerStrafeMultiplier
     - Number(player.moveLeft)      * constants.playerStrafeMultiplier,
@@ -26,7 +39,7 @@ function updatePhysics(deltaS) {
   // 2. Reorient deceleration in the same "forward" orientation the player global.controls have, for clear distinction between X/Z
   // 3. Restrict deceleration in directions the player is moving
   // 4. Flip deceleration to oppose velocity, then reorient it back to the global.camera frame
-  // TODO: We allow some deceleration in the direction of travel to account for running -> strafing.
+  // TODO: We allow some deceleration in the direction of travel to account for running -> walking/strafing.
   //       This likely results in excessive deceleration
   // TODO: Could this just be decelV3.addScaledVector(playerControlV3, - decelV3.dot(playerControlV3)) ?
   player.decelV3.copy(player.velocityV3).applyAxisAngle(global.camera.up, -cameraAngle).clampLength(0, 1);
@@ -36,7 +49,7 @@ function updatePhysics(deltaS) {
   player.decelV3.z = player.decelV3.z > 0
     ? Math.max(0, player.decelV3.z - Math.max(0, player.keyboardV3.z))
     : Math.min(0, player.decelV3.z - Math.min(0, player.keyboardV3.z));  
-    player.decelV3.negate().applyAxisAngle(global.camera.up, cameraAngle);
+  player.decelV3.negate().applyAxisAngle(global.camera.up, cameraAngle);
 
   // Accelerate according to player global.controls, oriented towards global.camera, clamped to avoid diagonal speeding
   player.accelV3.copy(player.keyboardV3).applyAxisAngle(global.camera.up, cameraAngle).clampLength(0.0, 1.0);
@@ -48,9 +61,6 @@ function updatePhysics(deltaS) {
   global.camera.position.addScaledVector(player.velocityV3, deltaS);
 
   // Player collisions
-  
-  // The global.renderer will automatically update the global.camera's world matrix,
-  // but if we apply physics out of phase with rendering we need to update it manually.
   global.camera.updateMatrixWorld();
   const footBeforeV3 = new THREE.Vector3().copy(global.camera.position);
   footBeforeV3.y = footBeforeV3.y - constants.playerEyeLevel
