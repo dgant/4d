@@ -2,30 +2,7 @@ import * as THREE from 'three';
 import { MeshBVH, MeshBVHVisualizer, StaticGeometryGenerator } from '/node_modules/three-mesh-bvh/build/index.module.js';
 
 import FPSControls from './fpscontrols.js';
-
-// Units:
-// * 1 distance unit = 1 meter
-// * 1 unit of time = 1 ms
-// Treat all constants as eg. meters, seconds, meters per second (per second), etc.
-const gridSize = 2;
-const mapSize = 12;
-// Height/eye level taken as gender-averaged from
-// https://www.firstinarchitecture.co.uk/average-male-and-female-dimensions/
-const playerHeight = 1.675;
-const playerEyeLevel = 1.567;
-const playerRadius = 0.25;
-const playerGravity = 4 * 9.8; // 9.8 would be realistic, but due to higher jump height feels too floaty.
-const playerJumpHeight = gridSize * 1.2;
-const playerJumpVelocity = Math.sqrt(2 * playerGravity * playerJumpHeight);
-const playerTopSpeedRun = 8; // Humans: 8m/s sprint, 3m/s jog, 1.8 m/s walk
-const playerTopSpeedWalkMultiplier = 0.4;
-const playerTopSpeedTotal = 64; // Top speed including falling; restricted to allow setting physicsMaxStep
-const playerStrafeMultiplier = 0.65;
-const playerDecelTime = 0.4;
-const playerAccelTime = 1.0;
-const playerDecel = playerTopSpeedRun / playerDecelTime;
-const playerAccel = playerTopSpeedRun / playerAccelTime + playerDecel;
-const physicsMaxStep = playerRadius / playerTopSpeedTotal / 3; // Ensure we update frequently enough to collide properly
+import constants from './constants.js';
 
 let camera, collider, controls, renderer, scene;
 
@@ -46,8 +23,8 @@ const color = new THREE.Color();
 
 function setup() {
   // Generate camera
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5 * playerRadius, 1000);
-  camera.position.y = playerEyeLevel;
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5 * constants.playerRadius, 1000);
+  camera.position.y = constants.playerEyeLevel;
   controls = new FPSControls(camera, document.body);
 
   // Generate scene
@@ -86,7 +63,7 @@ function setup() {
   terrainGroup.attach(floor);
  
   // Generate cubes
-  const boxGeometry = new THREE.BoxGeometry(gridSize, gridSize, gridSize).toNonIndexed();
+  const boxGeometry = new THREE.BoxGeometry(constants.gridSize, constants.gridSize, constants.gridSize).toNonIndexed();
   const colorsBox = [];
   for (let i = 0, l = boxGeometry.attributes.position.count; i < l; ++i) {
     color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
@@ -97,9 +74,9 @@ function setup() {
     const boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, vertexColors: true });
     boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
     const box = new THREE.Mesh(boxGeometry, boxMaterial);
-    box.position.x = Math.floor(mapSize * (Math.random() * 2 - 1)) * gridSize;
-    box.position.y = Math.floor(mapSize * (Math.random() * 2    )) * gridSize + gridSize / 2;
-    box.position.z = Math.floor(mapSize * (Math.random() * 2 - 1)) * gridSize;
+    box.position.x = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
+    box.position.y = Math.floor(constants.mapSize * (Math.random() * 2    )) * constants.gridSize + constants.gridSize / 2;
+    box.position.z = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
     terrainGroup.attach(box);
   }
 
@@ -135,7 +112,7 @@ function onKeyDown (event) {
     case 'ShiftLeft': case 'ShiftRight': running = true; break;
     case 'Space':
       if (grounded === true) {
-        playerV.y = playerJumpVelocity;
+        playerV.y = constants.playerJumpVelocity;
       }
       break;
   }
@@ -163,10 +140,10 @@ function loop() {
   const nowMs = performance.now();
   // Cap the amount of time that can elapse between update
   // For example, alt-tabbing out of the window should not result in a ton of updates
-  const deltaS = Math.min(physicsMaxStep * 10, (nowMs - prevMs) * 0.001);
+  const deltaS = Math.min(constants.physicsMaxStep * 10, (nowMs - prevMs) * 0.001);
   let deltaRemainingS = deltaS;
   while (deltaRemainingS > 0) {
-    const deltaStepS = Math.min(deltaRemainingS, physicsMaxStep);
+    const deltaStepS = Math.min(deltaRemainingS, constants.physicsMaxStep);
     deltaRemainingS -= deltaStepS;
     updatePhysics(deltaStepS);
   }
@@ -189,7 +166,7 @@ function updatePhysics(deltaS) {
   const forward         = new THREE.Vector3(0, 0, -1);
   const azimuth         = controls.getAzimuthalDirection(new THREE.Vector3());
   const cameraAngle     = forward.angleTo(azimuth) * Math.sign(new THREE.Vector3().crossVectors(forward, azimuth).y);
-  const topSpeedRun     = playerTopSpeedRun * (running ? 1.0 : playerTopSpeedWalkMultiplier);
+  const topSpeedRun     = constants.playerTopSpeedRun * (running ? 1.0 : constants.playerTopSpeedWalkMultiplier);
   const playerVYBefore  = playerV.y;
   
   // Treat player movement as 2d until later  
@@ -197,10 +174,10 @@ function updatePhysics(deltaS) {
 
   // Vectorize keyboard input. This is respective to the "forward" orientation
   playerControlV3.set(
-      Number(moveRight)     * playerStrafeMultiplier
-    - Number(moveLeft)      * playerStrafeMultiplier,
+      Number(moveRight)     * constants.playerStrafeMultiplier
+    - Number(moveLeft)      * constants.playerStrafeMultiplier,
       0,
-      Number(moveBackward)  * playerStrafeMultiplier
+      Number(moveBackward)  * constants.playerStrafeMultiplier
     - Number(moveForward)   * 1.0);
 
   // 1. Decelerate against the direction of velocity
@@ -221,11 +198,11 @@ function updatePhysics(deltaS) {
 
   // Accelerate according to player controls, oriented towards camera, clamped to avoid diagonal speeding
   playerAccelV3.copy(playerControlV3).applyAxisAngle(camera.up, cameraAngle).clampLength(0.0, 1.0);
-  playerV.addScaledVector(playerDecelV3, deltaS * playerDecel);
-  playerV.addScaledVector(playerAccelV3, deltaS * playerAccel);
+  playerV.addScaledVector(playerDecelV3, deltaS * constants.playerDecel);
+  playerV.addScaledVector(playerAccelV3, deltaS * constants.playerAccel);
   playerV.clampLength(0, topSpeedRun);
-  playerV.y = playerVYBefore - deltaS * playerGravity;
-  playerV.clampLength(0, playerTopSpeedTotal);
+  playerV.y = playerVYBefore - deltaS * constants.playerGravity;
+  playerV.clampLength(0, constants.playerTopSpeedTotal);
   camera.position.addScaledVector(playerV, deltaS);
 
   // Player collisions
@@ -234,20 +211,20 @@ function updatePhysics(deltaS) {
   // but if we apply physics out of phase with rendering we need to update it manually.
   camera.updateMatrixWorld();
   const footBeforeV3 = new THREE.Vector3().copy(camera.position);
-  footBeforeV3.y = footBeforeV3.y - playerEyeLevel
+  footBeforeV3.y = footBeforeV3.y - constants.playerEyeLevel
   const playerCapsule = new THREE.Line3();  
   playerCapsule.start.copy(footBeforeV3);
   playerCapsule.end.copy(footBeforeV3);
-  playerCapsule.start.y = footBeforeV3.y + playerRadius
-  playerCapsule.end.y   = footBeforeV3.y + playerHeight - playerRadius;
+  playerCapsule.start.y = footBeforeV3.y + constants.playerRadius
+  playerCapsule.end.y   = footBeforeV3.y + constants.playerHeight - constants.playerRadius;
 
   // Get the axis-aligned bounding box of the capsule
   const capsuleBoundingBox = new THREE.Box3();
   capsuleBoundingBox.makeEmpty();
   capsuleBoundingBox.expandByPoint(playerCapsule.start);
   capsuleBoundingBox.expandByPoint(playerCapsule.end);
-  capsuleBoundingBox.min.addScalar( - playerRadius);
-  capsuleBoundingBox.max.addScalar(   playerRadius);
+  capsuleBoundingBox.min.addScalar( - constants.playerRadius);
+  capsuleBoundingBox.max.addScalar(   constants.playerRadius);
 
   const collisionObjectV3 = new THREE.Vector3(0, 0, 0);
   const collisionPlayerV3 = new THREE.Vector3(0, 0, 0);
@@ -256,8 +233,8 @@ function updatePhysics(deltaS) {
     intersectsBounds: box => box.intersectsBox(capsuleBoundingBox),
     intersectsTriangle: tri => {
       const distance = tri.closestPointToSegment(playerCapsule, collisionObjectV3, collisionPlayerV3);
-      if (distance < playerRadius) {
-        const depth = playerRadius - distance;
+      if (distance < constants.playerRadius) {
+        const depth = constants.playerRadius - distance;
         const direction = collisionPlayerV3.sub(collisionObjectV3).normalize();
         playerCapsule.start.addScaledVector(direction, depth);
         playerCapsule.end.addScaledVector(direction, depth);
@@ -269,16 +246,16 @@ function updatePhysics(deltaS) {
   grounded &&= colliding;
   if (colliding) {
     const footAfterV3 = new THREE.Vector3().copy(playerCapsule.start);
-    footAfterV3.y = footAfterV3.y - playerRadius;
+    footAfterV3.y = footAfterV3.y - constants.playerRadius;
     const displacementV3 = new THREE.Vector3().copy(footAfterV3).sub(footBeforeV3);
     grounded = Math.abs(displacementV3.y) >= displacementV3.length() / 2;
     camera.position.add(displacementV3);
     displacementV3.normalize();
     playerV.addScaledVector(displacementV3, - displacementV3.dot(playerV));    
   }
-  if (camera.position.y < playerEyeLevel) {
+  if (camera.position.y < constants.playerEyeLevel) {
     playerV.y = 0;
-    camera.position.y = playerEyeLevel;
+    camera.position.y = constants.playerEyeLevel;
     grounded = true;
     console.log("Fell through Earth");
   }
