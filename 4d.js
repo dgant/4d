@@ -3,8 +3,7 @@ import { MeshBVH, MeshBVHVisualizer, StaticGeometryGenerator } from '/node_modul
 
 import FPSControls from './fpscontrols.js';
 import constants from './constants.js';
-
-let camera, collider, controls, renderer, scene;
+const global = {};
 const playerState = {
   moveForward: false,
   moveBackward: false,
@@ -13,10 +12,10 @@ const playerState = {
   running: false,
   grounded: false,
   colliding: false,  
-  playerV: new THREE.Vector3(0, 0, 0),
-  playerControlV3: new THREE.Vector3(0, 0, 0),
-  playerDecelV3: new THREE.Vector3(0, 0, 0),
-  playerAccelV3: new THREE.Vector3(0, 0, 0)
+  velocityV3: new THREE.Vector3(0, 0, 0),
+  keyboardV3: new THREE.Vector3(0, 0, 0),
+  decelV3: new THREE.Vector3(0, 0, 0),
+  accelV3: new THREE.Vector3(0, 0, 0)
 }
 
 let prevMs = performance.now();
@@ -25,22 +24,22 @@ function setup() {
   const color = new THREE.Color();
 
   // Generate camera
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5 * constants.playerRadius, 1000);
-  camera.position.y = constants.playerEyeLevel;
-  controls = new FPSControls(camera, document.body);
+  global.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5 * constants.playerRadius, 1000);
+  global.camera.position.y = constants.playerEyeLevel;
+  global.controls = new FPSControls(global.camera, document.body);
 
   // Generate scene
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xfff0f0);
-  scene.fog = new THREE.Fog(0xfff0f0, 0, 20);
+  global.scene = new THREE.Scene();
+  global.scene.background = new THREE.Color(0xfff0f0);
+  global.scene.fog = new THREE.Fog(0xfff0f0, 0, 20);
   const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
   light.position.set(0.5, 1, 0.75);
 
   // Generate renderer
-  renderer = new THREE.WebGLRenderer({antialias: true});
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  global.renderer = new THREE.WebGLRenderer({antialias: true});
+  global.renderer.setPixelRatio(window.devicePixelRatio);
+  global.renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(global.renderer.domElement);
  
   // Attach listeners
   document.addEventListener('keydown', onKeyDown);
@@ -90,22 +89,22 @@ function setup() {
   const mergedGeometry = staticGenerator.generate();
   mergedGeometry.boundsTree = new MeshBVH(mergedGeometry, { lazyGeneration: false });
 
-  collider = new THREE.Mesh(mergedGeometry);
-  collider.material.wireframe = true;
-  collider.material.opacity = 0.5;
-  collider.material.transparent = true;
+  global.collider = new THREE.Mesh(mergedGeometry);
+  global.collider.material.wireframe = true;
+  global.collider.material.opacity = 0.5;
+  global.collider.material.transparent = true;
 
-  //const visualizer = new MeshBVHVisualizer(collider, 10);  
-  scene.add(light);
-  scene.add(camera);
-  //scene.add(visualizer);
-	scene.add(collider);
-	scene.add(terrainGroup);
+  //const visualizer = new MeshBVHVisualizer(global.collider, 10);  
+  global.scene.add(light);
+  global.scene.add(global.camera);
+  //global.scene.add(visualizer);
+	global.scene.add(global.collider);
+	global.scene.add(terrainGroup);
   loop();
 }
 
 function onKeyDown (event) {
-  controls.lock(); // Must call this during a user-initiated event
+  global.controls.lock(); // Must call this during a user-initiated event
   switch (event.code) {
     case 'ArrowUp': case 'KeyW': playerState.moveForward = true; break;
     case 'ArrowLeft': case 'KeyA': playerState.moveLeft = true; break;
@@ -114,7 +113,7 @@ function onKeyDown (event) {
     case 'ShiftLeft': case 'ShiftRight': playerState.running = true; break;
     case 'Space':
       if (playerState.grounded === true) {
-        playerState.playerV.y = constants.playerJumpVelocity;
+        playerState.velocityV3.y = constants.playerJumpVelocity;
       }
       break;
   }
@@ -129,9 +128,9 @@ function onKeyUp(event) {
   }
 }
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  global.camera.aspect = window.innerWidth / window.innerHeight;
+  global.camera.updateProjectionMatrix();
+  global.renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function logToId(id, value) {
@@ -149,33 +148,33 @@ function loop() {
     deltaRemainingS -= deltaStepS;
     updatePhysics(deltaStepS);
   }
-  logToId("camera", camera.position);
-  logToId("azimuth", controls.getAzimuthalDirection(new THREE.Vector3()));
-  logToId("keyboard", playerState.playerControlV3);
-  logToId("velocity", playerState.playerV);
-  logToId("acceleration", playerState.playerAccelV3);
-  logToId("deceleration", playerState.playerDecelV3);
+  logToId("camera", global.camera.position);
+  logToId("azimuth", global.controls.getAzimuthalDirection(new THREE.Vector3()));
+  logToId("keyboard", playerState.keyboardV3);
+  logToId("velocity", playerState.velocityV3);
+  logToId("acceleration", playerState.accelV3);
+  logToId("deceleration", playerState.decelV3);
   logToId("running", playerState.running);
   logToId("colliding", playerState.colliding);
   logToId("grounded", playerState.grounded);
   prevMs = nowMs;
-  renderer.render(scene, camera);
+  global.renderer.render(global.scene, global.camera);
 }
 
 function updatePhysics(deltaS) {
   // Protagonist movement
 
   const forward         = new THREE.Vector3(0, 0, -1);
-  const azimuth         = controls.getAzimuthalDirection(new THREE.Vector3());
+  const azimuth         = global.controls.getAzimuthalDirection(new THREE.Vector3());
   const cameraAngle     = forward.angleTo(azimuth) * Math.sign(new THREE.Vector3().crossVectors(forward, azimuth).y);
   const topSpeedRun     = constants.playerTopSpeedRun * (playerState.running ? 1.0 : constants.playerTopSpeedWalkMultiplier);
-  const playerVYBefore  = playerState.playerV.y;
+  const playerVYBefore  = playerState.velocityV3.y;
   
   // Treat player movement as 2d until later  
-  playerState.playerV.y = 0;
+  playerState.velocityV3.y = 0;
 
   // Vectorize keyboard input. This is respective to the "forward" orientation
-  playerState.playerControlV3.set(
+  playerState.keyboardV3.set(
       Number(playerState.moveRight)     * constants.playerStrafeMultiplier
     - Number(playerState.moveLeft)      * constants.playerStrafeMultiplier,
       0,
@@ -183,36 +182,36 @@ function updatePhysics(deltaS) {
     - Number(playerState.moveForward)   * 1.0);
 
   // 1. Decelerate against the direction of velocity
-  // 2. Reorient deceleration in the same "forward" orientation the player controls have, for clear distinction between X/Z
+  // 2. Reorient deceleration in the same "forward" orientation the player global.controls have, for clear distinction between X/Z
   // 3. Restrict deceleration in directions the player is moving
-  // 4. Flip deceleration to oppose velocity, then reorient it back to the camera frame
+  // 4. Flip deceleration to oppose velocity, then reorient it back to the global.camera frame
   // TODO: We allow some deceleration in the direction of travel to account for running -> strafing.
   //       This likely results in excessive deceleration
-  // TODO: Could this just be playerDecelV3.addScaledVector(playerControlV3, - playerDecelV3.dot(playerControlV3)) ?
-  playerState.playerDecelV3.copy(playerState.playerV).applyAxisAngle(camera.up, -cameraAngle).clampLength(0, 1);
-  playerState.playerDecelV3.x = playerState.playerDecelV3.x > 0
-    ? Math.max(0, playerState.playerDecelV3.x - Math.max(0, playerState.playerControlV3.x))
-    : Math.min(0, playerState.playerDecelV3.x - Math.min(0, playerState.playerControlV3.x));
-  playerState.playerDecelV3.z = playerState.playerDecelV3.z > 0
-    ? Math.max(0, playerState.playerDecelV3.z - Math.max(0, playerState.playerControlV3.z))
-    : Math.min(0, playerState.playerDecelV3.z - Math.min(0, playerState.playerControlV3.z));  
-    playerState.playerDecelV3.negate().applyAxisAngle(camera.up, cameraAngle);
+  // TODO: Could this just be decelV3.addScaledVector(playerControlV3, - decelV3.dot(playerControlV3)) ?
+  playerState.decelV3.copy(playerState.velocityV3).applyAxisAngle(global.camera.up, -cameraAngle).clampLength(0, 1);
+  playerState.decelV3.x = playerState.decelV3.x > 0
+    ? Math.max(0, playerState.decelV3.x - Math.max(0, playerState.keyboardV3.x))
+    : Math.min(0, playerState.decelV3.x - Math.min(0, playerState.keyboardV3.x));
+  playerState.decelV3.z = playerState.decelV3.z > 0
+    ? Math.max(0, playerState.decelV3.z - Math.max(0, playerState.keyboardV3.z))
+    : Math.min(0, playerState.decelV3.z - Math.min(0, playerState.keyboardV3.z));  
+    playerState.decelV3.negate().applyAxisAngle(global.camera.up, cameraAngle);
 
-  // Accelerate according to player controls, oriented towards camera, clamped to avoid diagonal speeding
-  playerState.playerAccelV3.copy(playerState.playerControlV3).applyAxisAngle(camera.up, cameraAngle).clampLength(0.0, 1.0);
-  playerState.playerV.addScaledVector(playerState.playerDecelV3, deltaS * constants.playerDecel);
-  playerState.playerV.addScaledVector(playerState.playerAccelV3, deltaS * constants.playerAccel);
-  playerState.playerV.clampLength(0, topSpeedRun);
-  playerState.playerV.y = playerVYBefore - deltaS * constants.playerGravity;
-  playerState.playerV.clampLength(0, constants.playerTopSpeedTotal);
-  camera.position.addScaledVector(playerState.playerV, deltaS);
+  // Accelerate according to player global.controls, oriented towards global.camera, clamped to avoid diagonal speeding
+  playerState.accelV3.copy(playerState.keyboardV3).applyAxisAngle(global.camera.up, cameraAngle).clampLength(0.0, 1.0);
+  playerState.velocityV3.addScaledVector(playerState.decelV3, deltaS * constants.playerDecel);
+  playerState.velocityV3.addScaledVector(playerState.accelV3, deltaS * constants.playerAccel);
+  playerState.velocityV3.clampLength(0, topSpeedRun);
+  playerState.velocityV3.y = playerVYBefore - deltaS * constants.playerGravity;
+  playerState.velocityV3.clampLength(0, constants.playerTopSpeedTotal);
+  global.camera.position.addScaledVector(playerState.velocityV3, deltaS);
 
   // Player collisions
   
-  // The renderer will automatically update the camera's world matrix,
+  // The global.renderer will automatically update the global.camera's world matrix,
   // but if we apply physics out of phase with rendering we need to update it manually.
-  camera.updateMatrixWorld();
-  const footBeforeV3 = new THREE.Vector3().copy(camera.position);
+  global.camera.updateMatrixWorld();
+  const footBeforeV3 = new THREE.Vector3().copy(global.camera.position);
   footBeforeV3.y = footBeforeV3.y - constants.playerEyeLevel
   const playerCapsule = new THREE.Line3();  
   playerCapsule.start.copy(footBeforeV3);
@@ -231,7 +230,7 @@ function updatePhysics(deltaS) {
   const collisionObjectV3 = new THREE.Vector3(0, 0, 0);
   const collisionPlayerV3 = new THREE.Vector3(0, 0, 0);
   playerState.colliding = false;
-  collider.geometry.boundsTree.shapecast({
+  global.collider.geometry.boundsTree.shapecast({
     intersectsBounds: box => box.intersectsBox(capsuleBoundingBox),
     intersectsTriangle: tri => {
       const distance = tri.closestPointToSegment(playerCapsule, collisionObjectV3, collisionPlayerV3);
@@ -251,13 +250,13 @@ function updatePhysics(deltaS) {
     footAfterV3.y = footAfterV3.y - constants.playerRadius;
     const displacementV3 = new THREE.Vector3().copy(footAfterV3).sub(footBeforeV3);
     playerState.grounded = Math.abs(displacementV3.y) >= displacementV3.length() / 2;
-    camera.position.add(displacementV3);
+    global.camera.position.add(displacementV3);
     displacementV3.normalize();
-    playerState.playerV.addScaledVector(displacementV3, - displacementV3.dot(playerState.playerV));    
+    playerState.velocityV3.addScaledVector(displacementV3, - displacementV3.dot(playerState.velocityV3));    
   }
-  if (camera.position.y < constants.playerEyeLevel) {
-    playerState.playerV.y = 0;
-    camera.position.y = constants.playerEyeLevel;
+  if (global.camera.position.y < constants.playerEyeLevel) {
+    playerState.velocityV3.y = 0;
+    global.camera.position.y = constants.playerEyeLevel;
     playerState.grounded = true;
     console.log("Fell through Earth");
   }
