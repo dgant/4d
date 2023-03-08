@@ -4,6 +4,8 @@ const player = {
   moveBackward: false,
   moveLeft: false,
   moveRight: false,
+  rotateOut: false,
+  rotateIn: false,
   running: false,
   grounded: false,
   colliding: false,  

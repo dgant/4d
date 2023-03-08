@@ -17,6 +17,9 @@ function updatePhysics() {
   prevMs = nowMs;
 }
 function stepPhysics(deltaS) {
+  // 4D rotation
+  global.camera.addW4d(deltaS * constants.player4dRotation * (Number(player.rotateOut) - Number(player.rotateIn)));
+
   // Protagonist movement
   const forward         = new THREE.Vector3(0, 0, -1);
   const azimuth         = global.controls.getAzimuthalDirection(new THREE.Vector3());

@@ -5,7 +5,7 @@ import FPSControls from './fpscontrols.js';
 import constants from './constants.js';
 import player from './player.js';
 import global from './global.js';
-import { giveCamera4d, vertexShader4d, fragmentShader4d } from './give4d.js';
+import { giveCamera4d, uniforms4d, vertexShader4d, fragmentShader4d } from './give4d.js';
 import { HypercubeGeometry } from './hypercube.js';
 
 function setup() {
@@ -13,9 +13,9 @@ function setup() {
 
   // Generate camera
   global.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5 * constants.playerRadius, 1000);
-  global.camera.position.y = constants.playerEyeLevel;
-  global.controls = new FPSControls(giveCamera4d(global.camera), document.body);
+  global.camera.position.y = constants.playerEyeLevel;  
   giveCamera4d(global.camera);
+  global.controls = new FPSControls(global.camera, document.body);
 
   // Generate scene
   global.scene = new THREE.Scene();
@@ -61,13 +61,23 @@ function setup() {
   }
   boxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsBox, 3));
   for (let i = 0; i < 1000; ++i) {
-    //const boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, vertexColors: true });
-    //boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-    const boxMaterial = new THREE.ShaderMaterial({
+
+    const phongMaterial = new THREE.MeshPhongMaterial({
+      vertexColors: true,
+      transparent: true });
+    phongMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+
+    const shaderMaterial = new THREE.ShaderMaterial({
+      uniforms: THREE.UniformsUtils.merge([uniforms4d, { w4d: { value: Math.random() * 2 * Math.PI }}]),
       vertexShader: vertexShader4d,
       fragmentShader: fragmentShader4d,
       transparent: true });
-    const box = new THREE.Mesh(boxGeometry, boxMaterial);
+
+    //const box = new THREE.Mesh(boxGeometry, [shaderMaterial]);
+    //const box = new THREE.Mesh(boxGeometry, phongMaterial);
+    const box = new THREE.Mesh(boxGeometry, [phongMaterial, phongMaterial, phongMaterial]);
+    //const box = new THREE.Mesh(boxGeometry, [phongMaterial, shaderMaterial]);
+    //const box = new THREE.Mesh(boxGeometry, [shaderMaterial, phongMaterial]);
     box.position.x = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
     box.position.y = Math.floor(constants.mapSize * (Math.random() * 2    )) * constants.gridSize + constants.gridSize / 2;
     box.position.z = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
@@ -97,7 +107,9 @@ function onKeyDown (event) {
     case 'ArrowLeft': case 'KeyA': player.moveLeft = true; break;
     case 'ArrowDown': case 'KeyS': player.moveBackward = true; break;
     case 'ArrowRight': case 'KeyD': player.moveRight = true; break;
-    case 'ShiftLeft': case 'ShiftRight': player.running = true; break;
+    case 'KeyQ': player.rotateOut = true; break;
+    case 'KeyE': player.rotateIn = true; break;
+    case 'ShiftLeft': case 'ShiftRight': player.running = true; break;    
     case 'Space':
       if (player.grounded === true) {
         player.velocityV3.y = constants.playerJumpVelocity;
@@ -111,6 +123,8 @@ function onKeyUp(event) {
     case 'ArrowLeft': case 'KeyA': player.moveLeft = false; break;
     case 'ArrowDown': case 'KeyS': player.moveBackward = false; break;
     case 'ArrowRight': case 'KeyD': player.moveRight = false; break;
+    case 'KeyQ': player.rotateOut = false; break;
+    case 'KeyE': player.rotateIn = false; break;
     case 'ShiftLeft': case 'ShiftRight': player.running = false; break;
   }
 }
