@@ -5,6 +5,8 @@ import FPSControls from './fpscontrols.js';
 import constants from './constants.js';
 import player from './player.js';
 import global from './global.js';
+import { giveCamera4d, vertexShader4d, fragmentShader4d } from './give4d.js';
+import { HypercubeGeometry } from './hypercube.js';
 
 function setup() {
   const color = new THREE.Color();
@@ -12,7 +14,8 @@ function setup() {
   // Generate camera
   global.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5 * constants.playerRadius, 1000);
   global.camera.position.y = constants.playerEyeLevel;
-  global.controls = new FPSControls(global.camera, document.body);
+  global.controls = new FPSControls(giveCamera4d(global.camera), document.body);
+  giveCamera4d(global.camera);
 
   // Generate scene
   global.scene = new THREE.Scene();
@@ -58,8 +61,12 @@ function setup() {
   }
   boxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsBox, 3));
   for (let i = 0; i < 1000; ++i) {
-    const boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, vertexColors: true });
-    boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+    //const boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, vertexColors: true });
+    //boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+    const boxMaterial = new THREE.ShaderMaterial({
+      vertexShader: vertexShader4d,
+      fragmentShader: fragmentShader4d,
+      transparent: true });
     const box = new THREE.Mesh(boxGeometry, boxMaterial);
     box.position.x = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
     box.position.y = Math.floor(constants.mapSize * (Math.random() * 2    )) * constants.gridSize + constants.gridSize / 2;
