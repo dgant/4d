@@ -6,8 +6,7 @@ const constants = {};
 // Treat all constants as eg. meters, seconds, meters per second (per second), etc.
 constants.gridSize = 2;
 constants.mapSize = 12;
-constants.visibilityThreshold = 0.25;
-constants.substanceThreshold = 0.75;
+constants.substanceThreshold = 0.25;
 // Height/eye level taken as gender-averaged from
 // https://www.firstinarchitecture.co.uk/average-male-and-female-dimensions/
 constants.playerHeight = 1.675;

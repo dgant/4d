@@ -51,10 +51,9 @@ function distanceW(w4d) {
 }
 
 function preRender4d() {
-  const v = 1.0 / constants.visibilityThreshold;
   for (const mesh of _meshes4d) {
     const w = distanceW(mesh.getW4d());
-    const alpha = 1 - w * (w >= constants.substanceThreshold ? 1.0 : 1.0);
+    const alpha = 1 - 0.5 * w - (w > constants.substanceThreshold ? 1.5 * w : 0);
     if (Array.isArray(mesh.material)) {
       for (material in mesh.material) {
         material.opacity = alpha;
