@@ -5,7 +5,8 @@ import FPSControls from './fpscontrols.js';
 import constants from './constants.js';
 import player from './player.js';
 import global from './global.js';
-import { giveCamera4d, uniforms4d, vertexShader4d, fragmentShader4d } from './give4d.js';
+import * as Math4 from './math.js';
+import { giveCamera4d, giveMesh4d, uniforms4d, vertexShader4d, fragmentShader4d } from './give4d.js';
 import { HypercubeGeometry } from './hypercube.js';
 
 function setup() {
@@ -61,26 +62,22 @@ function setup() {
   }
   boxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsBox, 3));
   for (let i = 0; i < 1000; ++i) {
-
-    const phongMaterial = new THREE.MeshPhongMaterial({
+    const material = new THREE.MeshPhongMaterial({
+      specular: 0xffffff,
+      flatShading: true,
       vertexColors: true,
-      transparent: true });
-    phongMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+      transparent: true,
+      wireframe: false
+    });
+    material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 
-    const shaderMaterial = new THREE.ShaderMaterial({
-      uniforms: THREE.UniformsUtils.merge([uniforms4d, { w4d: { value: Math.random() * 2 * Math.PI }}]),
-      vertexShader: vertexShader4d,
-      fragmentShader: fragmentShader4d,
-      transparent: true });
-
-    //const box = new THREE.Mesh(boxGeometry, [shaderMaterial]);
-    //const box = new THREE.Mesh(boxGeometry, phongMaterial);
-    const box = new THREE.Mesh(boxGeometry, [phongMaterial, phongMaterial, phongMaterial]);
-    //const box = new THREE.Mesh(boxGeometry, [phongMaterial, shaderMaterial]);
-    //const box = new THREE.Mesh(boxGeometry, [shaderMaterial, phongMaterial]);
+    const box = new THREE.Mesh(boxGeometry, material);
     box.position.x = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
     box.position.y = Math.floor(constants.mapSize * (Math.random() * 2    )) * constants.gridSize + constants.gridSize / 2;
     box.position.z = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
+
+    giveMesh4d(box);
+    box.setW4d(Math.random() * Math4.TAU);
     terrainGroup.attach(box);
   }
 
@@ -90,13 +87,12 @@ function setup() {
   const mergedGeometry = staticGenerator.generate();
   mergedGeometry.boundsTree = new MeshBVH(mergedGeometry, { lazyGeneration: false });
   global.collider = new THREE.Mesh(mergedGeometry);
-  global.collider.material.wireframe = true;
-  global.collider.material.opacity = 0.5;
+  global.collider.material.opacity = 0;
   global.collider.material.transparent = true;
 
   global.scene.add(light);
   global.scene.add(global.camera);
-	global.scene.add(global.collider);
+	//global.scene.add(global.collider);
 	global.scene.add(terrainGroup);
 }
 

@@ -1,4 +1,6 @@
+const INVPI = 1 / Math.PI;
 const TAU = Math.PI * 2;
+const INVTAU = 1 / TAU;
 
 function roughlyEqual(a, b, maxDelta = 1e-6) {
   return Math.abs(a - b) <= maxDelta;
@@ -11,6 +13,13 @@ function clampAngleTau(value) {
     value += TAU * Math.ceil(-value / TAU);
   }
   return value;
+}
+
+function radianDistance(a, b) {
+  const aa = clampAngleTau(a);
+  const bb = clampAngleTau(b);
+  const delta = Math.abs(aa - bb);
+  return Math.min(delta, TAU - delta);
 }
 
 // Lazy unit testing
@@ -29,4 +38,4 @@ console.assert(roughlyEqual(6, clampAngleTau(6 - TAU)));
 console.assert(roughlyEqual(6, clampAngleTau(6 + 5 * TAU)));
 console.assert(roughlyEqual(6, clampAngleTau(6 - 5 * TAU)));
 
-export {TAU, roughlyEqual, clampAngleTau};
+export {INVPI, TAU, INVTAU, roughlyEqual, clampAngleTau, radianDistance};
