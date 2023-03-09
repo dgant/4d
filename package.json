@@ -2,7 +2,6 @@
   "dependencies": {
     "three": "^0.149.0",
     "three-addons": "^1.2.0",
-    "three-custom-shader-material": "^5.3.2",
     "three-mesh-bvh": "^0.5.23"
   }
 }
