@@ -5,6 +5,11 @@
 		<title>GO FORTH</title>
 		<style type="text/css">
 			body { margin: 0; }
+			#intro {
+				display: none;
+				position: absolute;
+				width: 100%;
+			}
 			#info {
 				display: none;
 				position: absolute;
@@ -16,6 +21,19 @@
 		</style>
 	</head>
 	<body>
+		<div id="intro">
+			<h1>GO FORTH</h1>
+			<h2>A journey through the fourth dimension</h2>
+			<h3>This is an early private prototype. Please do not share (yet).</h3>
+			<h4>Controls:</h4>
+			<ul>
+				<li>WASD: Directional movement</li>
+				<li>Shift: Run</li>
+				<li>Space: Jump</li>
+				<li class="emphasizedControl">QE: Rotate through the 4th dimension</li>
+			</ul>
+			<h3>Press any key to begin the journey</h3>
+		</div>
 		<ul id="info">
 			<li>Camera: <span id="camera"></span></li>
 			<li>Azimuth: <span id="azimuth"></span></li>

@@ -1,7 +1,9 @@
 import * as THREE from 'three';
+import * as Give4D from './give4d.js';
 import constants from './constants.js';
 import player from './player.js';
 import global from './global.js';
+
 
 let prevMs = performance.now();
 function updatePhysics() {  
@@ -85,15 +87,19 @@ function stepPhysics(deltaS) {
   const collisionPlayerV3 = new THREE.Vector3(0, 0, 0);
   player.colliding = false;
   global.collider.geometry.boundsTree.shapecast({
-    intersectsBounds: box => box.intersectsBox(capsuleBoundingBox),
+    intersectsBounds: box => {
+      return box.intersectsBox(capsuleBoundingBox)
+    },
     intersectsTriangle: tri => {
       const distance = tri.closestPointToSegment(playerCapsule, collisionObjectV3, collisionPlayerV3);
       if (distance < constants.playerRadius) {
-        const depth = constants.playerRadius - distance;
-        const direction = collisionPlayerV3.sub(collisionObjectV3).normalize();
-        playerCapsule.start.addScaledVector(direction, depth);
-        playerCapsule.end.addScaledVector(direction, depth);
-        player.colliding = true;
+        if (Give4D.getDistanceW(Give4D.getGlobalW(tri)) < constants.substanceThreshold) {
+          const depth = constants.playerRadius - distance;
+          const direction = collisionPlayerV3.sub(collisionObjectV3).normalize();
+          playerCapsule.start.addScaledVector(direction, depth);
+          playerCapsule.end.addScaledVector(direction, depth);
+          player.colliding = true;
+        }
       }
     }
   });
