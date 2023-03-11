@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { Octree } from './node_modules/three/examples/jsm/math/Octree.js';
 
 import FPSControls from './fpscontrols.js';
 import constants from './constants.js';
+import Octree from './octree.js';
 import player from './player.js';
 import global from './global.js';
 import * as Math4 from './math.js';
