@@ -63,62 +63,27 @@ function stepPhysics(deltaS) {
   player.velocityV3.clampLength(0, topSpeedRun);
   player.velocityV3.y = playerVYBefore - deltaS * constants.playerGravity;
   player.velocityV3.clampLength(0, constants.playerTopSpeedTotal);
-  global.camera.position.addScaledVector(player.velocityV3, deltaS);
+  player.addScaledVector(player.velocityV3, deltaS);
 
   // Player collisions
   global.camera.updateMatrixWorld();
-  const footBeforeV3 = new THREE.Vector3().copy(global.camera.position);
-  footBeforeV3.y = footBeforeV3.y - constants.playerEyeLevel
-  const playerCapsule = new THREE.Line3();  
-  playerCapsule.start.copy(footBeforeV3);
-  playerCapsule.end.copy(footBeforeV3);
-  playerCapsule.start.y = footBeforeV3.y + constants.playerRadius
-  playerCapsule.end.y   = footBeforeV3.y + constants.playerHeight - constants.playerRadius;
 
-  // Get the axis-aligned bounding box of the capsule
-  const capsuleBoundingBox = new THREE.Box3();
-  capsuleBoundingBox.makeEmpty();
-  capsuleBoundingBox.expandByPoint(playerCapsule.start);
-  capsuleBoundingBox.expandByPoint(playerCapsule.end);
-  capsuleBoundingBox.min.addScalar( - constants.playerRadius);
-  capsuleBoundingBox.max.addScalar(   constants.playerRadius);
-
-  const collisionObjectV3 = new THREE.Vector3(0, 0, 0);
-  const collisionPlayerV3 = new THREE.Vector3(0, 0, 0);
-  player.colliding = false;
-  global.collider.geometry.boundsTree.shapecast({
-    intersectsBounds: box => {
-      return box.intersectsBox(capsuleBoundingBox)
-    },
-    intersectsTriangle: tri => {
-      const distance = tri.closestPointToSegment(playerCapsule, collisionObjectV3, collisionPlayerV3);
-      if (distance < constants.playerRadius) {
-        if (Give4D.getDistanceW(Give4D.getGlobalW(tri)) < constants.substanceThreshold) {
-          const depth = constants.playerRadius - distance;
-          const direction = collisionPlayerV3.sub(collisionObjectV3).normalize();
-          playerCapsule.start.addScaledVector(direction, depth);
-          playerCapsule.end.addScaledVector(direction, depth);
-          player.colliding = true;
-        }
-      }
-    }
-  });
-
-  player.grounded &&= player.colliding;
+  // if (Give4D.getDistanceW(Give4D.getGlobalW(tri)) < constants.substanceThreshold) {
+  
+  const collisionResult = global.octree.capsuleIntersect(player.capsule);  
+  player.colliding = collisionResult && collisionResult.depth > 0;
+  player.grounded = player.colliding && collisionResult.normal.y > 0;
   if (player.colliding) {
-    const footAfterV3 = new THREE.Vector3().copy(playerCapsule.start);
-    footAfterV3.y = footAfterV3.y - constants.playerRadius;
-    const displacementV3 = new THREE.Vector3().copy(footAfterV3).sub(footBeforeV3);
-    player.grounded = Math.abs(displacementV3.y) >= displacementV3.length() / 2;
-    global.camera.position.add(displacementV3);
-    displacementV3.normalize();
-    player.velocityV3.addScaledVector(displacementV3, - displacementV3.dot(player.velocityV3));    
+    player.grounded = collisionResult.normal.y > 0;
+    player.velocityV3.addScaledVector(collisionResult.normal, - collisionResult.normal.dot(player.velocityV3));    
+    player.addScaledVector(collisionResult.normal, collisionResult.depth);
   }
-  if (global.camera.position.y < constants.playerEyeLevel) {
+  if (player.positionV3.y < 0) {
     player.velocityV3.y = 0;
-    global.camera.position.y = constants.playerEyeLevel;
+    player.positionV3.y = 0;
     player.grounded = true;
     console.log("Fell through Earth");
+    player.updatePosition();
   }
 }
 export default updatePhysics;

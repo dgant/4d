@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { MeshBVH, StaticGeometryGenerator } from '/node_modules/three-mesh-bvh/build/index.module.js';
+import { Octree } from './node_modules/three/examples/jsm/math/Octree.js';
 
 import FPSControls from './fpscontrols.js';
 import constants from './constants.js';
@@ -17,6 +17,7 @@ function setup() {
   global.camera.position.y = constants.playerEyeLevel;  
   giveCamera4d(global.camera);
   global.controls = new FPSControls(global.camera, document.body);
+  player.updateCamera();
 
   // Generate scene
   global.scene = new THREE.Scene();
@@ -81,14 +82,9 @@ function setup() {
     terrainGroup.attach(box);
   }
 
-  // Build collider  
-  const staticGenerator = new StaticGeometryGenerator(terrainGroup);
-  staticGenerator.attributes = [ 'position' ];
-  const mergedGeometry = staticGenerator.generate();
-  mergedGeometry.boundsTree = new MeshBVH(mergedGeometry, { lazyGeneration: false });
-  global.collider = new THREE.Mesh(mergedGeometry);
-  global.collider.material.opacity = 0;
-  global.collider.material.transparent = true;
+  // Build collider    
+  global.octree = new Octree();
+  global.octree.fromGraphNode(terrainGroup);
 
   global.scene.add(light);
   global.scene.add(global.camera);
