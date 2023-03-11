@@ -56,8 +56,7 @@ function getDistanceW(w4d) {
 function preRender4d() {
   for (const mesh of _meshes4d) {
     const w = getDistanceW(mesh.getW4d());
-    // Trying to cap alpha at 0.99 to avoid fooling engine into thinking this object will permanently occlude
-    const alpha = Math.min(0.99, 1 - 0.5 * w - (w > constants.substanceThreshold ? 1.5 * w : 0));
+    const alpha = 1 - 0.5 * w - (w > constants.substanceThreshold ? 1.5 * w : 0);
     if (Array.isArray(mesh.material)) {
       for (material in mesh.material) {
         material.opacity = alpha;

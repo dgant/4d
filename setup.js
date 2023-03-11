@@ -13,7 +13,7 @@ function setup() {
   const color = new THREE.Color();
 
   // Generate camera
-  global.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5 * constants.playerRadius, 1000);
+  global.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1000);
   global.camera.position.y = constants.playerEyeLevel;  
   giveCamera4d(global.camera);
   global.controls = new FPSControls(global.camera, document.body);
@@ -65,6 +65,7 @@ function setup() {
   for (let i = 0; i < 1000; ++i) {
     const material = new THREE.MeshPhongMaterial({
       specular: 0xffffff,
+      depthWrite: false, // This prevents occlusion while transparent. Reenable later for opaque boxes
       flatShading: true,
       vertexColors: true,
       transparent: true,

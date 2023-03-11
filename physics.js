@@ -4,12 +4,11 @@ import constants from './constants.js';
 import player from './player.js';
 import global from './global.js';
 
-
 let prevMs = performance.now();
 function updatePhysics() {  
   const nowMs = performance.now();
-  // Cap the amount of time that can elapse between updates
-  // For example, alt-tabbing out of the window should not result in a ton of updates
+  // Cap the amount of time that can elapse between updates.
+  // For example, alt-tabbing out of the window should not result in a ton of updates.
   let deltaRemainingS = Math.min(constants.physicsMaxStepS * 10, (nowMs - prevMs) * 0.001);
   while (deltaRemainingS > 0) {
     const deltaStepS = Math.min(deltaRemainingS, constants.physicsMaxStepS);
@@ -66,10 +65,7 @@ function stepPhysics(deltaS) {
   player.addScaledVector(player.velocityV3, deltaS);
 
   // Player collisions
-  global.camera.updateMatrixWorld();
-
-  // if (Give4D.getDistanceW(Give4D.getGlobalW(tri)) < constants.substanceThreshold) {
-  
+  // if (Give4D.getDistanceW(Give4D.getGlobalW(tri)) < constants.substanceThreshold) {  
   const collisionResult = global.octree.capsuleIntersect(player.capsule);  
   player.colliding = collisionResult && collisionResult.depth > 0;
   player.grounded = player.colliding && collisionResult.normal.y > 0;
