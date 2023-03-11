@@ -52,19 +52,19 @@ class Octree {
     }
     let triangle;
     while (triangle = this.triangles.pop()) {
-      for (let i = 0; i < subTrees.length; i++) {
-        if (subTrees[i].box.intersectsTriangle(triangle)) {
-          subTrees[i].triangles.push(triangle);
+      for (const subTree of subTrees) {
+        if (subTree.box.intersectsTriangle(triangle)) {
+          subTree.triangles.push(triangle);
         }
       }
     }
-    for (let i = 0; i < subTrees.length; i++) {
-      const len = subTrees[i].triangles.length;
+    for (const subTree of subTrees) {
+      const len = subTree.triangles.length;
       if (len > 8 && level < 16) {
-        subTrees[i].split(level + 1);
+        subTree.split(level + 1);
       }
       if (len !== 0) {
-        this.subTrees.push(subTrees[i]);
+        this.subTrees.push(subTree);
       }
     }
     return this;
@@ -75,13 +75,12 @@ class Octree {
     return this;
   }
   getRayTriangles(ray, triangles) {
-    for (let i = 0; i < this.subTrees.length; i++) {
-      const subTree = this.subTrees[i];
+    for (const subTree of this.subTrees) {
       if (! ray.intersectsBox(subTree.box)) continue;
       if (subTree.triangles.length > 0) {
-        for (let j = 0; j < subTree.triangles.length; j++) {
-          if (triangles.indexOf(subTree.triangles[j]) === -1) {
-            triangles.push(subTree.triangles[j]);
+        for (const triangle of subTree.triangles) {
+          if (triangles.indexOf(triangle) === -1) {
+            triangles.push(triangle);
           }
         }
       } else {
@@ -120,7 +119,7 @@ class Octree {
   }
   triangleSphereIntersect(sphere, triangle) {
     triangle.getPlane(_plane);
-    if (! sphere.intersectsPlane(_plane)) return false;
+    if ( ! sphere.intersectsPlane(_plane)) return false;
     const depth = Math.abs(_plane.distanceToSphere(sphere));
     const r2 = sphere.radius * sphere.radius - depth * depth;
     const plainPoint = _plane.projectPoint(sphere.center, _v1);
@@ -143,12 +142,11 @@ class Octree {
     return false;
   }
   getSphereTriangles(sphere, triangles) {
-    for (let i = 0; i < this.subTrees.length; i++) {
-      const subTree = this.subTrees[i];
-      if (! sphere.intersectsBox(subTree.box)) continue;
+    for (const subTree of this.subTrees) {
+      if ( ! sphere.intersectsBox(subTree.box)) continue;
       if (subTree.triangles.length > 0) {
-        for (let j = 0; j < subTree.triangles.length; j++) {
-          if (triangles.indexOf(subTree.triangles[j]) === - 1) triangles.push(subTree.triangles[j]);
+        for (const triangle of subTree.triangles) {
+          if (triangles.indexOf(triangle) === - 1) triangles.push(triangle);
         }
       } else {
         subTree.getSphereTriangles(sphere, triangles);
@@ -156,13 +154,12 @@ class Octree {
     }
   }
   getCapsuleTriangles(capsule, triangles) {
-    for (let i = 0; i < this.subTrees.length; i++) {
-      const subTree = this.subTrees[i];
-      if (! capsule.intersectsBox(subTree.box)) continue;
+    for (const subTree of this.subTrees) {
+      if ( ! capsule.intersectsBox(subTree.box)) continue;
       if (subTree.triangles.length > 0) {
-        for (let j = 0; j < subTree.triangles.length; j++) {
-          if (triangles.indexOf(subTree.triangles[j]) === - 1) {
-            triangles.push(subTree.triangles[j]);
+        for (const triangle of subTree.triangles) {
+          if (triangles.indexOf(triangle) === - 1) {
+            triangles.push(triangle);
           }
         }
       } else {
@@ -175,8 +172,8 @@ class Octree {
     const triangles = [];
     let result, hit = false;
     this.getSphereTriangles(sphere, triangles);
-    for (let i = 0; i < triangles.length; i++) {
-      if (result = this.triangleSphereIntersect(_sphere, triangles[i])) {
+    for (const triangle of triangles.length) {
+      if (result = this.triangleSphereIntersect(_sphere, triangle)) {
         hit = true;
         _sphere.center.add(result.normal.multiplyScalar(result.depth));
       }
@@ -193,8 +190,8 @@ class Octree {
     const triangles = [];
     let result, hit = false;
     this.getCapsuleTriangles(_capsule, triangles);
-    for (let i = 0; i < triangles.length; i++) {
-      if (result = this.triangleCapsuleIntersect(_capsule, triangles[i])) {
+    for (const triangle of triangles) {
+      if (result = this.triangleCapsuleIntersect(_capsule, triangle)) {
         hit = true;
         _capsule.translate(result.normal.multiplyScalar(result.depth));
       }
@@ -211,14 +208,14 @@ class Octree {
     const triangles = [];
     let triangle, position, distance = 1e100;
     this.getRayTriangles(ray, triangles);
-    for (let i = 0; i < triangles.length; i++) {
-      const result = ray.intersectTriangle(triangles[i].a, triangles[i].b, triangles[i].c, true, _v1);
+    for (const t of triangles) {
+      const result = ray.intersectTriangle(t.a, t.b, t.c, true, _v1);
       if (result) {
         const newdistance = result.sub(ray.origin).length();
         if (distance > newdistance) {
           position = result.clone().add(ray.origin);
           distance = newdistance;
-          triangle = triangles[i];
+          triangle = t;
         }
       }
     }
