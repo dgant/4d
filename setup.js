@@ -95,6 +95,7 @@ function setup() {
 }
 
 function onKeyDown (event) {
+  document.getElementById("intro").style.display = "none"
   global.controls.lock(); // Must call this during a user-initiated event
   switch (event.code) {
     case 'ArrowUp': case 'KeyW': player.moveForward = true; break;
