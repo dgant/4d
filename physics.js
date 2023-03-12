@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as Give4d from './give4d.js';
+import * as Make4d from './make4d.js';
 import constants from './constants.js';
 import player from './player.js';
 import global from './global.js';
@@ -22,10 +22,11 @@ function stepPhysics(deltaS) {
   global.camera.addW4d(deltaS * constants.player4dRotation * (Number(player.rotateOut) - Number(player.rotateIn)));
 
   // Protagonist movement
+  const running         = player.running && (player.moveForward || player.moveBackward || player.moveLeft || player.moveRight);
   const forward         = new THREE.Vector3(0, 0, -1);
   const azimuth         = global.controls.getAzimuthalDirection(new THREE.Vector3());
   const cameraAngle     = forward.angleTo(azimuth) * Math.sign(new THREE.Vector3().crossVectors(forward, azimuth).y);
-  const topSpeedRun     = constants.playerTopSpeedRun * (player.running ? 1.0 : constants.playerTopSpeedWalkMultiplier);
+  const topSpeedRun     = constants.playerTopSpeedRun * (running ? 1.0 : constants.playerTopSpeedWalkMultiplier);
   const playerVYBefore  = player.velocityV3.y;
   
   // Treat player movement as 2d until later  
@@ -65,10 +66,10 @@ function stepPhysics(deltaS) {
   player.addScaledVector(player.velocityV3, deltaS);
 
   // Player collisions
-  // if (Give4D.getDistanceW(Give4D.getGlobalW(tri)) < constants.substanceThreshold) {  
+  // if (Make4D.getDistanceW(Make4D.getGlobalW(tri)) < constants.substanceThreshold) {  
   const collisionResult = global.octree.capsuleIntersect(
     player.capsule,
-    tri => ! tri.is4d || Give4d.getDistanceW(Give4d.getGlobalW(tri)) < constants.substanceThreshold);
+    tri => ! tri.is4d || Make4d.getDistanceW(Make4d.getGlobalW(tri), global.camera.getW4d()) < constants.substanceThreshold);
   player.colliding = collisionResult && collisionResult.depth > 0;
   player.grounded = player.colliding && collisionResult.normal.y > 0;
   if (player.colliding) {

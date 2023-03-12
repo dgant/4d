@@ -2,7 +2,7 @@
 // Adapted from the canonical THREE.js octree. MIT License: https://github.com/mrdoob/three.js/blob/dev/LICENSE
 import { Box3, Line3,  Plane, Sphere, Triangle, Vector3 } from 'three';
 import { Capsule } from './node_modules/three/examples/jsm/math/Capsule.js';
-import { is4d, give4d } from './give4d.js';
+import * as Make4d from './make4d.js';
 
 const _v1 = new Vector3();
 const _v2 = new Vector3();
@@ -253,7 +253,7 @@ class Octree {
         } else {
           geometry = obj.geometry;
         }
-        const meshIs4d = is4d(obj);
+        const meshIs4d = Make4d.is4d(obj);
         const positionAttribute = geometry.getAttribute('position');
         for (let i = 0; i < positionAttribute.count; i += 3) {
           const v1 = new Vector3().fromBufferAttribute(positionAttribute, i);
@@ -264,7 +264,7 @@ class Octree {
           v3.applyMatrix4(obj.matrixWorld);
           const triangle = new Triangle(v1, v2, v3);
           if (meshIs4d) {
-            give4d(triangle, obj);
+            Make4d.bless4d(triangle, obj);
           }
           this.addTriangle(triangle);
         }

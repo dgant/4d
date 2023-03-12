@@ -1,5 +1,4 @@
-import * as THREE from 'three';
-import * as Math4 from './math.js';
+import * as Math4d from './math4d.js';
 import constants from './constants.js';
 
 const uniforms4d = { w4dCamera: { value: 0.0 } };
@@ -10,36 +9,23 @@ const fragmentShader4d = `
   uniform float w4dCamera;
   void main() { gl_FragColor.a = gl_FragColor.a * (1 - 2 * INVPI * abs(w4d - w4dCamera)); }`;
 
-function update4dUniforms(camera) {
-  uniforms4d.w4dCamera.value = camera.getW4d();
-}
-function _give4d(object, parent = undefined) {
+function _bless4d(object, parent = undefined) {
   object.is4d = true;
   object.parent4d = parent;
   object.getW4d = function() { return object._w4d; }
-  object.setW4d = function(value) { object._w4d = Math4.clampAngleTau(value); return object; };
+  object.setW4d = function(value) { object._w4d = Math4d.clampAngleTau(value); return object; };
   object.addW4d = function(value) { object.setW4d(object.getW4d() + value); return object; };
   object.setW4d(0.0);
   return object;
 }
-function giveCamera4d(camera) {
-  _give4d(camera)
-  const oldSet = camera.setW4d;
-  camera.setW4d = function(value) {
-    const output = oldSet(value);
-    update4dUniforms(camera);
-    return output;
-  };
-  return camera;
-}
 const _topLevel4d = [];
-function give4d(me, parent = undefined) {
-  _give4d(me, parent)
+function bless4d(me, parent = undefined) {
+  _bless4d(me, parent)
   if (me.isObject3D) {
     if (parent === undefined) {
       _topLevel4d.push(me);
     }
-    me.traverse((you) => { if (you !== me) give4d(you, me) });
+    me.traverse((you) => { if (you !== me) bless4d(you, me) });
   }  
 }
 
@@ -50,20 +36,23 @@ function getLocalW(object) {
   return is4d(object) ? object.getW4d() : 0.0;
 }
 function getGlobalW(object) {
-  return is4d(object) ? Math4.clampAngleTau(getLocalW(object) + getGlobalW(object.parent4d)) : 0.0;
+  return is4d(object) ? Math4d.clampAngleTau(getLocalW(object) + getGlobalW(object.parent4d)) : 0.0;
 }
-function getDistanceW(w4d) {
-  return Math4.INVPI * Math4.radianDistance(w4d, uniforms4d.w4dCamera.value);
+function getDistanceW(from, to) {
+  return Math4d.INVPI * Math4d.radianDistance(from, to);
 }
-function preRender4d() {
-  for (const mesh of _topLevel4d) {
-    const w = getDistanceW(mesh.getW4d());
+function prepareToRender4d(camera) {
+  if ( ! camera || ! camera.is4d) return;
+  const cameraW = camera.getW4d()
+  uniforms4d.w4dCamera.value = cameraW;
+  for (const mesh of _topLevel4d) {    
+    const w = getDistanceW(mesh.getW4d(), cameraW);
     const alpha = 1 - 0.5 * w - (w > constants.substanceThreshold ? 1.5 * w : 0);
     if (Array.isArray(mesh.material)) {
-      for (material in mesh.material) {
+      for (const material of mesh.material) {
         material.opacity = alpha;
       }
-    } else {
+    } else if (mesh.material) {
       mesh.material.opacity = alpha;
     }
   }
@@ -73,12 +62,10 @@ export {
   uniforms4d,
   vertexShader4d,
   fragmentShader4d,
-  update4dUniforms,
-  giveCamera4d,
-  give4d,
+  bless4d,
   is4d,
   getGlobalW,
   getLocalW,
   getDistanceW,
-  preRender4d
+  prepareToRender4d
 };

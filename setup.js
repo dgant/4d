@@ -5,8 +5,8 @@ import constants from './constants.js';
 import Octree from './octree.js';
 import player from './player.js';
 import global from './global.js';
-import * as Math4 from './math.js';
-import { giveCamera4d, give4d } from './give4d.js';
+import * as Math4d from './math4d.js';
+import * as Make4d from './make4d.js';
 import { HypercubeGeometry } from './hypercube.js';
 
 function setup() {
@@ -15,7 +15,7 @@ function setup() {
   // Generate camera
   global.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1000);
   global.camera.position.y = constants.playerEyeLevel;  
-  giveCamera4d(global.camera);
+  Make4d.bless4d(global.camera);
   global.controls = new FPSControls(global.camera, document.body);
   player.updateCamera();
 
@@ -79,8 +79,8 @@ function setup() {
     box.position.y = Math.floor(constants.mapSize * (Math.random() * 2    )) * constants.gridSize + constants.gridSize / 2;
     box.position.z = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
 
-    give4d(box);
-    box.setW4d(Math.random() * Math4.TAU);
+    Make4d.bless4d(box);
+    box.setW4d(Math.random() * Math4d.TAU);
     terrainGroup.attach(box);
   }
 
