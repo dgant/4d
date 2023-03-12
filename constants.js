@@ -23,7 +23,7 @@ constants.playerDecelTime = 0.25;
 constants.playerAccelTime = 0.75;
 constants.playerDecel = constants.playerTopSpeedRun / constants.playerDecelTime;
 constants.playerAccel = constants.playerTopSpeedRun / constants.playerAccelTime + constants.playerDecel;
-constants.player4dRotation = 6.0;
+constants.player4dRotation = 4.0;
 // Ensure we update frequently enough to collide properly
 constants.physicsMaxStepS = constants.playerRadius / constants.playerTopSpeedTotal / 3; 
 

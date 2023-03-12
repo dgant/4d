@@ -62,7 +62,7 @@ function setup() {
     colorsBox.push(color.r, color.g, color.b);
   }
   boxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsBox, 3));
-  for (let i = 0; i < 1000; ++i) {
+  for (let i = 0; i < 1500; ++i) {
     const material = new THREE.MeshPhongMaterial({
       specular: 0xffffff,
       depthTest: false, // Might fix wrong-order rendering? Per https://stackoverflow.com/questions/61739339/threejs-is-render-order-dependent-on-object-creation-order
