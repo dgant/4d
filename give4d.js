@@ -13,9 +13,9 @@ const fragmentShader4d = `
 function update4dUniforms(camera) {
   uniforms4d.w4dCamera.value = camera.getW4d();
 }
-
-function give4d(object) {
+function _give4d(object, parent = undefined) {
   object.is4d = true;
+  object.parent4d = parent;
   object.getW4d = function() { return object._w4d; }
   object.setW4d = function(value) { object._w4d = Math4.clampAngleTau(value); return object; };
   object.addW4d = function(value) { object.setW4d(object.getW4d() + value); return object; };
@@ -23,7 +23,7 @@ function give4d(object) {
   return object;
 }
 function giveCamera4d(camera) {
-  give4d(camera)
+  _give4d(camera)
   const oldSet = camera.setW4d;
   camera.setW4d = function(value) {
     const output = oldSet(value);
@@ -32,29 +32,31 @@ function giveCamera4d(camera) {
   };
   return camera;
 }
-const _meshes4d = [];
-function giveMesh4d(mesh) {
-  give4d(mesh)
-  _meshes4d.push(mesh);
+const _topLevel4d = [];
+function give4d(me, parent = undefined) {
+  _give4d(me, parent)
+  if (me.isObject3D) {
+    if (parent === undefined) {
+      _topLevel4d.push(me);
+    }
+    me.traverse((you) => { if (you !== me) give4d(you, me) });
+  }  
 }
 
 function is4d(object) {
-  return object !== undefined && (object.is4d || is4d(object.parent));
-}
-function getGlobalW(object) {
-  return object === undefined ? 0.0 : Math4.clampAngleTau(getLocalW(object) + getParentGlobalW(object));
-}
-function getParentGlobalW(object) {
-  return object === undefined ? 0.0 : getGlobalW(object.parent);
+  return object !== undefined && object.is4d;
 }
 function getLocalW(object) {
-  return (object === undefined || ! object.is4d) ? 0.0 : object.getW4d();
+  return is4d(object) ? object.getW4d() : 0.0;
+}
+function getGlobalW(object) {
+  return is4d(object) ? Math4.clampAngleTau(getLocalW(object) + getGlobalW(object.parent4d)) : 0.0;
 }
 function getDistanceW(w4d) {
   return Math4.INVPI * Math4.radianDistance(w4d, uniforms4d.w4dCamera.value);
 }
 function preRender4d() {
-  for (const mesh of _meshes4d) {
+  for (const mesh of _topLevel4d) {
     const w = getDistanceW(mesh.getW4d());
     const alpha = 1 - 0.5 * w - (w > constants.substanceThreshold ? 1.5 * w : 0);
     if (Array.isArray(mesh.material)) {
@@ -73,10 +75,9 @@ export {
   fragmentShader4d,
   update4dUniforms,
   giveCamera4d,
-  giveMesh4d,
+  give4d,
   is4d,
   getGlobalW,
-  getParentGlobalW,
   getLocalW,
   getDistanceW,
   preRender4d

@@ -1,6 +1,8 @@
+// Octree with four-dimensional considerations
 // Adapted from the canonical THREE.js octree. MIT License: https://github.com/mrdoob/three.js/blob/dev/LICENSE
 import { Box3, Line3,  Plane, Sphere, Triangle, Vector3 } from 'three';
 import { Capsule } from './node_modules/three/examples/jsm/math/Capsule.js';
+import { is4d, give4d } from './give4d.js';
 
 const _v1 = new Vector3();
 const _v2 = new Vector3();
@@ -17,7 +19,7 @@ class Octree {
     this.subTrees = [];
   }
   addTriangle(triangle) {
-    if (! this.bounds) this.bounds = new Box3();
+    if ( ! this.bounds) this.bounds = new Box3();
     this.bounds.min.x = Math.min(this.bounds.min.x, triangle.a.x, triangle.b.x, triangle.c.x);
     this.bounds.min.y = Math.min(this.bounds.min.y, triangle.a.y, triangle.b.y, triangle.c.y);
     this.bounds.min.z = Math.min(this.bounds.min.z, triangle.a.z, triangle.b.z, triangle.c.z);
@@ -76,7 +78,7 @@ class Octree {
   }
   getRayTriangles(ray, triangles) {
     for (const subTree of this.subTrees) {
-      if (! ray.intersectsBox(subTree.box)) continue;
+      if ( ! ray.intersectsBox(subTree.box)) continue;
       if (subTree.triangles.length > 0) {
         for (const triangle of subTree.triangles) {
           if (triangles.indexOf(triangle) === -1) {
@@ -89,7 +91,10 @@ class Octree {
     }
     return triangles;
   }
-  triangleCapsuleIntersect(capsule, triangle) {
+  // Tests whether the capsule intersects the triangle.
+  // If collision is identified, also applies the predicate.
+  // Returns false or a { normal, point, depth }.
+  triangleCapsuleIntersect(capsule, triangle, predicate = undefined) {
     triangle.getPlane(_plane);
     const d1 = _plane.distanceToPoint(capsule.start) - capsule.radius;
     const d2 = _plane.distanceToPoint(capsule.end) - capsule.radius;
@@ -98,8 +103,12 @@ class Octree {
     }
     const delta = Math.abs(d1 / (Math.abs(d1) + Math.abs(d2)));
     const intersectPoint = _v1.copy(capsule.start).lerp(capsule.end, delta);
-    if (triangle.containsPoint(intersectPoint)) {
-      return { normal: _plane.normal.clone(), point: intersectPoint.clone(), depth: Math.abs(Math.min(d1, d2)) };
+    if (triangle.containsPoint(intersectPoint) && ( ! predicate || predicate(triangle))) {
+      return {
+        normal: _plane.normal.clone(),
+        point: intersectPoint.clone(),
+        depth: Math.abs(Math.min(d1, d2))
+      };
     }
     const r2 = capsule.radius * capsule.radius;
     const line1 = _line1.set(capsule.start, capsule.end);
@@ -111,8 +120,12 @@ class Octree {
     for (let i = 0; i < lines.length; i++) {
       const line2 = _line2.set(lines[i][0], lines[i][1]);
       const [point1, point2] = capsule.lineLineMinimumPoints(line1, line2);
-      if (point1.distanceToSquared(point2) < r2) {
-        return { normal: point1.clone().sub(point2).normalize(), point: point2.clone(), depth: capsule.radius - point1.distanceTo(point2) };
+      if (point1.distanceToSquared(point2) < r2 && ( ! predicate || predicate(triangle))) {
+        return {
+          normal: point1.clone().sub(point2).normalize(),
+          point: point2.clone(),
+          depth: capsule.radius - point1.distanceTo(point2)
+        };
       }
     }
     return false;
@@ -167,6 +180,8 @@ class Octree {
       }
     }
   }
+  // Tests whether the sphere intersects an object in the Octree.
+  // Returns false or a { normal, depth }.
   sphereIntersect(sphere) {
     _sphere.copy(sphere);
     const triangles = [];
@@ -184,14 +199,17 @@ class Octree {
       return { normal: collisionVector.normalize(), depth: depth };
     }
     return false;
-  }
-  capsuleIntersect(capsule) {
+  }  
+  // Tests whether the capsule intersects an object in the Octree.
+  // If intersection found, also invokes 
+  // Returns false or a { normal, depth }.
+  capsuleIntersect(capsule, predicate = undefined) {
     _capsule.copy(capsule);
     const triangles = [];
     let result, hit = false;
     this.getCapsuleTriangles(_capsule, triangles);
     for (const triangle of triangles) {
-      if (result = this.triangleCapsuleIntersect(_capsule, triangle)) {
+      if (result = this.triangleCapsuleIntersect(_capsule, triangle, predicate)) {
         hit = true;
         _capsule.translate(result.normal.multiplyScalar(result.depth));
       }
@@ -203,6 +221,8 @@ class Octree {
     }
     return false;
   }
+  // Tests whether the ray intersects an object in the Octree.
+  // Returns false or a { distance, triangle, position }.
   rayIntersect(ray) {
     if (ray.direction.length() === 0) return;
     const triangles = [];
@@ -221,6 +241,7 @@ class Octree {
     }
     return distance < 1e100 ? { distance: distance, triangle: triangle, position: position } : false;
   }
+  // Populates the Octree from a Group
   fromGraphNode(group) {
     group.updateWorldMatrix(true, true);
     group.traverse((obj) => {
@@ -232,6 +253,7 @@ class Octree {
         } else {
           geometry = obj.geometry;
         }
+        const meshIs4d = is4d(obj);
         const positionAttribute = geometry.getAttribute('position');
         for (let i = 0; i < positionAttribute.count; i += 3) {
           const v1 = new Vector3().fromBufferAttribute(positionAttribute, i);
@@ -240,7 +262,11 @@ class Octree {
           v1.applyMatrix4(obj.matrixWorld);
           v2.applyMatrix4(obj.matrixWorld);
           v3.applyMatrix4(obj.matrixWorld);
-          this.addTriangle(new Triangle(v1, v2, v3));
+          const triangle = new Triangle(v1, v2, v3);
+          if (meshIs4d) {
+            give4d(triangle, obj);
+          }
+          this.addTriangle(triangle);
         }
         if (isTemp) {
           geometry.dispose();

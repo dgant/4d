@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as Give4D from './give4d.js';
+import * as Give4d from './give4d.js';
 import constants from './constants.js';
 import player from './player.js';
 import global from './global.js';
@@ -66,7 +66,9 @@ function stepPhysics(deltaS) {
 
   // Player collisions
   // if (Give4D.getDistanceW(Give4D.getGlobalW(tri)) < constants.substanceThreshold) {  
-  const collisionResult = global.octree.capsuleIntersect(player.capsule);  
+  const collisionResult = global.octree.capsuleIntersect(
+    player.capsule,
+    tri => ! tri.is4d || Give4d.getDistanceW(Give4d.getGlobalW(tri)) < constants.substanceThreshold);
   player.colliding = collisionResult && collisionResult.depth > 0;
   player.grounded = player.colliding && collisionResult.normal.y > 0;
   if (player.colliding) {

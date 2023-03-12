@@ -6,7 +6,7 @@ import Octree from './octree.js';
 import player from './player.js';
 import global from './global.js';
 import * as Math4 from './math.js';
-import { giveCamera4d, giveMesh4d, uniforms4d, vertexShader4d, fragmentShader4d } from './give4d.js';
+import { giveCamera4d, give4d } from './give4d.js';
 import { HypercubeGeometry } from './hypercube.js';
 
 function setup() {
@@ -65,6 +65,7 @@ function setup() {
   for (let i = 0; i < 1000; ++i) {
     const material = new THREE.MeshPhongMaterial({
       specular: 0xffffff,
+      depthTest: false, // Might fix wrong-order rendering? Per https://stackoverflow.com/questions/61739339/threejs-is-render-order-dependent-on-object-creation-order
       depthWrite: false, // This prevents occlusion while transparent. Reenable later for opaque boxes
       flatShading: true,
       vertexColors: true,
@@ -78,7 +79,7 @@ function setup() {
     box.position.y = Math.floor(constants.mapSize * (Math.random() * 2    )) * constants.gridSize + constants.gridSize / 2;
     box.position.z = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
 
-    giveMesh4d(box);
+    give4d(box);
     box.setW4d(Math.random() * Math4.TAU);
     terrainGroup.attach(box);
   }
