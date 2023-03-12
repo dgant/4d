@@ -76,12 +76,5 @@ function stepPhysics(deltaS) {
     player.velocityV3.addScaledVector(collisionResult.normal, - collisionResult.normal.dot(player.velocityV3));    
     player.addScaledVector(collisionResult.normal, collisionResult.depth);
   }
-  if (player.positionV3.y < 0) {
-    player.velocityV3.y = 0;
-    player.positionV3.y = 0;
-    player.grounded = true;
-    console.log("Fell through Earth");
-    player.updatePosition();
-  }
 }
 export default updatePhysics;
