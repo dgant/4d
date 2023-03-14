@@ -46,8 +46,8 @@ function prepareToRender4d(camera) {
   const cameraW = camera.getW4d()
   uniforms4d.w4dCamera.value = cameraW;
   for (const mesh of _topLevel4d) {    
-    const w = getDistanceW(mesh.getW4d(), cameraW);
-    const alpha = 1 - 0.5 * w - (w > constants.substanceThreshold ? 1.5 * w : 0);
+    const dw = getDistanceW(mesh.getW4d(), cameraW);
+    const alpha = 1 - 0.25 * dw - (dw > constants.substanceThreshold ? 1.75 * dw : 0);
     if (Array.isArray(mesh.material)) {
       for (const material of mesh.material) {
         material.opacity = alpha;

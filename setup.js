@@ -90,7 +90,6 @@ function setup() {
 
   global.scene.add(light);
   global.scene.add(global.camera);
-	//global.scene.add(global.collider);
 	global.scene.add(terrainGroup);
 }
 
