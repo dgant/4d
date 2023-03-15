@@ -5,160 +5,160 @@ import { UIBoolean } from './libs/ui.three.js';
 
 function SidebarProjectRenderer( editor ) {
 
-	const config = editor.config;
-	const signals = editor.signals;
-	const strings = editor.strings;
+  const config = editor.config;
+  const signals = editor.signals;
+  const strings = editor.strings;
 
-	let currentRenderer = null;
+  let currentRenderer = null;
 
-	const container = new UIPanel();
+  const container = new UIPanel();
 
-	const headerRow = new UIRow();
-	headerRow.add( new UIText( strings.getKey( 'sidebar/project/renderer' ).toUpperCase() ) );
-	container.add( headerRow );
+  const headerRow = new UIRow();
+  headerRow.add( new UIText( strings.getKey( 'sidebar/project/renderer' ).toUpperCase() ) );
+  container.add( headerRow );
 
-	// Antialias
+  // Antialias
 
-	const antialiasRow = new UIRow();
-	container.add( antialiasRow );
+  const antialiasRow = new UIRow();
+  container.add( antialiasRow );
 
-	antialiasRow.add( new UIText( strings.getKey( 'sidebar/project/antialias' ) ).setWidth( '90px' ) );
+  antialiasRow.add( new UIText( strings.getKey( 'sidebar/project/antialias' ) ).setWidth( '90px' ) );
 
-	const antialiasBoolean = new UIBoolean( config.getKey( 'project/renderer/antialias' ) ).onChange( createRenderer );
-	antialiasRow.add( antialiasBoolean );
+  const antialiasBoolean = new UIBoolean( config.getKey( 'project/renderer/antialias' ) ).onChange( createRenderer );
+  antialiasRow.add( antialiasBoolean );
 
-	// Physically Correct lights
+  // Physically Correct lights
 
-	const useLegacyLightsRow = new UIRow();
-	container.add( useLegacyLightsRow );
+  const useLegacyLightsRow = new UIRow();
+  container.add( useLegacyLightsRow );
 
-	useLegacyLightsRow.add( new UIText( strings.getKey( 'sidebar/project/useLegacyLights' ) ).setWidth( '90px' ) );
+  useLegacyLightsRow.add( new UIText( strings.getKey( 'sidebar/project/useLegacyLights' ) ).setWidth( '90px' ) );
 
-	const useLegacyLightsBoolean = new UIBoolean( config.getKey( 'project/renderer/useLegacyLights' ) ).onChange( function () {
+  const useLegacyLightsBoolean = new UIBoolean( config.getKey( 'project/renderer/useLegacyLights' ) ).onChange( function () {
 
-		currentRenderer.useLegacyLights = this.getValue();
-		signals.rendererUpdated.dispatch();
+    currentRenderer.useLegacyLights = this.getValue();
+    signals.rendererUpdated.dispatch();
 
-	} );
-	useLegacyLightsRow.add( useLegacyLightsBoolean );
+  } );
+  useLegacyLightsRow.add( useLegacyLightsBoolean );
 
-	// Shadows
+  // Shadows
 
-	const shadowsRow = new UIRow();
-	container.add( shadowsRow );
+  const shadowsRow = new UIRow();
+  container.add( shadowsRow );
 
-	shadowsRow.add( new UIText( strings.getKey( 'sidebar/project/shadows' ) ).setWidth( '90px' ) );
+  shadowsRow.add( new UIText( strings.getKey( 'sidebar/project/shadows' ) ).setWidth( '90px' ) );
 
-	const shadowsBoolean = new UIBoolean( config.getKey( 'project/renderer/shadows' ) ).onChange( updateShadows );
-	shadowsRow.add( shadowsBoolean );
+  const shadowsBoolean = new UIBoolean( config.getKey( 'project/renderer/shadows' ) ).onChange( updateShadows );
+  shadowsRow.add( shadowsBoolean );
 
-	const shadowTypeSelect = new UISelect().setOptions( {
-		0: 'Basic',
-		1: 'PCF',
-		2: 'PCF Soft',
-		//	3: 'VSM'
-	} ).setWidth( '125px' ).onChange( updateShadows );
-	shadowTypeSelect.setValue( config.getKey( 'project/renderer/shadowType' ) );
-	shadowsRow.add( shadowTypeSelect );
+  const shadowTypeSelect = new UISelect().setOptions( {
+    0: 'Basic',
+    1: 'PCF',
+    2: 'PCF Soft',
+    //  3: 'VSM'
+  } ).setWidth( '125px' ).onChange( updateShadows );
+  shadowTypeSelect.setValue( config.getKey( 'project/renderer/shadowType' ) );
+  shadowsRow.add( shadowTypeSelect );
 
-	function updateShadows() {
+  function updateShadows() {
 
-		currentRenderer.shadowMap.enabled = shadowsBoolean.getValue();
-		currentRenderer.shadowMap.type = parseFloat( shadowTypeSelect.getValue() );
+    currentRenderer.shadowMap.enabled = shadowsBoolean.getValue();
+    currentRenderer.shadowMap.type = parseFloat( shadowTypeSelect.getValue() );
 
-		signals.rendererUpdated.dispatch();
+    signals.rendererUpdated.dispatch();
 
-	}
+  }
 
-	// Tonemapping
+  // Tonemapping
 
-	const toneMappingRow = new UIRow();
-	container.add( toneMappingRow );
+  const toneMappingRow = new UIRow();
+  container.add( toneMappingRow );
 
-	toneMappingRow.add( new UIText( strings.getKey( 'sidebar/project/toneMapping' ) ).setWidth( '90px' ) );
+  toneMappingRow.add( new UIText( strings.getKey( 'sidebar/project/toneMapping' ) ).setWidth( '90px' ) );
 
-	const toneMappingSelect = new UISelect().setOptions( {
-		0: 'No',
-		1: 'Linear',
-		2: 'Reinhard',
-		3: 'Cineon',
-		4: 'ACESFilmic'
-	} ).setWidth( '120px' ).onChange( updateToneMapping );
-	toneMappingSelect.setValue( config.getKey( 'project/renderer/toneMapping' ) );
-	toneMappingRow.add( toneMappingSelect );
+  const toneMappingSelect = new UISelect().setOptions( {
+    0: 'No',
+    1: 'Linear',
+    2: 'Reinhard',
+    3: 'Cineon',
+    4: 'ACESFilmic'
+  } ).setWidth( '120px' ).onChange( updateToneMapping );
+  toneMappingSelect.setValue( config.getKey( 'project/renderer/toneMapping' ) );
+  toneMappingRow.add( toneMappingSelect );
 
-	const toneMappingExposure = new UINumber( config.getKey( 'project/renderer/toneMappingExposure' ) );
-	toneMappingExposure.setDisplay( toneMappingSelect.getValue() === '0' ? 'none' : '' );
-	toneMappingExposure.setWidth( '30px' ).setMarginLeft( '10px' );
-	toneMappingExposure.setRange( 0, 10 );
-	toneMappingExposure.onChange( updateToneMapping );
-	toneMappingRow.add( toneMappingExposure );
+  const toneMappingExposure = new UINumber( config.getKey( 'project/renderer/toneMappingExposure' ) );
+  toneMappingExposure.setDisplay( toneMappingSelect.getValue() === '0' ? 'none' : '' );
+  toneMappingExposure.setWidth( '30px' ).setMarginLeft( '10px' );
+  toneMappingExposure.setRange( 0, 10 );
+  toneMappingExposure.onChange( updateToneMapping );
+  toneMappingRow.add( toneMappingExposure );
 
-	function updateToneMapping() {
+  function updateToneMapping() {
 
-		toneMappingExposure.setDisplay( toneMappingSelect.getValue() === '0' ? 'none' : '' );
+    toneMappingExposure.setDisplay( toneMappingSelect.getValue() === '0' ? 'none' : '' );
 
-		currentRenderer.toneMapping = parseFloat( toneMappingSelect.getValue() );
-		currentRenderer.toneMappingExposure = toneMappingExposure.getValue();
-		signals.rendererUpdated.dispatch();
+    currentRenderer.toneMapping = parseFloat( toneMappingSelect.getValue() );
+    currentRenderer.toneMappingExposure = toneMappingExposure.getValue();
+    signals.rendererUpdated.dispatch();
 
-	}
+  }
 
-	//
+  //
 
-	function createRenderer() {
+  function createRenderer() {
 
-		currentRenderer = new THREE.WebGLRenderer( { antialias: antialiasBoolean.getValue() } );
-		currentRenderer.outputEncoding = THREE.sRGBEncoding;
-		currentRenderer.useLegacyLights = useLegacyLightsBoolean.getValue();
-		currentRenderer.shadowMap.enabled = shadowsBoolean.getValue();
-		currentRenderer.shadowMap.type = parseFloat( shadowTypeSelect.getValue() );
-		currentRenderer.toneMapping = parseFloat( toneMappingSelect.getValue() );
-		currentRenderer.toneMappingExposure = toneMappingExposure.getValue();
+    currentRenderer = new THREE.WebGLRenderer( { antialias: antialiasBoolean.getValue() } );
+    currentRenderer.outputEncoding = THREE.sRGBEncoding;
+    currentRenderer.useLegacyLights = useLegacyLightsBoolean.getValue();
+    currentRenderer.shadowMap.enabled = shadowsBoolean.getValue();
+    currentRenderer.shadowMap.type = parseFloat( shadowTypeSelect.getValue() );
+    currentRenderer.toneMapping = parseFloat( toneMappingSelect.getValue() );
+    currentRenderer.toneMappingExposure = toneMappingExposure.getValue();
 
-		signals.rendererCreated.dispatch( currentRenderer );
-		signals.rendererUpdated.dispatch();
+    signals.rendererCreated.dispatch( currentRenderer );
+    signals.rendererUpdated.dispatch();
 
-	}
+  }
 
-	createRenderer();
+  createRenderer();
 
 
-	// Signals
+  // Signals
 
-	signals.editorCleared.add( function () {
+  signals.editorCleared.add( function () {
 
-		currentRenderer.useLegacyLights = false;
-		currentRenderer.shadowMap.enabled = true;
-		currentRenderer.shadowMap.type = THREE.PCFShadowMap;
-		currentRenderer.toneMapping = THREE.NoToneMapping;
-		currentRenderer.toneMappingExposure = 1;
+    currentRenderer.useLegacyLights = false;
+    currentRenderer.shadowMap.enabled = true;
+    currentRenderer.shadowMap.type = THREE.PCFShadowMap;
+    currentRenderer.toneMapping = THREE.NoToneMapping;
+    currentRenderer.toneMappingExposure = 1;
 
-		useLegacyLightsBoolean.setValue( currentRenderer.useLegacyLights );
-		shadowsBoolean.setValue( currentRenderer.shadowMap.enabled );
-		shadowTypeSelect.setValue( currentRenderer.shadowMap.type );
-		toneMappingSelect.setValue( currentRenderer.toneMapping );
-		toneMappingExposure.setValue( currentRenderer.toneMappingExposure );
-		toneMappingExposure.setDisplay( currentRenderer.toneMapping === 0 ? 'none' : '' );
+    useLegacyLightsBoolean.setValue( currentRenderer.useLegacyLights );
+    shadowsBoolean.setValue( currentRenderer.shadowMap.enabled );
+    shadowTypeSelect.setValue( currentRenderer.shadowMap.type );
+    toneMappingSelect.setValue( currentRenderer.toneMapping );
+    toneMappingExposure.setValue( currentRenderer.toneMappingExposure );
+    toneMappingExposure.setDisplay( currentRenderer.toneMapping === 0 ? 'none' : '' );
 
-		signals.rendererUpdated.dispatch();
+    signals.rendererUpdated.dispatch();
 
-	} );
+  } );
 
-	signals.rendererUpdated.add( function () {
+  signals.rendererUpdated.add( function () {
 
-		config.setKey(
-			'project/renderer/antialias', antialiasBoolean.getValue(),
-			'project/renderer/useLegacyLights', useLegacyLightsBoolean.getValue(),
-			'project/renderer/shadows', shadowsBoolean.getValue(),
-			'project/renderer/shadowType', parseFloat( shadowTypeSelect.getValue() ),
-			'project/renderer/toneMapping', parseFloat( toneMappingSelect.getValue() ),
-			'project/renderer/toneMappingExposure', toneMappingExposure.getValue()
-		);
+    config.setKey(
+      'project/renderer/antialias', antialiasBoolean.getValue(),
+      'project/renderer/useLegacyLights', useLegacyLightsBoolean.getValue(),
+      'project/renderer/shadows', shadowsBoolean.getValue(),
+      'project/renderer/shadowType', parseFloat( shadowTypeSelect.getValue() ),
+      'project/renderer/toneMapping', parseFloat( toneMappingSelect.getValue() ),
+      'project/renderer/toneMappingExposure', toneMappingExposure.getValue()
+    );
 
-	} );
+  } );
 
-	return container;
+  return container;
 
 }
 

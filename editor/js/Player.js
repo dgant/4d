@@ -3,50 +3,50 @@ import { APP } from './libs/app.js';
 
 function Player( editor ) {
 
-	const signals = editor.signals;
+  const signals = editor.signals;
 
-	const container = new UIPanel();
-	container.setId( 'player' );
-	container.setPosition( 'absolute' );
-	container.setDisplay( 'none' );
+  const container = new UIPanel();
+  container.setId( 'player' );
+  container.setPosition( 'absolute' );
+  container.setDisplay( 'none' );
 
-	//
+  //
 
-	const player = new APP.Player();
-	container.dom.appendChild( player.dom );
+  const player = new APP.Player();
+  container.dom.appendChild( player.dom );
 
-	window.addEventListener( 'resize', function () {
+  window.addEventListener( 'resize', function () {
 
-		player.setSize( container.dom.clientWidth, container.dom.clientHeight );
+    player.setSize( container.dom.clientWidth, container.dom.clientHeight );
 
-	} );
+  } );
 
-	signals.windowResize.add( function () {
+  signals.windowResize.add( function () {
 
-		player.setSize( container.dom.clientWidth, container.dom.clientHeight );
+    player.setSize( container.dom.clientWidth, container.dom.clientHeight );
 
-	} );
+  } );
 
-	signals.startPlayer.add( function () {
+  signals.startPlayer.add( function () {
 
-		container.setDisplay( '' );
+    container.setDisplay( '' );
 
-		player.load( editor.toJSON() );
-		player.setSize( container.dom.clientWidth, container.dom.clientHeight );
-		player.play();
+    player.load( editor.toJSON() );
+    player.setSize( container.dom.clientWidth, container.dom.clientHeight );
+    player.play();
 
-	} );
+  } );
 
-	signals.stopPlayer.add( function () {
+  signals.stopPlayer.add( function () {
 
-		container.setDisplay( 'none' );
+    container.setDisplay( 'none' );
 
-		player.stop();
-		player.dispose();
+    player.stop();
+    player.dispose();
 
-	} );
+  } );
 
-	return container;
+  return container;
 
 }
 

@@ -8,67 +8,67 @@ import { Command } from '../Command.js';
  */
 class AddScriptCommand extends Command {
 
-	constructor( editor, object, script ) {
+  constructor( editor, object, script ) {
 
-		super( editor );
+    super( editor );
 
-		this.type = 'AddScriptCommand';
-		this.name = 'Add Script';
+    this.type = 'AddScriptCommand';
+    this.name = 'Add Script';
 
-		this.object = object;
-		this.script = script;
+    this.object = object;
+    this.script = script;
 
-	}
+  }
 
-	execute() {
+  execute() {
 
-		if ( this.editor.scripts[ this.object.uuid ] === undefined ) {
+    if ( this.editor.scripts[ this.object.uuid ] === undefined ) {
 
-			this.editor.scripts[ this.object.uuid ] = [];
+      this.editor.scripts[ this.object.uuid ] = [];
 
-		}
+    }
 
-		this.editor.scripts[ this.object.uuid ].push( this.script );
+    this.editor.scripts[ this.object.uuid ].push( this.script );
 
-		this.editor.signals.scriptAdded.dispatch( this.script );
+    this.editor.signals.scriptAdded.dispatch( this.script );
 
-	}
+  }
 
-	undo() {
+  undo() {
 
-		if ( this.editor.scripts[ this.object.uuid ] === undefined ) return;
+    if ( this.editor.scripts[ this.object.uuid ] === undefined ) return;
 
-		const index = this.editor.scripts[ this.object.uuid ].indexOf( this.script );
+    const index = this.editor.scripts[ this.object.uuid ].indexOf( this.script );
 
-		if ( index !== - 1 ) {
+    if ( index !== - 1 ) {
 
-			this.editor.scripts[ this.object.uuid ].splice( index, 1 );
+      this.editor.scripts[ this.object.uuid ].splice( index, 1 );
 
-		}
+    }
 
-		this.editor.signals.scriptRemoved.dispatch( this.script );
+    this.editor.signals.scriptRemoved.dispatch( this.script );
 
-	}
+  }
 
-	toJSON() {
+  toJSON() {
 
-		const output = super.toJSON( this );
+    const output = super.toJSON( this );
 
-		output.objectUuid = this.object.uuid;
-		output.script = this.script;
+    output.objectUuid = this.object.uuid;
+    output.script = this.script;
 
-		return output;
+    return output;
 
-	}
+  }
 
-	fromJSON( json ) {
+  fromJSON( json ) {
 
-		super.fromJSON( json );
+    super.fromJSON( json );
 
-		this.script = json.script;
-		this.object = this.editor.objectByUuid( json.objectUuid );
+    this.script = json.script;
+    this.object = this.editor.objectByUuid( json.objectUuid );
 
-	}
+  }
 
 }
 

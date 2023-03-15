@@ -4,171 +4,171 @@ import { RemoveObjectCommand } from './commands/RemoveObjectCommand.js';
 
 function SidebarSettingsShortcuts( editor ) {
 
-	const strings = editor.strings;
+  const strings = editor.strings;
 
-	const IS_MAC = navigator.platform.toUpperCase().indexOf( 'MAC' ) >= 0;
+  const IS_MAC = navigator.platform.toUpperCase().indexOf( 'MAC' ) >= 0;
 
-	function isValidKeyBinding( key ) {
+  function isValidKeyBinding( key ) {
 
-		return key.match( /^[A-Za-z0-9]$/i ); // Can't use z currently due to undo/redo
+    return key.match( /^[A-Za-z0-9]$/i ); // Can't use z currently due to undo/redo
 
-	}
+  }
 
-	const config = editor.config;
-	const signals = editor.signals;
+  const config = editor.config;
+  const signals = editor.signals;
 
-	const container = new UIPanel();
+  const container = new UIPanel();
 
-	const headerRow = new UIRow();
-	headerRow.add( new UIText( strings.getKey( 'sidebar/settings/shortcuts' ).toUpperCase() ) );
-	container.add( headerRow );
+  const headerRow = new UIRow();
+  headerRow.add( new UIText( strings.getKey( 'sidebar/settings/shortcuts' ).toUpperCase() ) );
+  container.add( headerRow );
 
-	const shortcuts = [ 'translate', 'rotate', 'scale', 'undo', 'focus' ];
+  const shortcuts = [ 'translate', 'rotate', 'scale', 'undo', 'focus' ];
 
-	function createShortcutInput( name ) {
+  function createShortcutInput( name ) {
 
-		const configName = 'settings/shortcuts/' + name;
-		const shortcutRow = new UIRow();
+    const configName = 'settings/shortcuts/' + name;
+    const shortcutRow = new UIRow();
 
-		const shortcutInput = new UIInput().setWidth( '15px' ).setFontSize( '12px' );
-		shortcutInput.setTextAlign( 'center' );
-		shortcutInput.setTextTransform( 'lowercase' );
-		shortcutInput.onChange( function () {
+    const shortcutInput = new UIInput().setWidth( '15px' ).setFontSize( '12px' );
+    shortcutInput.setTextAlign( 'center' );
+    shortcutInput.setTextTransform( 'lowercase' );
+    shortcutInput.onChange( function () {
 
-			const value = shortcutInput.getValue().toLowerCase();
+      const value = shortcutInput.getValue().toLowerCase();
 
-			if ( isValidKeyBinding( value ) ) {
+      if ( isValidKeyBinding( value ) ) {
 
-				config.setKey( configName, value );
+        config.setKey( configName, value );
 
-			}
+      }
 
-		} );
+    } );
 
-		// Automatically highlight when selecting an input field
-		shortcutInput.dom.addEventListener( 'click', function () {
+    // Automatically highlight when selecting an input field
+    shortcutInput.dom.addEventListener( 'click', function () {
 
-			shortcutInput.dom.select();
+      shortcutInput.dom.select();
 
-		} );
+    } );
 
-		// If the value of the input field is invalid, revert the input field
-		// to contain the key binding stored in config
-		shortcutInput.dom.addEventListener( 'blur', function () {
+    // If the value of the input field is invalid, revert the input field
+    // to contain the key binding stored in config
+    shortcutInput.dom.addEventListener( 'blur', function () {
 
-			if ( ! isValidKeyBinding( shortcutInput.getValue() ) ) {
+      if ( ! isValidKeyBinding( shortcutInput.getValue() ) ) {
 
-				shortcutInput.setValue( config.getKey( configName ) );
+        shortcutInput.setValue( config.getKey( configName ) );
 
-			}
+      }
 
-		} );
+    } );
 
-		// If a valid key binding character is entered, blur the input field
-		shortcutInput.dom.addEventListener( 'keyup', function ( event ) {
+    // If a valid key binding character is entered, blur the input field
+    shortcutInput.dom.addEventListener( 'keyup', function ( event ) {
 
-			if ( isValidKeyBinding( event.key ) ) {
+      if ( isValidKeyBinding( event.key ) ) {
 
-				shortcutInput.dom.blur();
+        shortcutInput.dom.blur();
 
-			}
+      }
 
-		} );
+    } );
 
-		if ( config.getKey( configName ) !== undefined ) {
+    if ( config.getKey( configName ) !== undefined ) {
 
-			shortcutInput.setValue( config.getKey( configName ) );
+      shortcutInput.setValue( config.getKey( configName ) );
 
-		}
+    }
 
-		shortcutInput.dom.maxLength = 1;
-		shortcutRow.add( new UIText( strings.getKey( 'sidebar/settings/shortcuts/' + name ) ).setTextTransform( 'capitalize' ).setWidth( '90px' ) );
-		shortcutRow.add( shortcutInput );
+    shortcutInput.dom.maxLength = 1;
+    shortcutRow.add( new UIText( strings.getKey( 'sidebar/settings/shortcuts/' + name ) ).setTextTransform( 'capitalize' ).setWidth( '90px' ) );
+    shortcutRow.add( shortcutInput );
 
-		container.add( shortcutRow );
+    container.add( shortcutRow );
 
-	}
+  }
 
-	for ( let i = 0; i < shortcuts.length; i ++ ) {
+  for ( let i = 0; i < shortcuts.length; i ++ ) {
 
-		createShortcutInput( shortcuts[ i ] );
+    createShortcutInput( shortcuts[ i ] );
 
-	}
+  }
 
-	document.addEventListener( 'keydown', function ( event ) {
+  document.addEventListener( 'keydown', function ( event ) {
 
-		switch ( event.key.toLowerCase() ) {
+    switch ( event.key.toLowerCase() ) {
 
-			case 'backspace':
+      case 'backspace':
 
-				event.preventDefault(); // prevent browser back
+        event.preventDefault(); // prevent browser back
 
-				// fall-through
+        // fall-through
 
-			case 'delete':
+      case 'delete':
 
-				const object = editor.selected;
+        const object = editor.selected;
 
-				if ( object === null ) return;
+        if ( object === null ) return;
 
-				const parent = object.parent;
-				if ( parent !== null ) editor.execute( new RemoveObjectCommand( editor, object ) );
+        const parent = object.parent;
+        if ( parent !== null ) editor.execute( new RemoveObjectCommand( editor, object ) );
 
-				break;
+        break;
 
-			case config.getKey( 'settings/shortcuts/translate' ):
+      case config.getKey( 'settings/shortcuts/translate' ):
 
-				signals.transformModeChanged.dispatch( 'translate' );
+        signals.transformModeChanged.dispatch( 'translate' );
 
-				break;
+        break;
 
-			case config.getKey( 'settings/shortcuts/rotate' ):
+      case config.getKey( 'settings/shortcuts/rotate' ):
 
-				signals.transformModeChanged.dispatch( 'rotate' );
+        signals.transformModeChanged.dispatch( 'rotate' );
 
-				break;
+        break;
 
-			case config.getKey( 'settings/shortcuts/scale' ):
+      case config.getKey( 'settings/shortcuts/scale' ):
 
-				signals.transformModeChanged.dispatch( 'scale' );
+        signals.transformModeChanged.dispatch( 'scale' );
 
-				break;
+        break;
 
-			case config.getKey( 'settings/shortcuts/undo' ):
+      case config.getKey( 'settings/shortcuts/undo' ):
 
-				if ( IS_MAC ? event.metaKey : event.ctrlKey ) {
+        if ( IS_MAC ? event.metaKey : event.ctrlKey ) {
 
-					event.preventDefault(); // Prevent browser specific hotkeys
+          event.preventDefault(); // Prevent browser specific hotkeys
 
-					if ( event.shiftKey ) {
+          if ( event.shiftKey ) {
 
-						editor.redo();
+            editor.redo();
 
-					} else {
+          } else {
 
-						editor.undo();
+            editor.undo();
 
-					}
+          }
 
-				}
+        }
 
-				break;
+        break;
 
-			case config.getKey( 'settings/shortcuts/focus' ):
+      case config.getKey( 'settings/shortcuts/focus' ):
 
-				if ( editor.selected !== null ) {
+        if ( editor.selected !== null ) {
 
-					editor.focus( editor.selected );
+          editor.focus( editor.selected );
 
-				}
+        }
 
-				break;
+        break;
 
-		}
+    }
 
-	} );
+  } );
 
-	return container;
+  return container;
 
 }
 

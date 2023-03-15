@@ -2,37 +2,37 @@ import { UIPanel } from './libs/ui.js';
 
 function MenubarPlay( editor ) {
 
-	const signals = editor.signals;
-	const strings = editor.strings;
+  const signals = editor.signals;
+  const strings = editor.strings;
 
-	const container = new UIPanel();
-	container.setClass( 'menu' );
+  const container = new UIPanel();
+  container.setClass( 'menu' );
 
-	let isPlaying = false;
+  let isPlaying = false;
 
-	const title = new UIPanel();
-	title.setClass( 'title' );
-	title.setTextContent( strings.getKey( 'menubar/play' ) );
-	title.onClick( function () {
+  const title = new UIPanel();
+  title.setClass( 'title' );
+  title.setTextContent( strings.getKey( 'menubar/play' ) );
+  title.onClick( function () {
 
-		if ( isPlaying === false ) {
+    if ( isPlaying === false ) {
 
-			isPlaying = true;
-			title.setTextContent( strings.getKey( 'menubar/play/stop' ) );
-			signals.startPlayer.dispatch();
+      isPlaying = true;
+      title.setTextContent( strings.getKey( 'menubar/play/stop' ) );
+      signals.startPlayer.dispatch();
 
-		} else {
+    } else {
 
-			isPlaying = false;
-			title.setTextContent( strings.getKey( 'menubar/play/play' ) );
-			signals.stopPlayer.dispatch();
+      isPlaying = false;
+      title.setTextContent( strings.getKey( 'menubar/play/play' ) );
+      signals.stopPlayer.dispatch();
 
-		}
+    }
 
-	} );
-	container.add( title );
+  } );
+  container.add( title );
 
-	return container;
+  return container;
 
 }
 

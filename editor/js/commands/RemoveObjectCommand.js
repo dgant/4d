@@ -9,72 +9,72 @@ import { ObjectLoader } from 'three';
  */
 class RemoveObjectCommand extends Command {
 
-	constructor( editor, object ) {
+  constructor( editor, object ) {
 
-		super( editor );
+    super( editor );
 
-		this.type = 'RemoveObjectCommand';
-		this.name = 'Remove Object';
+    this.type = 'RemoveObjectCommand';
+    this.name = 'Remove Object';
 
-		this.object = object;
-		this.parent = ( object !== undefined ) ? object.parent : undefined;
-		if ( this.parent !== undefined ) {
+    this.object = object;
+    this.parent = ( object !== undefined ) ? object.parent : undefined;
+    if ( this.parent !== undefined ) {
 
-			this.index = this.parent.children.indexOf( this.object );
+      this.index = this.parent.children.indexOf( this.object );
 
-		}
+    }
 
-	}
+  }
 
-	execute() {
+  execute() {
 
-		this.editor.removeObject( this.object );
-		this.editor.deselect();
+    this.editor.removeObject( this.object );
+    this.editor.deselect();
 
-	}
+  }
 
-	undo() {
+  undo() {
 
-		this.editor.addObject( this.object, this.parent, this.index );
-		this.editor.select( this.object );
+    this.editor.addObject( this.object, this.parent, this.index );
+    this.editor.select( this.object );
 
-	}
+  }
 
-	toJSON() {
+  toJSON() {
 
-		const output = super.toJSON( this );
+    const output = super.toJSON( this );
 
-		output.object = this.object.toJSON();
-		output.index = this.index;
-		output.parentUuid = this.parent.uuid;
+    output.object = this.object.toJSON();
+    output.index = this.index;
+    output.parentUuid = this.parent.uuid;
 
-		return output;
+    return output;
 
-	}
+  }
 
-	fromJSON( json ) {
+  fromJSON( json ) {
 
-		super.fromJSON( json );
+    super.fromJSON( json );
 
-		this.parent = this.editor.objectByUuid( json.parentUuid );
-		if ( this.parent === undefined ) {
+    this.parent = this.editor.objectByUuid( json.parentUuid );
+    if ( this.parent === undefined ) {
 
-			this.parent = this.editor.scene;
+      this.parent = this.editor.scene;
 
-		}
+    }
 
-		this.index = json.index;
+    this.index = json.index;
 
-		this.object = this.editor.objectByUuid( json.object.object.uuid );
+    this.object = this.editor.objectByUuid( json.object.object.uuid );
 
-		if ( this.object === undefined ) {
+    if ( this.object === undefined ) {
 
-			const loader = new ObjectLoader();
-			this.object = loader.parse( json.object );
+      const loader = new ObjectLoader();
+      this.object = loader.parse( json.object );
 
-		}
+    }
 
-	}
+  }
 
 }
 

@@ -7,124 +7,124 @@ import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFa
 
 class VR {
 
-	constructor( editor ) {
+  constructor( editor ) {
 
-		const signals = editor.signals;
+    const signals = editor.signals;
 
-		let group = null;
+    let group = null;
 
-		let camera = null;
-		let renderer = null;
+    let camera = null;
+    let renderer = null;
 
-		const intersectables = [];
+    const intersectables = [];
 
-		this.currentSession = null;
+    this.currentSession = null;
 
-		const onSessionStarted = async ( session ) => {
+    const onSessionStarted = async ( session ) => {
 
-			const sidebar = document.getElementById( 'sidebar' );
-			sidebar.style.width = '300px';
-			sidebar.style.height = '700px';
+      const sidebar = document.getElementById( 'sidebar' );
+      sidebar.style.width = '300px';
+      sidebar.style.height = '700px';
 
-			//
+      //
 
-			if ( group === null ) {
+      if ( group === null ) {
 
-				group = new InteractiveGroup( renderer );
-				editor.sceneHelpers.add( group );
+        group = new InteractiveGroup( renderer );
+        editor.sceneHelpers.add( group );
 
-				const mesh = new HTMLMesh( sidebar );
-				mesh.position.set( 1, 1.5, - 0.5 );
-				mesh.rotation.y = - 0.5;
-				mesh.scale.setScalar( 2 );
-				group.add( mesh );
+        const mesh = new HTMLMesh( sidebar );
+        mesh.position.set( 1, 1.5, - 0.5 );
+        mesh.rotation.y = - 0.5;
+        mesh.scale.setScalar( 2 );
+        group.add( mesh );
 
-				intersectables.push( mesh );
+        intersectables.push( mesh );
 
-				// controllers
+        // controllers
 
-				const geometry = new THREE.BufferGeometry();
-				geometry.setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 5 ) ] );
+        const geometry = new THREE.BufferGeometry();
+        geometry.setFromPoints( [ new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, - 5 ) ] );
 
-				const controller1 = renderer.xr.getController( 0 );
-				controller1.add( new THREE.Line( geometry ) );
-				group.add( controller1 );
+        const controller1 = renderer.xr.getController( 0 );
+        controller1.add( new THREE.Line( geometry ) );
+        group.add( controller1 );
 
-				const controller2 = renderer.xr.getController( 1 );
-				controller2.add( new THREE.Line( geometry ) );
-				group.add( controller2 );
+        const controller2 = renderer.xr.getController( 1 );
+        controller2.add( new THREE.Line( geometry ) );
+        group.add( controller2 );
 
-				//
+        //
 
-				const controllerModelFactory = new XRControllerModelFactory();
+        const controllerModelFactory = new XRControllerModelFactory();
 
-				const controllerGrip1 = renderer.xr.getControllerGrip( 0 );
-				controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
-				group.add( controllerGrip1 );
+        const controllerGrip1 = renderer.xr.getControllerGrip( 0 );
+        controllerGrip1.add( controllerModelFactory.createControllerModel( controllerGrip1 ) );
+        group.add( controllerGrip1 );
 
-				const controllerGrip2 = renderer.xr.getControllerGrip( 1 );
-				controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
-				group.add( controllerGrip2 );
+        const controllerGrip2 = renderer.xr.getControllerGrip( 1 );
+        controllerGrip2.add( controllerModelFactory.createControllerModel( controllerGrip2 ) );
+        group.add( controllerGrip2 );
 
-			}
+      }
 
-			camera = editor.camera.clone();
+      camera = editor.camera.clone();
 
-			group.visible = true;
+      group.visible = true;
 
-			this.currentSession = session;
-			this.currentSession.addEventListener( 'end', onSessionEnded );
+      this.currentSession = session;
+      this.currentSession.addEventListener( 'end', onSessionEnded );
 
-			await renderer.xr.setSession( this.currentSession );
+      await renderer.xr.setSession( this.currentSession );
 
-		};
+    };
 
-		const onSessionEnded = async () => {
+    const onSessionEnded = async () => {
 
-			const sidebar = document.getElementById( 'sidebar' );
-			sidebar.style.width = '';
-			sidebar.style.height = '';
+      const sidebar = document.getElementById( 'sidebar' );
+      sidebar.style.width = '';
+      sidebar.style.height = '';
 
-			//
+      //
 
-			editor.camera.copy( camera );
+      editor.camera.copy( camera );
 
-			group.visible = false;
+      group.visible = false;
 
-			this.currentSession.removeEventListener( 'end', onSessionEnded );
-			this.currentSession = null;
+      this.currentSession.removeEventListener( 'end', onSessionEnded );
+      this.currentSession = null;
 
-			await renderer.xr.setSession( null );
+      await renderer.xr.setSession( null );
 
-			signals.exitedVR.dispatch();
+      signals.exitedVR.dispatch();
 
-		};
+    };
 
-		// signals
+    // signals
 
-		signals.toggleVR.add( () => {
+    signals.toggleVR.add( () => {
 
-			if ( this.currentSession === null ) {
+      if ( this.currentSession === null ) {
 
-				const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor' ] };
-				navigator.xr.requestSession( 'immersive-vr', sessionInit ).then( onSessionStarted );
+        const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor' ] };
+        navigator.xr.requestSession( 'immersive-vr', sessionInit ).then( onSessionStarted );
 
-			} else {
+      } else {
 
-				this.currentSession.end();
+        this.currentSession.end();
 
-			}
+      }
 
-		} );
+    } );
 
-		signals.rendererCreated.add( ( value ) => {
+    signals.rendererCreated.add( ( value ) => {
 
-			renderer = value;
-			renderer.xr.enabled = true;
+      renderer = value;
+      renderer.xr.enabled = true;
 
-		} );
+    } );
 
-	}
+  }
 
 }
 

@@ -3,62 +3,62 @@ import { SetMaterialValueCommand } from './commands/SetMaterialValueCommand.js';
 
 function SidebarMaterialConstantProperty( editor, property, name, options ) {
 
-	const signals = editor.signals;
+  const signals = editor.signals;
 
-	const container = new UIRow();
-	container.add( new UIText( name ).setWidth( '90px' ) );
+  const container = new UIRow();
+  container.add( new UIText( name ).setWidth( '90px' ) );
 
-	const constant = new UISelect().setOptions( options ).onChange( onChange );
-	container.add( constant );
+  const constant = new UISelect().setOptions( options ).onChange( onChange );
+  container.add( constant );
 
-	let object = null;
-	let material = null;
+  let object = null;
+  let material = null;
 
-	function onChange() {
+  function onChange() {
 
-		const value = parseInt( constant.getValue() );
+    const value = parseInt( constant.getValue() );
 
-		if ( material[ property ] !== value ) {
+    if ( material[ property ] !== value ) {
 
-			editor.execute( new SetMaterialValueCommand( editor, object, property, value, 0 /* TODO: currentMaterialSlot */ ) );
+      editor.execute( new SetMaterialValueCommand( editor, object, property, value, 0 /* TODO: currentMaterialSlot */ ) );
 
-		}
+    }
 
-	}
+  }
 
-	function update() {
+  function update() {
 
-		if ( object === null ) return;
-		if ( object.material === undefined ) return;
+    if ( object === null ) return;
+    if ( object.material === undefined ) return;
 
-		material = object.material;
+    material = object.material;
 
-		if ( property in material ) {
+    if ( property in material ) {
 
-			constant.setValue( material[ property ] );
-			container.setDisplay( '' );
+      constant.setValue( material[ property ] );
+      container.setDisplay( '' );
 
-		} else {
+    } else {
 
-			container.setDisplay( 'none' );
+      container.setDisplay( 'none' );
 
-		}
+    }
 
-	}
+  }
 
-	//
+  //
 
-	signals.objectSelected.add( function ( selected ) {
+  signals.objectSelected.add( function ( selected ) {
 
-		object = selected;
+    object = selected;
 
-		update();
+    update();
 
-	} );
+  } );
 
-	signals.materialChanged.add( update );
+  signals.materialChanged.add( update );
 
-	return container;
+  return container;
 
 }
 

@@ -6,80 +6,80 @@ import { SidebarProjectVideo } from './Sidebar.Project.Video.js';
 
 function SidebarProject( editor ) {
 
-	const config = editor.config;
-	const signals = editor.signals;
-	const strings = editor.strings;
+  const config = editor.config;
+  const signals = editor.signals;
+  const strings = editor.strings;
 
-	const container = new UISpan();
+  const container = new UISpan();
 
-	const settings = new UIPanel();
-	settings.setBorderTop( '0' );
-	settings.setPaddingTop( '20px' );
-	container.add( settings );
+  const settings = new UIPanel();
+  settings.setBorderTop( '0' );
+  settings.setPaddingTop( '20px' );
+  container.add( settings );
 
-	// Title
+  // Title
 
-	const titleRow = new UIRow();
-	const title = new UIInput( config.getKey( 'project/title' ) ).setLeft( '100px' ).setWidth( '150px' ).onChange( function () {
+  const titleRow = new UIRow();
+  const title = new UIInput( config.getKey( 'project/title' ) ).setLeft( '100px' ).setWidth( '150px' ).onChange( function () {
 
-		config.setKey( 'project/title', this.getValue() );
+    config.setKey( 'project/title', this.getValue() );
 
-	} );
+  } );
 
-	titleRow.add( new UIText( strings.getKey( 'sidebar/project/title' ) ).setWidth( '90px' ) );
-	titleRow.add( title );
+  titleRow.add( new UIText( strings.getKey( 'sidebar/project/title' ) ).setWidth( '90px' ) );
+  titleRow.add( title );
 
-	settings.add( titleRow );
+  settings.add( titleRow );
 
-	// Editable
+  // Editable
 
-	const editableRow = new UIRow();
-	const editable = new UICheckbox( config.getKey( 'project/editable' ) ).setLeft( '100px' ).onChange( function () {
+  const editableRow = new UIRow();
+  const editable = new UICheckbox( config.getKey( 'project/editable' ) ).setLeft( '100px' ).onChange( function () {
 
-		config.setKey( 'project/editable', this.getValue() );
+    config.setKey( 'project/editable', this.getValue() );
 
-	} );
+  } );
 
-	editableRow.add( new UIText( strings.getKey( 'sidebar/project/editable' ) ).setWidth( '90px' ) );
-	editableRow.add( editable );
+  editableRow.add( new UIText( strings.getKey( 'sidebar/project/editable' ) ).setWidth( '90px' ) );
+  editableRow.add( editable );
 
-	settings.add( editableRow );
+  settings.add( editableRow );
 
-	// WebVR
+  // WebVR
 
-	const vrRow = new UIRow();
-	const vr = new UICheckbox( config.getKey( 'project/vr' ) ).setLeft( '100px' ).onChange( function () {
+  const vrRow = new UIRow();
+  const vr = new UICheckbox( config.getKey( 'project/vr' ) ).setLeft( '100px' ).onChange( function () {
 
-		config.setKey( 'project/vr', this.getValue() );
+    config.setKey( 'project/vr', this.getValue() );
 
-	} );
+  } );
 
-	vrRow.add( new UIText( strings.getKey( 'sidebar/project/vr' ) ).setWidth( '90px' ) );
-	vrRow.add( vr );
+  vrRow.add( new UIText( strings.getKey( 'sidebar/project/vr' ) ).setWidth( '90px' ) );
+  vrRow.add( vr );
 
-	settings.add( vrRow );
+  settings.add( vrRow );
 
-	//
+  //
 
-	/* container.add( new SidebarProjectMaterials( editor ) ); */
-	container.add( new SidebarProjectRenderer( editor ) );
+  /* container.add( new SidebarProjectMaterials( editor ) ); */
+  container.add( new SidebarProjectRenderer( editor ) );
 
-	if ( 'SharedArrayBuffer' in window ) {
+  if ( 'SharedArrayBuffer' in window ) {
 
-		container.add( new SidebarProjectVideo( editor ) );
+    container.add( new SidebarProjectVideo( editor ) );
 
-	}
+  }
 
-	// Signals
+  // Signals
 
-	signals.editorCleared.add( function () {
+  signals.editorCleared.add( function () {
 
-		title.setValue( '' );
-		config.setKey( 'project/title', '' );
+    title.setValue( '' );
+    config.setKey( 'project/title', '' );
 
-	} );
+  } );
 
-	return container;
+  return container;
 
 }
 

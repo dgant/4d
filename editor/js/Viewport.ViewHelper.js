@@ -4,35 +4,35 @@ import { ViewHelper as ViewHelperBase } from '../../node_modules/three/examples/
 
 class ViewHelper extends ViewHelperBase {
 
-	constructor( editorCamera, container ) {
+  constructor( editorCamera, container ) {
 
-		super( editorCamera, container.dom );
+    super( editorCamera, container.dom );
 
-		const panel = new UIPanel();
-		panel.setId( 'viewHelper' );
-		panel.setPosition( 'absolute' );
-		panel.setRight( '0px' );
-		panel.setBottom( '0px' );
-		panel.setHeight( '128px' );
-		panel.setWidth( '128px' );
+    const panel = new UIPanel();
+    panel.setId( 'viewHelper' );
+    panel.setPosition( 'absolute' );
+    panel.setRight( '0px' );
+    panel.setBottom( '0px' );
+    panel.setHeight( '128px' );
+    panel.setWidth( '128px' );
 
-		panel.dom.addEventListener( 'pointerup', ( event ) => {
+    panel.dom.addEventListener( 'pointerup', ( event ) => {
 
-			event.stopPropagation();
+      event.stopPropagation();
 
-			this.handleClick( event );
+      this.handleClick( event );
 
-		} );
+    } );
 
-		panel.dom.addEventListener( 'pointerdown', function ( event ) {
+    panel.dom.addEventListener( 'pointerdown', function ( event ) {
 
-			event.stopPropagation();
+      event.stopPropagation();
 
-		} );
+    } );
 
-		container.add( panel );
+    container.add( panel );
 
-	}
+  }
 
 }
 

@@ -2,74 +2,74 @@ import { UIButton, UIRow, UIText } from './libs/ui.js';
 
 function SidebarMaterialProgram( editor, property ) {
 
-	const signals = editor.signals;
-	const strings = editor.strings;
+  const signals = editor.signals;
+  const strings = editor.strings;
 
-	let object = null;
-	let material = null;
+  let object = null;
+  let material = null;
 
-	const container = new UIRow();
-	container.add( new UIText( strings.getKey( 'sidebar/material/program' ) ).setWidth( '90px' ) );
+  const container = new UIRow();
+  container.add( new UIText( strings.getKey( 'sidebar/material/program' ) ).setWidth( '90px' ) );
 
-	const programInfo = new UIButton( strings.getKey( 'sidebar/material/info' ) );
-	programInfo.setMarginRight( '4px' );
-	programInfo.onClick( function () {
+  const programInfo = new UIButton( strings.getKey( 'sidebar/material/info' ) );
+  programInfo.setMarginRight( '4px' );
+  programInfo.onClick( function () {
 
-		signals.editScript.dispatch( object, 'programInfo' );
+    signals.editScript.dispatch( object, 'programInfo' );
 
-	} );
-	container.add( programInfo );
+  } );
+  container.add( programInfo );
 
-	const programVertex = new UIButton( strings.getKey( 'sidebar/material/vertex' ) );
-	programVertex.setMarginRight( '4px' );
-	programVertex.onClick( function () {
+  const programVertex = new UIButton( strings.getKey( 'sidebar/material/vertex' ) );
+  programVertex.setMarginRight( '4px' );
+  programVertex.onClick( function () {
 
-		signals.editScript.dispatch( object, 'vertexShader' );
+    signals.editScript.dispatch( object, 'vertexShader' );
 
-	} );
-	container.add( programVertex );
+  } );
+  container.add( programVertex );
 
-	const programFragment = new UIButton( strings.getKey( 'sidebar/material/fragment' ) );
-	programFragment.setMarginRight( '4px' );
-	programFragment.onClick( function () {
+  const programFragment = new UIButton( strings.getKey( 'sidebar/material/fragment' ) );
+  programFragment.setMarginRight( '4px' );
+  programFragment.onClick( function () {
 
-		signals.editScript.dispatch( object, 'fragmentShader' );
+    signals.editScript.dispatch( object, 'fragmentShader' );
 
-	} );
-	container.add( programFragment );
+  } );
+  container.add( programFragment );
 
-	function update() {
+  function update() {
 
-		if ( object === null ) return;
-		if ( object.material === undefined ) return;
+    if ( object === null ) return;
+    if ( object.material === undefined ) return;
 
-		material = object.material;
+    material = object.material;
 
-		if ( property in material ) {
+    if ( property in material ) {
 
-			container.setDisplay( '' );
+      container.setDisplay( '' );
 
-		} else {
+    } else {
 
-			container.setDisplay( 'none' );
+      container.setDisplay( 'none' );
 
-		}
+    }
 
-	}
+  }
 
-	//
+  //
 
-	signals.objectSelected.add( function ( selected ) {
+  signals.objectSelected.add( function ( selected ) {
 
-		object = selected;
+    object = selected;
 
-		update();
+    update();
 
-	} );
+  } );
 
-	signals.materialChanged.add( update );
+  signals.materialChanged.add( update );
 
-	return container;
+  return container;
 
 }
 

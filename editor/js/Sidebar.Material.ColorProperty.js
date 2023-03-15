@@ -4,86 +4,86 @@ import { SetMaterialValueCommand } from './commands/SetMaterialValueCommand.js';
 
 function SidebarMaterialColorProperty( editor, property, name ) {
 
-	const signals = editor.signals;
+  const signals = editor.signals;
 
-	const container = new UIRow();
-	container.add( new UIText( name ).setWidth( '90px' ) );
+  const container = new UIRow();
+  container.add( new UIText( name ).setWidth( '90px' ) );
 
-	const color = new UIColor().onInput( onChange );
-	container.add( color );
+  const color = new UIColor().onInput( onChange );
+  container.add( color );
 
-	let intensity;
+  let intensity;
 
-	if ( property === 'emissive' ) {
+  if ( property === 'emissive' ) {
 
-		intensity = new UINumber( 1 ).setWidth( '30px' ).setRange( 0, Infinity ).onChange( onChange );
-		container.add( intensity );
+    intensity = new UINumber( 1 ).setWidth( '30px' ).setRange( 0, Infinity ).onChange( onChange );
+    container.add( intensity );
 
-	}
+  }
 
-	let object = null;
-	let material = null;
+  let object = null;
+  let material = null;
 
-	function onChange() {
+  function onChange() {
 
-		if ( material[ property ].getHex() !== color.getHexValue() ) {
+    if ( material[ property ].getHex() !== color.getHexValue() ) {
 
-			editor.execute( new SetMaterialColorCommand( editor, object, property, color.getHexValue(), 0 /* TODO: currentMaterialSlot */ ) );
+      editor.execute( new SetMaterialColorCommand( editor, object, property, color.getHexValue(), 0 /* TODO: currentMaterialSlot */ ) );
 
-		}
+    }
 
-		if ( intensity !== undefined ) {
+    if ( intensity !== undefined ) {
 
-			if ( material[ `${ property }Intensity` ] !== intensity.getValue() ) {
+      if ( material[ `${ property }Intensity` ] !== intensity.getValue() ) {
 
-				editor.execute( new SetMaterialValueCommand( editor, object, `${ property }Intensity`, intensity.getValue(), /* TODO: currentMaterialSlot*/ 0 ) );
+        editor.execute( new SetMaterialValueCommand( editor, object, `${ property }Intensity`, intensity.getValue(), /* TODO: currentMaterialSlot*/ 0 ) );
 
-			}
+      }
 
-		}
+    }
 
-	}
+  }
 
-	function update() {
+  function update() {
 
-		if ( object === null ) return;
-		if ( object.material === undefined ) return;
+    if ( object === null ) return;
+    if ( object.material === undefined ) return;
 
-		material = object.material;
+    material = object.material;
 
-		if ( property in material ) {
+    if ( property in material ) {
 
-			color.setHexValue( material[ property ].getHexString() );
+      color.setHexValue( material[ property ].getHexString() );
 
-			if ( intensity !== undefined ) {
+      if ( intensity !== undefined ) {
 
-				intensity.setValue( material[ `${ property }Intensity` ] );
+        intensity.setValue( material[ `${ property }Intensity` ] );
 
-			}
+      }
 
-			container.setDisplay( '' );
+      container.setDisplay( '' );
 
-		} else {
+    } else {
 
-			container.setDisplay( 'none' );
+      container.setDisplay( 'none' );
 
-		}
+    }
 
-	}
+  }
 
-	//
+  //
 
-	signals.objectSelected.add( function ( selected ) {
+  signals.objectSelected.add( function ( selected ) {
 
-		object = selected;
+    object = selected;
 
-		update();
+    update();
 
-	} );
+  } );
 
-	signals.materialChanged.add( update );
+  signals.materialChanged.add( update );
 
-	return container;
+  return container;
 
 }
 

@@ -1,66 +1,66 @@
 class Selector {
 
-	constructor( editor ) {
+  constructor( editor ) {
 
-		const signals = editor.signals;
+    const signals = editor.signals;
 
-		this.editor = editor;
-		this.signals = signals;
+    this.editor = editor;
+    this.signals = signals;
 
-		// signals
+    // signals
 
-		signals.intersectionsDetected.add( ( intersects ) => {
+    signals.intersectionsDetected.add( ( intersects ) => {
 
-			if ( intersects.length > 0 ) {
+      if ( intersects.length > 0 ) {
 
-				const object = intersects[ 0 ].object;
+        const object = intersects[ 0 ].object;
 
-				if ( object.userData.object !== undefined ) {
+        if ( object.userData.object !== undefined ) {
 
-					// helper
+          // helper
 
-					this.select( object.userData.object );
+          this.select( object.userData.object );
 
-				} else {
+        } else {
 
-					this.select( object );
+          this.select( object );
 
-				}
+        }
 
-			} else {
+      } else {
 
-				this.select( null );
+        this.select( null );
 
-			}
+      }
 
-		} );
+    } );
 
-	}
+  }
 
-	select( object ) {
+  select( object ) {
 
-		if ( this.editor.selected === object ) return;
+    if ( this.editor.selected === object ) return;
 
-		let uuid = null;
+    let uuid = null;
 
-		if ( object !== null ) {
+    if ( object !== null ) {
 
-			uuid = object.uuid;
+      uuid = object.uuid;
 
-		}
+    }
 
-		this.editor.selected = object;
-		this.editor.config.setKey( 'selected', uuid );
+    this.editor.selected = object;
+    this.editor.config.setKey( 'selected', uuid );
 
-		this.signals.objectSelected.dispatch( object );
+    this.signals.objectSelected.dispatch( object );
 
-	}
+  }
 
-	deselect() {
+  deselect() {
 
-		this.select( null );
+    this.select( null );
 
-	}
+  }
 
 }
 
