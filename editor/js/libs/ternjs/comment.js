@@ -8,7 +8,6 @@
   function isSpace(ch) {
     return (ch < 14 && ch > 8) || ch === 32 || ch === 160;
   }
-
   function onOwnLine(text, pos) {
     for (; pos > 0; --pos) {
       var ch = text.charCodeAt(pos - 1);
@@ -17,7 +16,6 @@
     }
     return true;
   }
-
   // Gather comments directly before a function
   exports.commentsBefore = function(text, pos) {
     var found = null, emptyLines = 0, topIsLineComment;
@@ -61,7 +59,6 @@
     }
     return found;
   };
-
   exports.commentAfter = function(text, pos) {
     while (pos < text.length) {
       var next = text.charCodeAt(pos);
@@ -79,7 +76,6 @@
       }
     }
   };
-
   exports.ensureCommentsBefore = function(text, node) {
     if (node.hasOwnProperty("commentsBefore")) return node.commentsBefore;
     return node.commentsBefore = exports.commentsBefore(text, node.start);

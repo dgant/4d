@@ -1,7 +1,6 @@
 // Parses comments above variable declarations, function declarations,
 // and object properties as docstrings and JSDoc-style type
 // annotations.
-
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     return mod(require("../lib/infer"), require("../lib/tern"), require("../lib/comment"),
@@ -11,9 +10,7 @@
   mod(tern, tern, tern.comment, acorn, acorn.walk);
 })(function(infer, tern, comment, acorn, walk) {
   "use strict";
-
   var WG_MADEUP = 1, WG_STRONG = 101;
-
   tern.registerPlugin("doc_comment", function(server, options) {
     server.jsdocTypedefs = Object.create(null);
     server.on("reset", function() {
@@ -23,7 +20,6 @@
       weight: options && options.strong ? WG_STRONG : undefined,
       fullDocs: options && options.fullDocs
     };
-
     return {
       passes: {
         postParse: postParse,
@@ -32,10 +28,8 @@
       }
     };
   });
-
   function postParse(ast, text) {
     function attachComments(node) { comment.ensureCommentsBefore(text, node); }
-
     walk.simple(ast, {
       VariableDeclaration: attachComments,
       FunctionDeclaration: attachComments,
@@ -51,7 +45,6 @@
       }
     });
   }
-
   function isDefinePropertyCall(node) {
     return node.callee.type == "MemberExpression" &&
       node.callee.object.name == "Object" &&
@@ -59,10 +52,8 @@
       node.arguments.length >= 3 &&
       typeof node.arguments[1].value == "string";
   }
-
   function postInfer(ast, scope) {
     jsdocParseTypedefs(ast.sourceFile.text, scope);
-
     walk.simple(ast, {
       VariableDeclaration: function(node, scope) {
         if (node.commentsBefore)
@@ -99,7 +90,6 @@
       }
     }, infer.searchVisitor, scope);
   }
-
   function postLoadDef(data) {
     var defs = data["!typedef"];
     var cx = infer.cx(), orig = data["!name"];
@@ -107,19 +97,15 @@
       cx.parent.jsdocTypedefs[name] =
         maybeInstance(infer.def.parse(defs[name], orig, name), name);
   }
-
   // COMMENT INTERPRETATION
-
   function interpretComments(node, comments, scope, aval, type) {
     jsdocInterpretComments(node, scope, aval, comments);
     var cx = infer.cx();
-
     if (!type && aval instanceof infer.AVal && aval.types.length) {
       type = aval.types[aval.types.length - 1];
       if (!(type instanceof infer.Obj) || type.origin != cx.curOrigin || type.doc)
         type = null;
     }
-
     var result = comments[comments.length - 1];
     if (cx.parent._docComment.fullDocs) {
       result = result.trim().replace(/\n[ \t]*\* ?/g, "\n");
@@ -129,26 +115,21 @@
       result = result.trim().replace(/\s*\n\s*\*\s*|\s{1,}/g, " ");
     }
     result = result.replace(/^\s*\*+\s*/, "");
-
     if (aval instanceof infer.AVal) aval.doc = result;
     if (type) type.doc = result;
   }
-
   // Parses a subset of JSDoc-style comments in order to include the
   // explicitly defined types in the analysis.
-
   function skipSpace(str, pos) {
     while (/\s/.test(str.charAt(pos))) ++pos;
     return pos;
   }
-
   function isIdentifier(string) {
     if (!acorn.isIdentifierStart(string.charCodeAt(0))) return false;
     for (var i = 1; i < string.length; i++)
       if (!acorn.isIdentifierChar(string.charCodeAt(i))) return false;
     return true;
   }
-
   function parseLabelList(scope, str, pos, close) {
     var labels = [], types = [], madeUp = false;
     for (var first = true; ; first = false) {
@@ -173,7 +154,6 @@
     }
     return {labels: labels, types: types, end: pos, madeUp: madeUp};
   }
-
   function parseType(scope, str, pos) {
     var type, union = false, madeUp = false;
     for (;;) {
@@ -198,11 +178,9 @@
     }
     return {type: type, end: pos, isOptional: isOptional, madeUp: madeUp};
   }
-
   function parseTypeInner(scope, str, pos) {
     pos = skipSpace(str, pos);
     var type, madeUp = false;
-
     if (str.indexOf("function(", pos) == pos) {
       var args = parseLabelList(scope, str, pos + 9, ")"), ret = infer.ANull;
       if (!args) return null;
@@ -296,10 +274,8 @@
         }
       }
     }
-
     return {type: type, end: pos, madeUp: madeUp};
   }
-
   function maybeInstance(type, path) {
     if (type instanceof infer.Fn && /^[A-Z]/.test(path)) {
       var proto = type.getProp("prototype").getObjType();
@@ -307,7 +283,6 @@
     }
     return type;
   }
-
   function parseTypeOuter(scope, str, pos) {
     pos = skipSpace(str, pos || 0);
     if (str.charAt(pos) != "{") return null;
@@ -318,10 +293,8 @@
     result.end = end + 1;
     return result;
   }
-
   function jsdocInterpretComments(node, scope, aval, comments) {
     var type, args, ret, foundOne, self, parsed;
-
     for (var i = 0; i < comments.length; ++i) {
       var comment = comments[i];
       var decl = /(?:\n|\$|\*)\s*@(type|param|arg(?:ument)?|returns?|this)\s+(.*)/g, m;
@@ -331,10 +304,8 @@
           foundOne = true;
           continue;
         }
-
         if (!(parsed = parseTypeOuter(scope, m[2]))) continue;
         foundOne = true;
-
         switch(m[1]) {
         case "returns": case "return":
           ret = parsed; break;
@@ -349,13 +320,10 @@
         }
       }
     }
-
     if (foundOne) applyType(type, self, args, ret, node, aval);
   };
-
   function jsdocParseTypedefs(text, scope) {
     var cx = infer.cx();
-
     var re = /\s@typedef\s+(.*)/g, m;
     while (m = re.exec(text)) {
       var parsed = parseTypeOuter(scope, m[1]);
@@ -364,12 +332,10 @@
         cx.parent.jsdocTypedefs[name[1]] = parsed.type;
     }
   }
-
   function propagateWithWeight(type, target) {
     var weight = infer.cx().parent._docComment.weight;
     type.type.propagate(target, weight || (type.madeUp ? WG_MADEUP : undefined));
   }
-
   function applyType(type, self, args, ret, node, aval) {
     var fn;
     if (node.type == "VariableDeclaration") {
@@ -384,7 +350,6 @@
     } else { // An object property
       if (node.value.type == "FunctionExpression") fn = node.value.body.scope.fnType;
     }
-
     if (fn && (args || ret || self)) {
       if (args) for (var i = 0; i < fn.argNames.length; ++i) {
         var name = fn.argNames[i], known = args[name];

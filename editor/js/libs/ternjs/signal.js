@@ -18,7 +18,6 @@
     var arr = this._handlers && this._handlers[type];
     if (arr) for (var i = 0; i < arr.length; ++i) arr[i].call(this, a1, a2, a3, a4);
   }
-
   exports.mixin = function(obj) {
     obj.on = on; obj.off = off; obj.signal = signal;
     return obj;

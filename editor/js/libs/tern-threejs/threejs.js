@@ -6,7 +6,6 @@
   mod(tern, tern);
 })(function(infer, tern) {
   "use strict";
-
   tern.registerPlugin("threejs", function(server, options) {
     return {
       defs : {
@@ -117,7 +116,7 @@
         },
         "setViewOffset": {
           "!type": "fn(fullWidth: number, fullHeight: number, x: number, y: number, width: number, height: number)",
-          "!doc": "For example, if you have 3x2 monitors and each monitor is 1920x1080 and the monitors are in grid like this:<br>\n\n\t\t<pre>+---+---+---+\n| A | B | C |\n+---+---+---+\n| D | E | F |\n+---+---+---+</pre>\n\n\t\tthen for each monitor you would call it like this:<br>\n\n\t\t<code>var w = 1920;\nvar h = 1080;\nvar fullWidth = w * 3;\nvar fullHeight = h * 2;\n\n// A\ncamera.setViewOffset( fullWidth, fullHeight, w * 0, h * 0, w, h );\n// B\ncamera.setViewOffset( fullWidth, fullHeight, w * 1, h * 0, w, h );\n// C\ncamera.setViewOffset( fullWidth, fullHeight, w * 2, h * 0, w, h );\n// D\ncamera.setViewOffset( fullWidth, fullHeight, w * 0, h * 1, w, h );\n// E\ncamera.setViewOffset( fullWidth, fullHeight, w * 1, h * 1, w, h );\n// F\ncamera.setViewOffset( fullWidth, fullHeight, w * 2, h * 1, w, h );\n</code>\n\n\t\tNote there is no reason monitors have to be the same size or in a grid."
+          "!doc": "For example, if you have 3x2 monitors and each monitor is 1920x1080 and the monitors are in grid like this:<br>\n\n\t\t<pre>+---+---+---+\n| A | B | C |\n+---+---+---+\n| D | E | F |\n+---+---+---+</pre>\n\n\t\tthen for each monitor you would call it like this:<br>\n\n\t\t<code>var w = 1920;\nvar h = 1080;\nvar fullWidth = w * 3;\nvar fullHeight = h * 2;\n\n// A\ncamera.setViewOffset(fullWidth, fullHeight, w * 0, h * 0, w, h);\n// B\ncamera.setViewOffset(fullWidth, fullHeight, w * 1, h * 0, w, h);\n// C\ncamera.setViewOffset(fullWidth, fullHeight, w * 2, h * 0, w, h);\n// D\ncamera.setViewOffset(fullWidth, fullHeight, w * 0, h * 1, w, h);\n// E\ncamera.setViewOffset(fullWidth, fullHeight, w * 1, h * 1, w, h);\n// F\ncamera.setViewOffset(fullWidth, fullHeight, w * 2, h * 1, w, h);\n</code>\n\n\t\tNote there is no reason monitors have to be the same size or in a grid."
         },
         "updateProjectionMatrix": {
           "!type": "fn()",
@@ -266,7 +265,7 @@
           "!doc": "Every normal vector in a geometry will have a magnitude of 1.\n\t\tThis will correct lighting on the geometry surfaces."
         }
       },
-      "!doc": "<p>\n\t\tThis class is an efficient alternative to [page:Geometry], because it stores all data, including\n\t\tvertex positions, face indices, normals, colors, UVs, and custom attributes within buffers; this\n\t\treduces the cost of passing all this data to the GPU. \n\t\tThis also makes BufferGeometry harder to work with than [page:Geometry]; rather than accessing \n\t\tposition data as [page:Vector3] objects, color data as [page:Color] objects, and so on, you have to \n\t\taccess the raw data from the appropriate [page:BufferAttribute attribute] buffer. This makes \n\t\tBufferGeometry best-suited for static objects where you don't need to manipulate the geometry much\n\t\tafter instantiating it.\n\t\t</p>\n\n\t\t<h3>Example</h3>\n\t\t<code>\n\t\tvar geometry = new THREE.BufferGeometry();\n\t\t// create a simple square shape. We duplicate the top left and bottom right\n\t\t// vertices because each vertex needs to appear once per triangle. \n\t\tvar vertexPositions = [ \n\t\t\t[-1.0, -1.0,  1.0],\n\t\t\t[ 1.0, -1.0,  1.0],\n\t\t\t[ 1.0,  1.0,  1.0],\n\n\t\t\t[ 1.0,  1.0,  1.0],\n\t\t\t[-1.0,  1.0,  1.0],\n\t\t\t[-1.0, -1.0,  1.0]\n\t\t];\n\t\tvar vertices = new Float32Array( vertexPositions.length * 3 ); // three components per vertex\n\n\t\t// components of the position vector for each vertex are stored\n\t\t// contiguously in the buffer.\n\t\tfor ( var i = 0; i &lt; vertexPositions.length; i++ )\n\t\t{\n\t\t\tvertices[ i*3 + 0 ] = vertexPositions[i][0];\n\t\t\tvertices[ i*3 + 1 ] = vertexPositions[i][1];\n\t\t\tvertices[ i*3 + 2 ] = vertexPositions[i][2];\n\t\t}\n\n\t\t// itemSize = 3 because there are 3 values (components) per vertex\n\t\tgeometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );\n\t\tvar material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );\n\t\tvar mesh = new THREE.Mesh( geometry, material );\n\t\t</code>\n\t\t<p>More examples: [example:webgl_buffergeometry Complex mesh with non-indexed faces], [example:webgl_buffergeometry_uint Complex mesh with indexed faces], [example:webgl_buffergeometry_lines Lines], [example:webgl_buffergeometry_lines_indexed Indexed Lines], [example:webgl_buffergeometry_particles Particles], and [example:webgl_buffergeometry_rawshader Raw Shaders].</p>\n\n\t\t\n\t\t<h3>Accessing attributes</h3>\n\t\t<p>\n\t\tWebGL stores data associated with individual vertices of a geometry in <emph>attributes</emph>. \n\t\tExamples include the position of the vertex, the normal vector for the vertex, the vertex color,\n\t\tand so on. When using [page:Geometry], the [page:WebGLRenderer renderer] takes care of wrapping\n\t\tup this information into typed array buffers and sending this data to the shader. With \n\t\tBufferGeometry, all of this data is stored in buffers associated with an individual attributes.\n\t\tThis means that to get the position data associated with a vertex (for instance), you must call\n\t\t[page:.getAttribute] to access the 'position' [page:BufferAttribute attribute], then access the individual \n\t\tx, y, and z coordinates of the position.  \n\t\t</p>\n\t\t<p>\n\t\tThe following attributes are set by various members of this class:\n\t\t</p>\n\t\t<h4>[page:BufferAttribute position] (itemSize: 3)</h4>\n\t\t<div>\n\t\tStores the x, y, and z coordinates of each vertex in this geometry. Set by [page:.fromGeometry]().\n\t\t</div>\n\n\t\t<h4>[page:BufferAttribute normal] (itemSize: 3)</h4>\n\t\t<div>\n\t\tStores the x, y, and z components of the face or vertex normal vector of each vertex in this geometry.\n\t\tSet by [page:.fromGeometry]().\n\t\t</div>\n\n\t\t<h4>[page:BufferAttribute color] (itemSize: 3)</h4>\n\t\t<div>\n\t\tStores the red, green, and blue channels of vertex color of each vertex in this geometry.\n\t\tSet by [page:.fromGeometry]().\n\t\t</div>\n\n\t\t<h4>[page:BufferAttribute tangent] (itemSize: 3)</h4>\n\t\t<div>\n\t\tStores the x, y, and z components of the tangent vector of each vertex in this geometry. Set by [page:.computeTangents]().\n\t\t</div>\n\n\t\t<h4>[page:BufferAttribute index] (itemSize: 3)</h4>\n\t\tAllows for vertices to be re-used across multiple triangles; this is called using \"indexed triangles,\" and works much the same as it does in [page:Geometry]: each triangle is associated with the index of three vertices. This attribute therefore stores the index of each vertex for each triangular face.\n\n\t\tIf this attribute is not set, the [page:WebGLRenderer renderer] assumes that each three contiguous positions represent a single triangle.",
+      "!doc": "<p>\n\t\tThis class is an efficient alternative to [page:Geometry], because it stores all data, including\n\t\tvertex positions, face indices, normals, colors, UVs, and custom attributes within buffers; this\n\t\treduces the cost of passing all this data to the GPU. \n\t\tThis also makes BufferGeometry harder to work with than [page:Geometry]; rather than accessing \n\t\tposition data as [page:Vector3] objects, color data as [page:Color] objects, and so on, you have to \n\t\taccess the raw data from the appropriate [page:BufferAttribute attribute] buffer. This makes \n\t\tBufferGeometry best-suited for static objects where you don't need to manipulate the geometry much\n\t\tafter instantiating it.\n\t\t</p>\n\n\t\t<h3>Example</h3>\n\t\t<code>\n\t\tvar geometry = new THREE.BufferGeometry();\n\t\t// create a simple square shape. We duplicate the top left and bottom right\n\t\t// vertices because each vertex needs to appear once per triangle. \n\t\tvar vertexPositions = [ \n\t\t\t[-1.0, -1.0,  1.0],\n\t\t\t[ 1.0, -1.0,  1.0],\n\t\t\t[ 1.0,  1.0,  1.0],\n\n\t\t\t[ 1.0,  1.0,  1.0],\n\t\t\t[-1.0,  1.0,  1.0],\n\t\t\t[-1.0, -1.0,  1.0]\n\t\t];\n\t\tvar vertices = new Float32Array(vertexPositions.length * 3); // three components per vertex\n\n\t\t// components of the position vector for each vertex are stored\n\t\t// contiguously in the buffer.\n\t\tfor (var i = 0; i &lt; vertexPositions.length; i++)\n\t\t{\n\t\t\tvertices[ i*3 + 0 ] = vertexPositions[i][0];\n\t\t\tvertices[ i*3 + 1 ] = vertexPositions[i][1];\n\t\t\tvertices[ i*3 + 2 ] = vertexPositions[i][2];\n\t\t}\n\n\t\t// itemSize = 3 because there are 3 values (components) per vertex\n\t\tgeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));\n\t\tvar material = new THREE.MeshBasicMaterial({ color: 0xff0000 });\n\t\tvar mesh = new THREE.Mesh(geometry, material);\n\t\t</code>\n\t\t<p>More examples: [example:webgl_buffergeometry Complex mesh with non-indexed faces], [example:webgl_buffergeometry_uint Complex mesh with indexed faces], [example:webgl_buffergeometry_lines Lines], [example:webgl_buffergeometry_lines_indexed Indexed Lines], [example:webgl_buffergeometry_particles Particles], and [example:webgl_buffergeometry_rawshader Raw Shaders].</p>\n\n\t\t\n\t\t<h3>Accessing attributes</h3>\n\t\t<p>\n\t\tWebGL stores data associated with individual vertices of a geometry in <emph>attributes</emph>. \n\t\tExamples include the position of the vertex, the normal vector for the vertex, the vertex color,\n\t\tand so on. When using [page:Geometry], the [page:WebGLRenderer renderer] takes care of wrapping\n\t\tup this information into typed array buffers and sending this data to the shader. With \n\t\tBufferGeometry, all of this data is stored in buffers associated with an individual attributes.\n\t\tThis means that to get the position data associated with a vertex (for instance), you must call\n\t\t[page:.getAttribute] to access the 'position' [page:BufferAttribute attribute], then access the individual \n\t\tx, y, and z coordinates of the position.  \n\t\t</p>\n\t\t<p>\n\t\tThe following attributes are set by various members of this class:\n\t\t</p>\n\t\t<h4>[page:BufferAttribute position] (itemSize: 3)</h4>\n\t\t<div>\n\t\tStores the x, y, and z coordinates of each vertex in this geometry. Set by [page:.fromGeometry]().\n\t\t</div>\n\n\t\t<h4>[page:BufferAttribute normal] (itemSize: 3)</h4>\n\t\t<div>\n\t\tStores the x, y, and z components of the face or vertex normal vector of each vertex in this geometry.\n\t\tSet by [page:.fromGeometry]().\n\t\t</div>\n\n\t\t<h4>[page:BufferAttribute color] (itemSize: 3)</h4>\n\t\t<div>\n\t\tStores the red, green, and blue channels of vertex color of each vertex in this geometry.\n\t\tSet by [page:.fromGeometry]().\n\t\t</div>\n\n\t\t<h4>[page:BufferAttribute tangent] (itemSize: 3)</h4>\n\t\t<div>\n\t\tStores the x, y, and z components of the tangent vector of each vertex in this geometry. Set by [page:.computeTangents]().\n\t\t</div>\n\n\t\t<h4>[page:BufferAttribute index] (itemSize: 3)</h4>\n\t\tAllows for vertices to be re-used across multiple triangles; this is called using \"indexed triangles,\" and works much the same as it does in [page:Geometry]: each triangle is associated with the index of three vertices. This attribute therefore stores the index of each vertex for each triangular face.\n\n\t\tIf this attribute is not set, the [page:WebGLRenderer renderer] assumes that each three contiguous positions represent a single triangle.",
       "!type": "fn()"
     },
     "Clock": {
@@ -814,11 +813,11 @@
         },
         "getPoints": {
           "!type": "fn(divisions) -> []",
-          "!doc": "Get sequence of points using getPoint( t )"
+          "!doc": "Get sequence of points using getPoint(t)"
         },
         "getSpacedPoints": {
           "!type": "fn(divisions) -> []",
-          "!doc": "Get sequence of equi-spaced points using getPointAt( u )"
+          "!doc": "Get sequence of equi-spaced points using getPointAt(u)"
         },
         "getLength": {
           "!type": "fn() -> number",
@@ -834,7 +833,7 @@
         },
         "getUtoTmapping": {
           "!type": "fn(u, distance) -> number",
-          "!doc": "Given u ( 0 .. 1 ), get a t to find p. This gives you points which are equidistant"
+          "!doc": "Given u (0 .. 1), get a t to find p. This gives you points which are equidistant"
         },
         "getTangent": {
           "!type": "fn(t) -> Vector",
@@ -1746,7 +1745,7 @@
         },
         "onProgress": {
           "!type": "function",
-          "!doc": "The function that needs to be called when an item is complete. The arguments are url(The url of the item just loaded),<br>\n\t\tloaded(the amount of items already loaded), total( The total amount of items to be loaded.)"
+          "!doc": "The function that needs to be called when an item is complete. The arguments are url(The url of the item just loaded),<br>\n\t\tloaded(the amount of items already loaded), total(The total amount of items to be loaded.)"
         },
         "onError": {
           "!type": "function",
@@ -3334,7 +3333,7 @@
         },
         "applyMatrix4": {
           "!type": "fn(matrix: +THREE.Matrix4, optionalNormalMatrix: +THREE.Matrix3) -> +THREE.Plane",
-          "!doc": "Apply a Matrix4 to the plane. The second parameter is optional.\n\t\t\n\t\t<code>\n\t\tvar optionalNormalMatrix = new THREE.Matrix3().getNormalMatrix( matrix ) \n\t\t</code>"
+          "!doc": "Apply a Matrix4 to the plane. The second parameter is optional.\n\t\t\n\t\t<code>\n\t\tvar optionalNormalMatrix = new THREE.Matrix3().getNormalMatrix(matrix) \n\t\t</code>"
         },
         "orthoPoint": {
           "!type": "fn(point: +THREE.Vector3, optionalTarget: +THREE.Vector3) -> +THREE.Vector3",
@@ -3701,7 +3700,7 @@
         },
         "divideScalar": {
           "!type": "fn(s: number) -> +THREE.Vector2",
-          "!doc": "Divides this vector by scalar *s*.<br>\n\t\tSet vector to *( 0, 0 )* if *s == 0*."
+          "!doc": "Divides this vector by scalar *s*.<br>\n\t\tSet vector to *(0, 0)* if *s == 0*."
         },
         "negate": {
           "!type": "fn() -> +THREE.Vector2",
@@ -3863,7 +3862,7 @@
         },
         "divideScalar": {
           "!type": "fn(s: number) -> +THREE.Vector3",
-          "!doc": "Divides this vector by scalar *s*.<br>\n\t\tSet vector to *( 0, 0, 0 )* if *s == 0*."
+          "!doc": "Divides this vector by scalar *s*.<br>\n\t\tSet vector to *(0, 0, 0)* if *s == 0*."
         },
         "negate": {
           "!type": "fn() -> +THREE.Vector3",
@@ -4094,7 +4093,7 @@
         },
         "divideScalar": {
           "!type": "fn(s: number) -> +THREE.Vector4",
-          "!doc": "Divides this vector by scalar *s*.<br>\n\t\tSet vector to *( 0, 0, 0 )* if *s == 0*."
+          "!doc": "Divides this vector by scalar *s*.<br>\n\t\tSet vector to *(0, 0, 0)* if *s == 0*."
         },
         "negate": {
           "!type": "fn() -> +THREE.Vector4",
@@ -4520,7 +4519,7 @@
           "!doc": "Returns the alpha value."
         }
       },
-      "!doc": "The Canvas renderer displays your beautifully crafted scenes <em>not</em> using WebGL, but draws it using the (slower) <a href=\"http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/\">Canvas 2D Context</a> API.<br><br>\n\t\t\tThis renderer can be a nice fallback from [page:WebGLRenderer] for simple scenes:\n\n\t\t\t<code>\n\t\t\tfunction webglAvailable() {\n\t\t\t\ttry {\n\t\t\t\t\tvar canvas = document.createElement( 'canvas' );\n\t\t\t\t\treturn !!( window.WebGLRenderingContext &amp;&amp; (\n\t\t\t\t\t\tcanvas.getContext( 'webgl' ) ||\n\t\t\t\t\t\tcanvas.getContext( 'experimental-webgl' ) )\n\t\t\t\t\t);\n\t\t\t\t} catch ( e ) {\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tif ( webglAvailable() ) {\n\t\t\t\trenderer = new THREE.WebGLRenderer();\n\t\t\t} else {\n\t\t\t\trenderer = new THREE.CanvasRenderer();\n\t\t\t}\n\t\t\t</code>\n\n\t\t\tNote: both WebGLRenderer and CanvasRenderer are embedded in the web page using an HTML5 &lt;canvas&gt; tag.\n\t\t\tThe \"Canvas\" in CanvasRenderer means it uses Canvas 2D instead of WebGL.<br><br>\n\n\t\t\tDon't confuse either CanvasRenderer with the SoftwareRenderer example, which simulates a screen buffer in a Javascript array.",
+      "!doc": "The Canvas renderer displays your beautifully crafted scenes <em>not</em> using WebGL, but draws it using the (slower) <a href=\"http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/\">Canvas 2D Context</a> API.<br><br>\n\t\t\tThis renderer can be a nice fallback from [page:WebGLRenderer] for simple scenes:\n\n\t\t\t<code>\n\t\t\tfunction webglAvailable() {\n\t\t\t\ttry {\n\t\t\t\t\tvar canvas = document.createElement('canvas');\n\t\t\t\t\treturn !!(window.WebGLRenderingContext &amp;&amp; (\n\t\t\t\t\t\tcanvas.getContext('webgl') ||\n\t\t\t\t\t\tcanvas.getContext('experimental-webgl'))\n\t\t\t\t\t);\n\t\t\t\t} catch (e) {\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tif (webglAvailable()) {\n\t\t\t\trenderer = new THREE.WebGLRenderer();\n\t\t\t} else {\n\t\t\t\trenderer = new THREE.CanvasRenderer();\n\t\t\t}\n\t\t\t</code>\n\n\t\t\tNote: both WebGLRenderer and CanvasRenderer are embedded in the web page using an HTML5 &lt;canvas&gt; tag.\n\t\t\tThe \"Canvas\" in CanvasRenderer means it uses Canvas 2D instead of WebGL.<br><br>\n\n\t\t\tDon't confuse either CanvasRenderer with the SoftwareRenderer example, which simulates a screen buffer in a Javascript array.",
       "!type": "fn(parameters: object)"
     },
     "WebGLRenderTarget": {

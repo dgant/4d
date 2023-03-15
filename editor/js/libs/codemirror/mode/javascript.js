@@ -1,6 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/LICENSE
-
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -10,7 +9,6 @@
     mod(CodeMirror);
 })(function(CodeMirror) {
 "use strict";
-
 CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var indentUnit = config.indentUnit;
   var statementIndent = parserConfig.statementIndent;
@@ -19,14 +17,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   var trackScope = parserConfig.trackScope !== false
   var isTS = parserConfig.typescript;
   var wordRE = parserConfig.wordCharacters || /[\w$\xa1-\uffff]/;
-
   // Tokenizer
-
   var keywords = function(){
     function kw(type) {return {type: type, style: "keyword"};}
     var A = kw("keyword a"), B = kw("keyword b"), C = kw("keyword c"), D = kw("keyword d");
     var operator = kw("operator"), atom = {type: "atom", style: "atom"};
-
     return {
       "if": kw("if"), "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
       "return": D, "break": D, "continue": D, "new": kw("new"), "delete": C, "void": C, "throw": C,
@@ -40,10 +35,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       "await": C
     };
   }();
-
   var isOperatorChar = /[+\-*&%=<>!?|~^@]/;
   var isJsonldKeyword = /^@(context|id|value|language|type|container|list|set|reverse|index|base|vocab|graph)"/;
-
   function readRegexp(stream) {
     var escaped = false, next, inSet = false;
     while ((next = stream.next()) != null) {
@@ -55,7 +48,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       escaped = !escaped && next == "\\";
     }
   }
-
   // Used as scratch variables to communicate multiple values without
   // consing up tons of objects.
   var type, content;
@@ -133,7 +125,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return ret("variable", "variable", word)
     }
   }
-
   function tokenString(quote) {
     return function(stream, state) {
       var escaped = false, next;
@@ -149,7 +140,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return ret("string", "string");
     };
   }
-
   function tokenComment(stream, state) {
     var maybeEnd = false, ch;
     while (ch = stream.next()) {
@@ -161,7 +151,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
     return ret("comment", "comment");
   }
-
   function tokenQuasi(stream, state) {
     var escaped = false, next;
     while ((next = stream.next()) != null) {
@@ -173,7 +162,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
     return ret("quasi", "string-2", stream.current());
   }
-
   var brackets = "([{}])";
   // This is a crude lookahead trick to try and notice that we're
   // parsing the argument patterns for a fat-arrow function before we
@@ -186,12 +174,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (state.fatArrowAt) state.fatArrowAt = null;
     var arrow = stream.string.indexOf("=>", stream.start);
     if (arrow < 0) return;
-
     if (isTS) { // Try to skip TypeScript return type declarations after the arguments
       var m = /:\s*(?:\w+(?:<[^>]*>|\[\])?|\{[^}]*\})\s*$/.exec(stream.string.slice(stream.start, arrow))
       if (m) arrow = m.index
     }
-
     var depth = 0, sawSomething = false;
     for (var pos = arrow - 1; pos >= 0; --pos) {
       var ch = stream.string.charAt(pos);
@@ -216,12 +202,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
     if (sawSomething && !depth) state.fatArrowAt = pos;
   }
-
   // Parser
-
   var atomicTypes = {"atom": true, "number": true, "variable": true, "string": true,
                      "regexp": true, "this": true, "import": true, "jsonld-keyword": true};
-
   function JSLexical(indented, column, type, align, prev, info) {
     this.indented = indented;
     this.column = column;
@@ -230,7 +213,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     this.info = info;
     if (align != null) this.align = align;
   }
-
   function inScope(state, varname) {
     if (!trackScope) return false
     for (var v = state.localVars; v; v = v.next)
@@ -240,16 +222,13 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         if (v.name == varname) return true;
     }
   }
-
   function parseJS(state, style, type, content, stream) {
     var cc = state.cc;
     // Communicate our context to the combinators.
     // (Less wasteful than consing up a hundred closures on every call.)
     cx.state = state; cx.stream = stream; cx.marked = null, cx.cc = cc; cx.style = style;
-
     if (!state.lexical.hasOwnProperty("align"))
       state.lexical.align = true;
-
     while(true) {
       var combinator = cc.length ? cc.pop() : jsonMode ? expression : statement;
       if (combinator(type, content)) {
@@ -261,9 +240,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       }
     }
   }
-
   // Combinator utils
-
   var cx = {state: null, column: null, marked: null, cc: null};
   function pass() {
     for (var i = arguments.length - 1; i >= 0; i--) cx.cc.push(arguments[i]);
@@ -311,16 +288,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return new Context(context.prev, new Var(varname, context.vars), false)
     }
   }
-
   function isModifier(name) {
     return name == "public" || name == "private" || name == "protected" || name == "abstract" || name == "readonly"
   }
-
   // Combinators
-
   function Context(prev, vars, block) { this.prev = prev; this.vars = vars; this.block = block }
   function Var(name, next) { this.name = name; this.next = next }
-
   var defaultVars = new Var("this", new Var("arguments", null))
   function pushcontext() {
     cx.state.context = new Context(cx.state.context, cx.state.localVars, false)
@@ -355,7 +328,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
   }
   poplex.lex = true;
-
   function expect(wanted) {
     function exp(type) {
       if (type == wanted) return cont();
@@ -364,7 +336,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     };
     return exp;
   }
-
   function statement(type, value) {
     if (type == "var") return cont(pushlex("vardef", value), vardef, expect(";"), poplex);
     if (type == "keyword a") return cont(pushlex("form"), parenExpr, statement, poplex);
@@ -433,7 +404,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (type == "(") return cont(pushcontext, pushlex(")"), commasep(funarg, ")"), poplex, expect("=>"), body, popcontext);
       else if (type == "variable") return pass(pushcontext, pattern, expect("=>"), body, popcontext);
     }
-
     var maybeop = noComma ? maybeoperatorNoComma : maybeoperatorComma;
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeop);
     if (type == "function") return cont(functiondef, maybeop);
@@ -451,7 +421,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type.match(/[;\}\)\],]/)) return pass();
     return pass(expression);
   }
-
   function maybeoperatorComma(type, value) {
     if (type == ",") return cont(maybeexpression);
     return maybeoperatorNoComma(type, value, false);
@@ -847,21 +816,17 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function enummember() {
     return pass(pattern, maybeAssign);
   }
-
   function isContinuedStatement(state, textAfter) {
     return state.lastType == "operator" || state.lastType == "," ||
       isOperatorChar.test(textAfter.charAt(0)) ||
       /[,.]/.test(textAfter.charAt(0));
   }
-
   function expressionAllowed(stream, state, backUp) {
     return state.tokenize == tokenBase &&
       /^(?:operator|sof|keyword [bcd]|case|new|export|default|spread|[\[{}\(,;:]|=>)$/.test(state.lastType) ||
       (state.lastType == "quasi" && /\{\s*$/.test(stream.string.slice(0, stream.pos - (backUp || 0))))
   }
-
   // Interface
-
   return {
     startState: function(basecolumn) {
       var state = {
@@ -877,7 +842,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         state.globalVars = parserConfig.globalVars;
       return state;
     },
-
     token: function(stream, state) {
       if (stream.sol()) {
         if (!state.lexical.hasOwnProperty("align"))
@@ -891,7 +855,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       state.lastType = type == "operator" && (content == "++" || content == "--") ? "incdec" : type;
       return parseJS(state, style, type, content, stream);
     },
-
     indent: function(state, textAfter) {
       if (state.tokenize == tokenComment || state.tokenize == tokenQuasi) return CodeMirror.Pass;
       if (state.tokenize != tokenBase) return 0;
@@ -910,7 +873,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (statementIndent && lexical.type == ")" && lexical.prev.type == "stat")
         lexical = lexical.prev;
       var type = lexical.type, closing = firstChar == type;
-
       if (type == "vardef") return lexical.indented + (state.lastType == "operator" || state.lastType == "," ? lexical.info.length + 1 : 0);
       else if (type == "form" && firstChar == "{") return lexical.indented;
       else if (type == "form") return lexical.indented + indentUnit;
@@ -921,7 +883,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       else if (lexical.align) return lexical.column + (closing ? 0 : 1);
       else return lexical.indented + (closing ? 0 : indentUnit);
     },
-
     electricInput: /^\s*(?:case .*?:|default:|\{|\})$/,
     blockCommentStart: jsonMode ? null : "/*",
     blockCommentEnd: jsonMode ? null : "*/",
@@ -929,21 +890,16 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     lineComment: jsonMode ? null : "//",
     fold: "brace",
     closeBrackets: "()[]{}''\"\"``",
-
     helperType: jsonMode ? "json" : "javascript",
     jsonldMode: jsonldMode,
     jsonMode: jsonMode,
-
     expressionAllowed: expressionAllowed,
-
     skipExpression: function(state) {
       parseJS(state, "atom", "atom", "true", new CodeMirror.StringStream("", 2, null))
     }
   };
 });
-
 CodeMirror.registerHelper("wordChars", "javascript", /[\w$]/);
-
 CodeMirror.defineMIME("text/javascript", "javascript");
 CodeMirror.defineMIME("text/ecmascript", "javascript");
 CodeMirror.defineMIME("application/javascript", "javascript");
@@ -955,5 +911,4 @@ CodeMirror.defineMIME("application/manifest+json", { name: "javascript", json: t
 CodeMirror.defineMIME("application/ld+json", { name: "javascript", jsonld: true });
 CodeMirror.defineMIME("text/typescript", { name: "javascript", typescript: true });
 CodeMirror.defineMIME("application/typescript", { name: "javascript", typescript: true });
-
 });

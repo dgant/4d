@@ -23,10 +23,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL-
 // INGS IN THE SOFTWARE.
-
 // The original source code has been slightly modified for the purpose of
 // integration (tschw).
-
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -36,7 +34,6 @@
     mod(CodeMirror);
 })(function(CodeMirror) {
 "use strict";
-
   CodeMirror.defineMode("glsl", function(config, parserConfig) {
     var indentUnit = config.indentUnit,
         keywords = parserConfig.keywords || words(glslKeywords),
@@ -46,9 +43,7 @@
         hooks = parserConfig.hooks || {},
         multiLineStrings = parserConfig.multiLineStrings;
     var isOperatorChar = /[+\-*&%=<>!?|\/]/;
-
     var curPunc;
-
     function tokenBase(stream, state) {
       var ch = stream.next();
       if (hooks[ch]) {
@@ -100,7 +95,6 @@
       if (atoms.propertyIsEnumerable(cur)) return "atom";
       return "word";
     }
-
     function tokenString(quote) {
       return function(stream, state) {
         var escaped = false, next, end = false;
@@ -113,7 +107,6 @@
         return "string";
       };
     }
-
     function tokenComment(stream, state) {
       var maybeEnd = false, ch;
       while (ch = stream.next()) {
@@ -125,7 +118,6 @@
       }
       return "comment";
     }
-
     function Context(indented, column, type, align, prev) {
       this.indented = indented;
       this.column = column;
@@ -142,9 +134,7 @@
         state.indented = state.context.indented;
       return state.context = state.context.prev;
     }
-
     // Interface
-
     return {
       startState: function(basecolumn) {
         return {
@@ -154,7 +144,6 @@
           startOfLine: true
         };
       },
-
       token: function(stream, state) {
         var ctx = state.context;
         if (stream.sol()) {
@@ -167,7 +156,6 @@
         var style = (state.tokenize || tokenBase)(stream, state);
         if (style == "comment" || style == "meta") return style;
         if (ctx.align == null) ctx.align = true;
-
         if ((curPunc == ";" || curPunc == ":") && ctx.type == "statement") popContext(state);
         else if (curPunc == "{") pushContext(state, stream.column(), "}");
         else if (curPunc == "[") pushContext(state, stream.column(), "]");
@@ -183,7 +171,6 @@
         state.startOfLine = false;
         return style;
       },
-
       indent: function(state, textAfter) {
         if (state.tokenize != tokenBase && state.tokenize != null) return 0;
         var firstChar = textAfter && textAfter.charAt(0), ctx = state.context, closing = firstChar == ctx.type;
@@ -191,11 +178,9 @@
         else if (ctx.align) return ctx.column + (closing ? 0 : 1);
         else return ctx.indented + (closing ? 0 : indentUnit);
       },
-
       electricChars: "{}"
     };
   });
-
   function words(str) {
     var obj = {}, words = str.split(" ");
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
@@ -213,13 +198,11 @@
     "lessThanEqual greaterThan greaterThanEqual equal notEqual any all " +
     "not dFdx dFdy fwidth texture2D texture2DProj texture2DLod " +
     "texture2DProjLod textureCube textureCubeLod require export";
-
   function cppHook(stream, state) {
     if (!state.startOfLine) return false;
     stream.skipToEnd();
     return "meta";
   }
-
   ;(function() {
     CodeMirror.defineMIME("text/x-glsl", {
       name: "glsl",

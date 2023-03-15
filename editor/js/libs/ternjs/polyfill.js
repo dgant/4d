@@ -3,7 +3,6 @@
 // left out (such as second argument to Object.create, self args in
 // array methods, etc). WILL clash with other ECMA5 polyfills in a
 // probably disruptive way.
-
 (function() {
   Object.create = Object.create || (function() {
     if (!({__proto__: null} instanceof Object))
@@ -21,45 +20,35 @@
     delete empty.constructor;
     return function(base) { ctor.prototype = base || empty; return new ctor(); };
   })();
-
   // Array methods
-
   var AP = Array.prototype;
-
   AP.some = AP.some || function(pred) {
     for (var i = 0; i < this.length; ++i) if (pred(this[i], i)) return true;
   };
-
   AP.forEach = AP.forEach || function(f) {
     for (var i = 0; i < this.length; ++i) f(this[i], i);
   };
-
   AP.indexOf = AP.indexOf || function(x, start) {
     for (var i = start || 0; i < this.length; ++i) if (this[i] === x) return i;
     return -1;
   };
-
   AP.lastIndexOf = AP.lastIndexOf || function(x, start) {
     for (var i = start == null ? this.length - 1 : start; i >= 0; ++i) if (this[i] === x) return i;
     return -1;
   };
-
   AP.map = AP.map || function(f) {
     for (var r = [], i = 0; i < this.length; ++i) r.push(f(this[i], i));
     return r;
   };
-
   Array.isArray = Array.isArray || function(v) {
     return Object.prototype.toString.call(v) == "[object Array]";
   };
-
   String.prototype.trim = String.prototype.trim || function() {
     var from = 0, to = this.length;
     while (/\s/.test(this.charAt(from))) ++from;
     while (/\s/.test(this.charAt(to - 1))) --to;
     return this.slice(from, to);
   };
-
 /*! JSON v3.2.4 | http://bestiejs.github.com/json3 | Copyright 2012, Kit Cambridge | http://kit.mit-license.org */
 if (!window.JSON) (function(){var e=void 0,i=!0,k=null,l={}.toString,m,n,p="function"===typeof define&&define.c,q=!p&&"object"==typeof exports&&exports;q||p?"object"==typeof JSON&&JSON?p?q=JSON:(q.stringify=JSON.stringify,q.parse=JSON.parse):p&&(q=this.JSON={}):q=this.JSON||(this.JSON={});var r,t,u,x,z,B,C,D,E,F,G,H,I,J=new Date(-3509827334573292),K,O,P;try{J=-109252==J.getUTCFullYear()&&0===J.getUTCMonth()&&1==J.getUTCDate()&&10==J.getUTCHours()&&37==J.getUTCMinutes()&&6==J.getUTCSeconds()&&708==J.getUTCMilliseconds()}catch(Q){}
 function R(b){var c,a,d,j=b=="json";if(j||b=="json-stringify"||b=="json-parse"){if(b=="json-stringify"||j){if(c=typeof q.stringify=="function"&&J){(d=function(){return 1}).toJSON=d;try{c=q.stringify(0)==="0"&&q.stringify(new Number)==="0"&&q.stringify(new String)=='""'&&q.stringify(l)===e&&q.stringify(e)===e&&q.stringify()===e&&q.stringify(d)==="1"&&q.stringify([d])=="[1]"&&q.stringify([e])=="[null]"&&q.stringify(k)=="null"&&q.stringify([e,l,k])=="[null,null,null]"&&q.stringify({A:[d,i,false,k,"\x00\u0008\n\u000c\r\t"]})==

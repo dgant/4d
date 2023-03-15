@@ -1,34 +1,23 @@
 const cacheName = 'threejs-editor';
-
 const assets = [
   './',
-
   './manifest.json',
   './images/icon.png',
-
   '../files/favicon.ico',
-
   '../build/three.module.js',
-
   '../examples/jsm/controls/TransformControls.js',
-
   '../examples/jsm/libs/chevrotain.module.min.js',
   '../examples/jsm/libs/fflate.module.js',
-
   '../examples/jsm/libs/draco/draco_decoder.js',
   '../examples/jsm/libs/draco/draco_decoder.wasm',
   '../examples/jsm/libs/draco/draco_encoder.js',
   '../examples/jsm/libs/draco/draco_wasm_wrapper.js',
-
   '../examples/jsm/libs/draco/gltf/draco_decoder.js',
   '../examples/jsm/libs/draco/gltf/draco_decoder.wasm',
   '../examples/jsm/libs/draco/gltf/draco_wasm_wrapper.js',
-
   '../examples/jsm/libs/motion-controllers.module.js',
-
   '../examples/jsm/libs/rhino3dm/rhino3dm.wasm',
   '../examples/jsm/libs/rhino3dm/rhino3dm.js',
-
   '../examples/jsm/loaders/3DMLoader.js',
   '../examples/jsm/loaders/3MFLoader.js',
   '../examples/jsm/loaders/AMFLoader.js',
@@ -55,15 +44,11 @@ const assets = [
   '../examples/jsm/loaders/VRMLLoader.js',
   '../examples/jsm/loaders/VTKLoader.js',
   '../examples/jsm/loaders/XYZLoader.js',
-
   '../examples/jsm/curves/NURBSCurve.js',
   '../examples/jsm/curves/NURBSUtils.js',
-
   '../examples/jsm/interactive/HTMLMesh.js',
   '../examples/jsm/interactive/InteractiveGroup.js',
-
   '../examples/jsm/environments/RoomEnvironment.js',
-
   '../examples/jsm/exporters/ColladaExporter.js',
   '../examples/jsm/exporters/DRACOExporter.js',
   '../examples/jsm/exporters/GLTFExporter.js',
@@ -71,34 +56,25 @@ const assets = [
   '../examples/jsm/exporters/PLYExporter.js',
   '../examples/jsm/exporters/STLExporter.js',
   '../examples/jsm/exporters/USDZExporter.js',
-
   '../examples/jsm/helpers/VertexNormalsHelper.js',
-
   '../examples/jsm/geometries/TeapotGeometry.js',
-
   '../examples/jsm/webxr/VRButton.js',
   '../examples/jsm/webxr/XRControllerModelFactory.js',
-
   './images/rotate.svg',
   './images/scale.svg',
   './images/translate.svg',
-
   './js/libs/codemirror/codemirror.css',
   './js/libs/codemirror/theme/monokai.css',
-
   './js/libs/codemirror/codemirror.js',
   './js/libs/codemirror/mode/javascript.js',
   './js/libs/codemirror/mode/glsl.js',
-
   './js/libs/es-module-shims.js',
   './js/libs/esprima.js',
   './js/libs/ffmpeg.min.js',
   './js/libs/jsonlint.js',
-
   './js/libs/codemirror/addon/dialog.css',
   './js/libs/codemirror/addon/show-hint.css',
   './js/libs/codemirror/addon/tern.css',
-
   './js/libs/codemirror/addon/dialog.js',
   './js/libs/codemirror/addon/show-hint.js',
   './js/libs/codemirror/addon/tern.js',
@@ -113,22 +89,16 @@ const assets = [
   './js/libs/ternjs/infer.js',
   './js/libs/ternjs/doc_comment.js',
   './js/libs/tern-threejs/threejs.js',
-
   './js/libs/signals.min.js',
   './js/libs/ui.js',
   './js/libs/ui.three.js',
-
   './js/libs/app.js',
   './js/Player.js',
   './js/Script.js',
-
   //
-
   './css/main.css',
-
   './js/EditorControls.js',
   './js/Storage.js',
-
   './js/Editor.js',
   './js/Config.js',
   './js/History.js',
@@ -195,7 +165,6 @@ const assets = [
   './js/Viewport.Selector.js',
   './js/Viewport.ViewHelper.js',
   './js/Viewport.VR.js',
-
   './js/Command.js',
   './js/commands/AddObjectCommand.js',
   './js/commands/RemoveObjectCommand.js',
@@ -219,79 +188,45 @@ const assets = [
   './js/commands/SetMaterialVectorCommand.js',
   './js/commands/SetSceneCommand.js',
   './js/commands/Commands.js',
-
   //
-
   './examples/arkanoid.app.json',
   './examples/camera.app.json',
   './examples/particles.app.json',
   './examples/pong.app.json',
   './examples/shaders.app.json'
-
 ];
-
-self.addEventListener( 'install', async function () {
-
-  const cache = await caches.open( cacheName );
-
-  assets.forEach( async function ( asset ) {
-
+self.addEventListener('install', async function() {
+  const cache = await caches.open(cacheName);
+  assets.forEach(async function (asset) {
     try {
-
-      await cache.add( asset );
-
+      await cache.add(asset);
     } catch {
-
-      console.warn( '[SW] Cound\'t cache:', asset );
-
+      console.warn('[SW] Cound\'t cache:', asset);
     }
-
-  } );
-
-} );
-
-self.addEventListener( 'fetch', async function ( event ) {
-
+  });
+});
+self.addEventListener('fetch', async function (event) {
   const request = event.request;
-
-  if ( request.url.startsWith( 'chrome-extension' ) ) return;
-
-  event.respondWith( networkFirst( request ) );
-
-} );
-
-async function networkFirst( request ) {
-
+  if (request.url.startsWith('chrome-extension')) return;
+  event.respondWith(networkFirst(request));
+});
+async function networkFirst(request) {
   try {
-
-    let response = await fetch( request );
-
-    if ( request.url.endsWith( 'editor/' ) || request.url.endsWith( 'editor/index.html' ) ) { // copied from coi-serviceworker
-
-      const newHeaders = new Headers( response.headers );
-      newHeaders.set( 'Cross-Origin-Embedder-Policy', 'require-corp' );
-      newHeaders.set( 'Cross-Origin-Opener-Policy', 'same-origin' );
-
-      response = new Response( response.body, { status: response.status, statusText: response.statusText, headers: newHeaders } );
-
+    let response = await fetch(request);
+    if (request.url.endsWith('editor/') || request.url.endsWith('editor/index.html')) { // copied from coi-serviceworker
+      const newHeaders = new Headers(response.headers);
+      newHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
+      newHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
+      response = new Response(response.body, { status: response.status, statusText: response.statusText, headers: newHeaders });
     }
-
-    const cache = await caches.open( cacheName );
-    cache.put( request, response.clone() );
+    const cache = await caches.open(cacheName);
+    cache.put(request, response.clone());
     return response;
-
   } catch {
-
-    const cachedResponse = await caches.match( request );
-
-    if ( cachedResponse === undefined ) {
-
-      console.warn( '[SW] Not cached:', request.url );
-
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse === undefined) {
+      console.warn('[SW] Not cached:', request.url);
     }
-
     return cachedResponse;
-
   }
-
 }

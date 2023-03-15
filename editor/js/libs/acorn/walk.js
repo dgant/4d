@@ -1,10 +1,7 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}(g.acorn || (g.acorn = {})).walk = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
-
 var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
-
 // AST walker module for Mozilla Parser API compatible trees
-
 // A simple walk is one where you simply specify callbacks to be
 // called on specific nodes. The last two arguments are optional. A
 // simple use would be
@@ -20,42 +17,33 @@ var _classCallCheck = function (instance, Constructor) { if (!(instance instance
 // The base argument can be used to pass a custom (recursive)
 // walker, and state can be used to give this walked an initial
 // state.
-
 exports.simple = simple;
-
 // An ancestor walk builds up an array of ancestor nodes (including
 // the current node) and passes them to the callback as the state parameter.
 exports.ancestor = ancestor;
-
 // A recursive walk is one where your functions override the default
 // walkers. They can modify and replace the state parameter that's
 // threaded through the walk, and can opt how and whether to walk
 // their child nodes (by calling their third argument on these
 // nodes).
 exports.recursive = recursive;
-
 // Find a node with a given start, end, and type (all are optional,
 // null can be used as wildcard). Returns a {node, state} object, or
 // undefined when it doesn't find a matching node.
 exports.findNodeAt = findNodeAt;
-
 // Find the innermost node of a given type that contains the given
 // position. Interface similar to findNodeAt.
 exports.findNodeAround = findNodeAround;
-
 // Find the outermost matching node after a given position.
 exports.findNodeAfter = findNodeAfter;
-
 // Find the outermost matching node before a given position.
 exports.findNodeBefore = findNodeBefore;
-
 // Used to create a custom walker. Will fill in all missing node
 // type properties with the defaults.
 exports.make = make;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
 function simple(node, visitors, base, state) {
   if (!base) base = exports.base;(function c(node, st, override) {
     var type = override || node.type,
@@ -64,7 +52,6 @@ function simple(node, visitors, base, state) {
     if (found) found(node, st);
   })(node, state);
 }
-
 function ancestor(node, visitors, base, state) {
   if (!base) base = exports.base;
   if (!state) state = [];(function c(node, st, override) {
@@ -78,33 +65,28 @@ function ancestor(node, visitors, base, state) {
     if (found) found(node, st);
   })(node, state);
 }
-
 function recursive(node, state, funcs, base) {
   var visitor = funcs ? exports.make(funcs, base) : base;(function c(node, st, override) {
     visitor[override || node.type](node, st, c);
   })(node, state);
 }
-
 function makeTest(test) {
   if (typeof test == "string") {
     return function (type) {
       return type == test;
     };
   } else if (!test) {
-    return function () {
+    return function() {
       return true;
     };
   } else {
     return test;
   }
 }
-
 var Found = function Found(node, state) {
   _classCallCheck(this, Found);
-
   this.node = node;this.state = state;
 };
-
 function findNodeAt(node, start, end, test, base, state) {
   test = makeTest(test);
   if (!base) base = exports.base;
@@ -120,7 +102,6 @@ function findNodeAt(node, start, end, test, base, state) {
     }throw e;
   }
 }
-
 function findNodeAround(node, pos, test, base, state) {
   test = makeTest(test);
   if (!base) base = exports.base;
@@ -138,7 +119,6 @@ function findNodeAround(node, pos, test, base, state) {
     }throw e;
   }
 }
-
 function findNodeAfter(node, pos, test, base, state) {
   test = makeTest(test);
   if (!base) base = exports.base;
@@ -156,7 +136,6 @@ function findNodeAfter(node, pos, test, base, state) {
     }throw e;
   }
 }
-
 function findNodeBefore(node, pos, test, base, state) {
   test = makeTest(test);
   if (!base) base = exports.base;
@@ -169,7 +148,6 @@ function findNodeBefore(node, pos, test, base, state) {
   })(node, state);
   return max;
 }
-
 function make(funcs, base) {
   if (!base) base = exports.base;
   var visitor = {};
@@ -177,16 +155,12 @@ function make(funcs, base) {
   for (var type in funcs) visitor[type] = funcs[type];
   return visitor;
 }
-
 function skipThrough(node, st, c) {
   c(node, st);
 }
 function ignore(_node, _st, _c) {}
-
 // Node walkers.
-
 var base = {};
-
 exports.base = base;
 base.Program = base.BlockStatement = function (node, st, c) {
   for (var i = 0; i < node.body.length; ++i) {
@@ -251,7 +225,6 @@ base.ForInit = function (node, st, c) {
   if (node.type == "VariableDeclaration") c(node, st);else c(node, st, "Expression");
 };
 base.DebuggerStatement = ignore;
-
 base.FunctionDeclaration = function (node, st, c) {
   return c(node, st, "Function");
 };
@@ -261,14 +234,12 @@ base.VariableDeclaration = function (node, st, c) {
     if (decl.init) c(decl.init, st, "Expression");
   }
 };
-
 base.Function = function (node, st, c) {
   return c(node.body, st, "ScopeBody");
 };
 base.ScopeBody = function (node, st, c) {
   return c(node, st, "Statement");
 };
-
 base.Expression = skipThrough;
 base.ThisExpression = base.Super = base.MetaProperty = ignore;
 base.ArrayExpression = base.ArrayPattern = function (node, st, c) {
@@ -319,7 +290,6 @@ base.ImportDeclaration = function (node, st, c) {
   }
 };
 base.ImportSpecifier = base.ImportBatchSpecifier = base.Identifier = base.Literal = ignore;
-
 base.TaggedTemplateExpression = function (node, st, c) {
   c(node.tag, st, "Expression");
   c(node.quasi, st);
@@ -339,6 +309,5 @@ base.ComprehensionExpression = function (node, st, c) {
     c(node.blocks[i].right, st, "Expression");
   }c(node.body, st, "Expression");
 };
-
 },{}]},{},[1])(1)
 });

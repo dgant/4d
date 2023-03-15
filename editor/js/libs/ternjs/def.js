@@ -7,7 +7,6 @@
 //
 // B) to cheaply load the types for big libraries, or libraries that
 //    can't be inferred well
-
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     return exports.init = mod;
@@ -16,22 +15,18 @@
   tern.def = {init: mod};
 })(function(exports, infer) {
   "use strict";
-
   function hop(obj, prop) {
     return Object.prototype.hasOwnProperty.call(obj, prop);
   }
-
   var TypeParser = exports.TypeParser = function(spec, start, base, forceNew) {
     this.pos = start || 0;
     this.spec = spec;
     this.base = base;
     this.forceNew = forceNew;
   };
-
   function unwrapType(type, self, args) {
     return type.call ? type(self, args) : type;
   }
-
   function extractProp(type, prop) {
     if (prop == "!ret") {
       if (type.retval) return type.retval;
@@ -42,7 +37,6 @@
       return type.getProp(prop);
     }
   }
-
   function computedFunc(args, retType) {
     return function(self, cArgs) {
       var realArgs = [];
@@ -62,7 +56,6 @@
       return new infer.Arr(inner(self, args));
     };
   }
-
   TypeParser.prototype = {
     eat: function(str) {
       if (str.length == 1 ? this.spec.charAt(this.pos) == str : this.spec.indexOf(str, this.pos) == this.pos) {
@@ -115,7 +108,6 @@
         retType = infer.ANull;
       }
       if (computed) return computedFunc(args, retType);
-
       if (top && (fn = this.base))
         infer.Fn.call(this.base, name, infer.ANull, args, names, retType);
       else
@@ -219,7 +211,6 @@
       return instance;
     }
   };
-
   function parseType(spec, name, base, forceNew) {
     var type = new TypeParser(spec, null, base, forceNew).parseType(false, name, true);
     if (/^fn\(/.test(spec)) for (var i = 0; i < type.args.length; ++i) (function(i) {
@@ -231,7 +222,6 @@
     })(i);
     return type;
   }
-
   function addEffect(fn, handler, replaceRet) {
     var oldCmp = fn.computeRet, rv = fn.retval;
     fn.computeRet = function(self, args, argNodes) {
@@ -240,7 +230,6 @@
       return replaceRet ? handled : old;
     };
   }
-
   var parseEffect = exports.parseEffect = function(effect, fn) {
     var m;
     if (effect.indexOf("propagate ") == 0) {
@@ -284,16 +273,12 @@
       throw new Error("Unknown effect type: " + effect);
     }
   };
-
   var currentTopScope;
-
   var parsePath = exports.parsePath = function(path, scope) {
     var cx = infer.cx(), cached = cx.paths[path], origPath = path;
     if (cached != null) return cached;
     cx.paths[path] = infer.ANull;
-
     var base = scope || currentTopScope || cx.topScope;
-
     if (cx.localDefs) for (var name in cx.localDefs) {
       if (path.indexOf(name) == 0) {
         if (path == name) return cx.paths[path] = cx.localDefs[path];
@@ -304,7 +289,6 @@
         }
       }
     }
-
     var parts = path.split(".");
     for (var i = 0; i < parts.length && base != infer.ANull; ++i) {
       var prop = parts[i];
@@ -335,14 +319,12 @@
     cx.paths[origPath] = base == infer.ANull ? null : base;
     return base;
   };
-
   function emptyObj(ctor) {
     var empty = Object.create(ctor.prototype);
     empty.props = Object.create(null);
     empty.isShell = true;
     return empty;
   }
-
   function isSimpleAnnotation(spec) {
     if (!spec["!type"] || /^(fn\(|\[)/.test(spec["!type"])) return false;
     for (var prop in spec)
@@ -350,7 +332,6 @@
         return false;
     return true;
   }
-
   function passOne(base, spec, path) {
     if (!base) {
       var tp = spec["!type"];
@@ -365,7 +346,6 @@
       }
       base.name = path;
     }
-
     for (var name in spec) if (hop(spec, name) && name.charCodeAt(0) != 33) {
       var inner = spec[name];
       if (typeof inner == "string" || isSimpleAnnotation(inner)) continue;
@@ -374,7 +354,6 @@
     }
     return base;
   }
-
   function passTwo(base, spec, path) {
     if (base.isShell) {
       delete base.isShell;
@@ -386,12 +365,10 @@
         infer.Obj.call(base, proto instanceof infer.Obj ? proto : true, path);
       }
     }
-
     var effects = spec["!effects"];
     if (effects && base instanceof infer.Fn) for (var i = 0; i < effects.length; ++i)
       parseEffect(effects[i], base);
     copyInfo(spec, base);
-
     for (var name in spec) if (hop(spec, name) && name.charCodeAt(0) != 33) {
       var inner = spec[name], known = base.defProp(name), innerPath = path ? path + "." + name : name;
       if (typeof inner == "string") {
@@ -410,29 +387,22 @@
     }
     return base;
   }
-
   function copyInfo(spec, type) {
     if (spec["!doc"]) type.doc = spec["!doc"];
     if (spec["!url"]) type.url = spec["!url"];
     if (spec["!span"]) type.span = spec["!span"];
     if (spec["!data"]) type.metaData = spec["!data"];
   }
-
   function runPasses(type, arg) {
     var parent = infer.cx().parent, pass = parent && parent.passes && parent.passes[type];
     if (pass) for (var i = 0; i < pass.length; i++) pass[i](arg);
   }
-
   function doLoadEnvironment(data, scope) {
     var cx = infer.cx();
-
     infer.addOrigin(cx.curOrigin = data["!name"] || "env#" + cx.origins.length);
     cx.localDefs = cx.definitions[cx.curOrigin] = Object.create(null);
-
     runPasses("preLoadDef", data);
-
     passOne(scope, data);
-
     var def = data["!define"];
     if (def) {
       for (var name in def) {
@@ -444,14 +414,10 @@
         if (typeof spec != "string") passTwo(cx.localDefs[name], def[name], name);
       }
     }
-
     passTwo(scope, data);
-
     runPasses("postLoadDef", data);
-
     cx.curOrigin = cx.localDefs = null;
   }
-
   exports.load = function(data, scope) {
     if (!scope) scope = infer.cx().topScope;
     var oldScope = currentTopScope;
@@ -462,14 +428,12 @@
       currentTopScope = oldScope;
     }
   };
-
   exports.parse = function(data, origin, path) {
     var cx = infer.cx();
     if (origin) {
       cx.origin = origin;
       cx.localDefs = cx.definitions[origin];
     }
-
     try {
       if (typeof data == "string")
         return parseType(data, path);
@@ -479,12 +443,10 @@
       if (origin) cx.origin = cx.localDefs = null;
     }
   };
-
   // Used to register custom logic for more involved effect or type
   // computation.
   var customFunctions = Object.create(null);
   infer.registerFunction = function(name, f) { customFunctions[name] = f; };
-
   var IsCreated = infer.constraint("created, target, spec", {
     addType: function(tp) {
       if (tp instanceof infer.Obj && this.created++ < 5) {
@@ -502,16 +464,13 @@
       }
     }
   });
-
   infer.registerFunction("Object_create", function(_self, args, argNodes) {
     if (argNodes && argNodes.length && argNodes[0].type == "Literal" && argNodes[0].value == null)
       return new infer.Obj();
-
     var result = new infer.AVal;
     if (args[0]) args[0].propagate(new IsCreated(0, result, args[1]));
     return result;
   });
-
   var PropSpec = infer.constraint("target", {
     addType: function(tp) {
       if (!(tp instanceof infer.Obj)) return;
@@ -521,7 +480,6 @@
         tp.getProp("get").propagate(new infer.IsCallee(infer.ANull, [], null, this.target));
     }
   });
-
   infer.registerFunction("Object_defineProperty", function(_self, args, argNodes) {
     if (argNodes && argNodes.length >= 3 && argNodes[1].type == "Literal" &&
         typeof argNodes[1].value == "string") {
@@ -531,7 +489,6 @@
     }
     return infer.ANull;
   });
-
   infer.registerFunction("Object_defineProperties", function(_self, args, argNodes) {
     if (args.length >= 2) {
       var obj = args[0];
@@ -544,7 +501,6 @@
     }
     return infer.ANull;
   });
-
   var IsBound = infer.constraint("self, args, target", {
     addType: function(tp) {
       if (!(tp instanceof infer.Fn)) return;
@@ -555,14 +511,12 @@
         this.args[i].propagate(tp.args[i]);
     }
   });
-
   infer.registerFunction("Function_bind", function(self, args) {
     if (!args.length) return infer.ANull;
     var result = new infer.AVal;
     self.propagate(new IsBound(args[0], args.slice(1), result));
     return result;
   });
-
   infer.registerFunction("Array_ctor", function(_self, args) {
     var arr = new infer.Arr;
     if (args.length != 1 || !args[0].hasType(infer.cx().num)) {
@@ -571,7 +525,6 @@
     }
     return arr;
   });
-
   infer.registerFunction("Promise_ctor", function(_self, args, argNodes) {
     if (args.length < 1) return infer.ANull;
     var self = new infer.Obj(infer.cx().definitions.ecma6["Promise.prototype"]);
@@ -583,6 +536,5 @@
     args[0].propagate(new infer.IsCallee(infer.ANull, [exec, reject], null, infer.ANull));
     return self;
   });
-
   return exports;
 });

@@ -1,8 +1,6 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/LICENSE
-
 // declare global: DOMRect
-
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -12,10 +10,8 @@
     mod(CodeMirror);
 })(function(CodeMirror) {
   "use strict";
-
   var HINT_ELEMENT_CLASS        = "CodeMirror-hint";
   var ACTIVE_HINT_ELEMENT_CLASS = "CodeMirror-hint-active";
-
   // This is the old interface, kept around for now to stay
   // backwards-compatible.
   CodeMirror.showHint = function(cm, getHints, options) {
@@ -25,7 +21,6 @@
     if (options) for (var prop in options) newOpts[prop] = options[prop];
     return cm.showHint(newOpts);
   };
-
   CodeMirror.defineExtension("showHint", function(options) {
     options = parseOptions(this, this.getCursor("start"), options);
     var selections = this.listSelections();
@@ -39,19 +34,15 @@
       for (var i = 0; i < selections.length; i++)
         if (selections[i].head.line != selections[i].anchor.line) return;
     }
-
     if (this.state.completionActive) this.state.completionActive.close();
     var completion = this.state.completionActive = new Completion(this, options);
     if (!completion.options.hint) return;
-
     CodeMirror.signal(this, "startCompletion", this);
     completion.update(true);
   });
-
   CodeMirror.defineExtension("closeHint", function() {
     if (this.state.completionActive) this.state.completionActive.close()
   });
-
   function Completion(cm, options) {
     this.cm = cm;
     this.options = options;
@@ -60,18 +51,15 @@
     this.tick = 0;
     this.startPos = this.cm.getCursor("start");
     this.startLen = this.cm.getLine(this.startPos.line).length - this.cm.getSelection().length;
-
     if (this.options.updateOnCursorActivity) {
       var self = this;
       cm.on("cursorActivity", this.activityFunc = function() { self.cursorActivity(); });
     }
   }
-
   var requestAnimationFrame = window.requestAnimationFrame || function(fn) {
     return setTimeout(fn, 1000/60);
   };
   var cancelAnimationFrame = window.cancelAnimationFrame || clearTimeout;
-
   Completion.prototype = {
     close: function() {
       if (!this.active()) return;
@@ -80,16 +68,13 @@
       if (this.options.updateOnCursorActivity) {
         this.cm.off("cursorActivity", this.activityFunc);
       }
-
       if (this.widget && this.data) CodeMirror.signal(this.data, "close");
       if (this.widget) this.widget.close();
       CodeMirror.signal(this.cm, "endCompletion", this.cm);
     },
-
     active: function() {
       return this.cm.state.completionActive == this;
     },
-
     pick: function(data, i) {
       var completion = data.list[i], self = this;
       this.cm.operation(function() {
@@ -105,18 +90,15 @@
         this.close();
       }
     },
-
     cursorActivity: function() {
       if (this.debounce) {
         cancelAnimationFrame(this.debounce);
         this.debounce = 0;
       }
-
       var identStart = this.startPos;
       if(this.data) {
         identStart = this.data.from;
       }
-
       var pos = this.cm.getCursor(), line = this.cm.getLine(pos.line);
       if (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
           pos.ch < identStart.ch || this.cm.somethingSelected() ||
@@ -128,7 +110,6 @@
         if (this.widget) this.widget.disable();
       }
     },
-
     update: function(first) {
       if (this.tick == null) return
       var self = this, myTick = ++this.tick
@@ -136,15 +117,11 @@
         if (self.tick == myTick) self.finishUpdate(data, first)
       })
     },
-
     finishUpdate: function(data, first) {
       if (this.data) CodeMirror.signal(this.data, "update");
-
       var picked = (this.widget && this.widget.picked) || (first && this.options.completeSingle);
       if (this.widget) this.widget.close();
-
       this.data = data;
-
       if (data && data.list.length) {
         if (picked && data.list.length == 1) {
           this.pick(data, 0);
@@ -155,7 +132,6 @@
       }
     }
   };
-
   function parseOptions(cm, pos, options) {
     var editor = cm.options.hintOptions;
     var out = {};
@@ -167,12 +143,10 @@
     if (out.hint.resolve) out.hint = out.hint.resolve(cm, pos)
     return out;
   }
-
   function getText(completion) {
     if (typeof completion == "string") return completion;
     else return completion.text;
   }
-
   function buildKeyMap(completion, handle) {
     var baseMap = {
       Up: function() {handle.moveFocus(-1);},
@@ -185,14 +159,11 @@
       Tab: handle.pick,
       Esc: handle.close
     };
-
     var mac = /Mac/.test(navigator.platform);
-
     if (mac) {
       baseMap["Ctrl-P"] = function() {handle.moveFocus(-1);};
       baseMap["Ctrl-N"] = function() {handle.moveFocus(1);};
     }
-
     var custom = completion.options.customKeys;
     var ourMap = custom ? {} : baseMap;
     function addBinding(key, val) {
@@ -215,14 +186,12 @@
         addBinding(key, extra[key]);
     return ourMap;
   }
-
   function getHintElement(hintsElement, el) {
     while (el && el != hintsElement) {
       if (el.nodeName.toUpperCase() === "LI" && el.parentNode == hintsElement) return el;
       el = el.parentNode;
     }
   }
-
   function Widget(completion, data) {
     this.id = "cm-complete-" + Math.floor(Math.random(1e6))
     this.completion = completion;
@@ -231,7 +200,6 @@
     var widget = this, cm = completion.cm;
     var ownerDocument = cm.getInputField().ownerDocument;
     var parentWindow = ownerDocument.defaultView || ownerDocument.parentWindow;
-
     var hints = this.hints = ownerDocument.createElement("ul");
     hints.setAttribute("role", "listbox")
     hints.setAttribute("aria-expanded", "true")
@@ -239,7 +207,6 @@
     var theme = completion.cm.options.theme;
     hints.className = "CodeMirror-hints " + theme;
     this.selectedHint = data.selectedHint || 0;
-
     var completions = data.list;
     for (var i = 0; i < completions.length; ++i) {
       var elt = hints.appendChild(ownerDocument.createElement("li")), cur = completions[i];
@@ -253,7 +220,6 @@
       else elt.appendChild(ownerDocument.createTextNode(cur.displayText || getText(cur)));
       elt.hintId = i;
     }
-
     var container = completion.options.container || ownerDocument.body;
     var pos = cm.cursorCoords(completion.options.alignWithWord ? data.from : null);
     var left = pos.left, top = pos.bottom, below = true;
@@ -269,7 +235,6 @@
     }
     hints.style.left = (left - offsetLeft) + "px";
     hints.style.top = (top - offsetTop) + "px";
-
     // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
     var winW = parentWindow.innerWidth || Math.max(ownerDocument.body.offsetWidth, ownerDocument.documentElement.offsetWidth);
     var winH = parentWindow.innerHeight || Math.max(ownerDocument.body.offsetHeight, ownerDocument.documentElement.offsetHeight);
@@ -277,14 +242,11 @@
     cm.getInputField().setAttribute("aria-autocomplete", "list")
     cm.getInputField().setAttribute("aria-owns", this.id)
     cm.getInputField().setAttribute("aria-activedescendant", this.id + "-" + this.selectedHint)
-
     var box = completion.options.moveOnOverlap ? hints.getBoundingClientRect() : new DOMRect();
     var scrolls = completion.options.paddingForScrollbar ? hints.scrollHeight > hints.clientHeight + 1 : false;
-
     // Compute in the timeout to avoid reflow on init
     var startScroll;
     setTimeout(function() { startScroll = cm.getScrollInfo(); });
-
     var overlapY = box.bottom - winH;
     if (overlapY > 0) {
       var height = box.bottom - box.top, curTop = pos.top - (pos.bottom - box.top);
@@ -313,7 +275,6 @@
     }
     if (scrolls) for (var node = hints.firstChild; node; node = node.nextSibling)
       node.style.paddingRight = cm.display.nativeBarWidth + "px"
-
     cm.addKeyMap(this.keyMap = buildKeyMap(completion, {
       moveFocus: function(n, avoidWrap) { widget.changeActive(widget.selectedHint + n, avoidWrap); },
       setFocus: function(n) { widget.changeActive(n); },
@@ -323,13 +284,11 @@
       pick: function() { widget.pick(); },
       data: data
     }));
-
     if (completion.options.closeOnUnfocus) {
       var closingOnBlur;
       cm.on("blur", this.onBlur = function() { closingOnBlur = setTimeout(function() { completion.close(); }, 100); });
       cm.on("focus", this.onFocus = function() { clearTimeout(closingOnBlur); });
     }
-
     cm.on("scroll", this.onScroll = function() {
       var curScroll = cm.getScrollInfo(), editor = cm.getWrapperElement().getBoundingClientRect();
       if (!startScroll) startScroll = cm.getScrollInfo();
@@ -340,12 +299,10 @@
       hints.style.top = newTop + "px";
       hints.style.left = (left + startScroll.left - curScroll.left) + "px";
     });
-
     CodeMirror.on(hints, "dblclick", function(e) {
       var t = getHintElement(hints, e.target || e.srcElement);
       if (t && t.hintId != null) {widget.changeActive(t.hintId); widget.pick();}
     });
-
     CodeMirror.on(hints, "click", function(e) {
       var t = getHintElement(hints, e.target || e.srcElement);
       if (t && t.hintId != null) {
@@ -353,21 +310,17 @@
         if (completion.options.completeOnSingleClick) widget.pick();
       }
     });
-
     CodeMirror.on(hints, "mousedown", function() {
       setTimeout(function(){cm.focus();}, 20);
     });
-
     // The first hint doesn't need to be scrolled to on init
     var selectedHintRange = this.getSelectedHintRange();
     if (selectedHintRange.from !== 0 || selectedHintRange.to !== 0) {
       this.scrollToActive();
     }
-
     CodeMirror.signal(data, "select", completions[this.selectedHint], hints.childNodes[this.selectedHint]);
     return true;
   }
-
   Widget.prototype = {
     close: function() {
       if (this.completion.widget != this) return;
@@ -377,7 +330,6 @@
       var input = this.completion.cm.getInputField()
       input.removeAttribute("aria-activedescendant")
       input.removeAttribute("aria-owns")
-
       var cm = this.completion.cm;
       if (this.completion.options.closeOnUnfocus) {
         cm.off("blur", this.onBlur);
@@ -385,18 +337,15 @@
       }
       cm.off("scroll", this.onScroll);
     },
-
     disable: function() {
       this.completion.cm.removeKeyMap(this.keyMap);
       var widget = this;
       this.keyMap = {Enter: function() { widget.picked = true; }};
       this.completion.cm.addKeyMap(this.keyMap);
     },
-
     pick: function() {
       this.completion.pick(this.data, this.selectedHint);
     },
-
     changeActive: function(i, avoidWrap) {
       if (i >= this.data.list.length)
         i = avoidWrap ? this.data.list.length - 1 : 0;
@@ -415,7 +364,6 @@
       this.scrollToActive()
       CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
     },
-
     scrollToActive: function() {
       var selectedHintRange = this.getSelectedHintRange();
       var node1 = this.hints.childNodes[selectedHintRange.from];
@@ -426,11 +374,9 @@
       else if (node2.offsetTop + node2.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
         this.hints.scrollTop = node2.offsetTop + node2.offsetHeight - this.hints.clientHeight + firstNode.offsetTop;
     },
-
     screenAmount: function() {
       return Math.floor(this.hints.clientHeight / this.hints.firstChild.offsetHeight) || 1;
     },
-
     getSelectedHintRange: function() {
       var margin = this.completion.options.scrollMargin || 0;
       return {
@@ -439,7 +385,6 @@
       };
     }
   };
-
   function applicableHelpers(cm, helpers) {
     if (!cm.somethingSelected()) return helpers
     var result = []
@@ -447,7 +392,6 @@
       if (helpers[i].supportsSelection) result.push(helpers[i])
     return result
   }
-
   function fetchHints(hint, cm, options, callback) {
     if (hint.async) {
       hint(cm, callback, options)
@@ -457,7 +401,6 @@
       else callback(result)
     }
   }
-
   function resolveAutoHints(cm, pos) {
     var helpers = cm.getHelpers(pos, "hint"), words
     if (helpers.length) {
@@ -483,11 +426,9 @@
       return function() {}
     }
   }
-
   CodeMirror.registerHelper("hint", "auto", {
     resolve: resolveAutoHints
   });
-
   CodeMirror.registerHelper("hint", "fromList", function(cm, options) {
     var cur = cm.getCursor(), token = cm.getTokenAt(cur)
     var term, from = CodeMirror.Pos(cur.line, token.start), to = cur
@@ -503,12 +444,9 @@
       if (word.slice(0, term.length) == term)
         found.push(word);
     }
-
     if (found.length) return {list: found, from: from, to: to};
   });
-
   CodeMirror.commands.autocomplete = CodeMirror.showHint;
-
   var defaultOptions = {
     hint: CodeMirror.hint.auto,
     completeSingle: true,
@@ -524,6 +462,5 @@
     paddingForScrollbar: true,
     moveOnOverlap: true,
   };
-
   CodeMirror.defineOption("hintOptions", null);
 });

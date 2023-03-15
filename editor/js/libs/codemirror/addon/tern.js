@@ -1,6 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/LICENSE
-
 // Glue code between CodeMirror and Tern.
 //
 // Create a CodeMirror.TernServer to wrap an actual Tern server,
@@ -42,7 +41,6 @@
 //   to the Acorn and Tern libraries and any Tern plugins you want to
 //   load. Or, if you minified those into a single script and included
 //   them in the workerScript, simply leave this undefined.
-
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -53,7 +51,6 @@
 })(function(CodeMirror) {
   "use strict";
   // declare global: tern
-
   CodeMirror.TernServer = function(options) {
     var self = this;
     this.options = options || {};
@@ -71,15 +68,12 @@
       });
     }
     this.trackChange = function(doc, change) { trackChange(self, doc, change); };
-
     this.cachedArgHints = null;
     this.activeArgHints = null;
     this.jumpStack = [];
-
     this.getHint = function(cm, c) { return hint(self, cm, c); };
     this.getHint.async = true;
   };
-
   CodeMirror.TernServer.prototype = {
     addDoc: function(name, doc) {
       var data = {doc: doc, name: name, changed: null};
@@ -87,7 +81,6 @@
       CodeMirror.on(doc, "change", this.trackChange);
       return this.docs[name] = data;
     },
-
     delDoc: function(id) {
       var found = resolveDoc(this, id);
       if (!found) return;
@@ -95,46 +88,34 @@
       delete this.docs[found.name];
       this.server.delFile(found.name);
     },
-
     hideDoc: function(id) {
       closeArgHints(this);
       var found = resolveDoc(this, id);
       if (found && found.changed) sendDoc(this, found);
     },
-
     complete: function(cm) {
       cm.showHint({hint: this.getHint});
     },
-
     showType: function(cm, pos, c) { showContextInfo(this, cm, pos, "type", c); },
-
     showDocs: function(cm, pos, c) { showContextInfo(this, cm, pos, "documentation", c); },
-
     updateArgHints: function(cm) { updateArgHints(this, cm); },
-
     jumpToDef: function(cm) { jumpToDef(this, cm); },
-
     jumpBack: function(cm) { jumpBack(this, cm); },
-
     rename: function(cm) { rename(this, cm); },
-
     selectName: function(cm) { selectName(this, cm); },
-
     request: function (cm, query, c, pos) {
       var self = this;
       var doc = findDoc(this, cm.getDoc());
       var request = buildRequest(this, doc, query, pos);
       var extraOptions = request.query && this.options.queryOptions && this.options.queryOptions[request.query.type]
       if (extraOptions) for (var prop in extraOptions) request.query[prop] = extraOptions[prop];
-
       this.server.request(request, function (error, data) {
         if (!error && self.options.responseFilter)
           data = self.options.responseFilter(doc, query, request, error, data);
         c(error, data);
       });
     },
-
-    destroy: function () {
+    destroy: function() {
       closeArgHints(this)
       if (this.worker) {
         this.worker.terminate();
@@ -142,11 +123,9 @@
       }
     }
   };
-
   var Pos = CodeMirror.Pos;
   var cls = "CodeMirror-Tern-";
   var bigDoc = 250;
-
   function getFile(ts, name, c) {
     var buf = ts.docs[name];
     if (buf)
@@ -156,7 +135,6 @@
     else
       c(null);
   }
-
   function findDoc(ts, doc, name) {
     for (var n in ts.docs) {
       var cur = ts.docs[n];
@@ -168,20 +146,16 @@
     }
     return ts.addDoc(name, doc);
   }
-
   function resolveDoc(ts, id) {
     if (typeof id == "string") return ts.docs[id];
     if (id instanceof CodeMirror) id = id.getDoc();
     if (id instanceof CodeMirror.Doc) return findDoc(ts, id);
   }
-
   function trackChange(ts, doc, change) {
     var data = findDoc(ts, doc);
-
     var argHints = ts.cachedArgHints;
     if (argHints && argHints.doc == doc && cmpPos(argHints.start, change.to) >= 0)
       ts.cachedArgHints = null;
-
     var changed = data.changed;
     if (changed == null)
       data.changed = changed = {from: change.from.line, to: change.from.line};
@@ -189,21 +163,17 @@
     if (change.from.line < changed.to) changed.to = changed.to - (change.to.line - end);
     if (end >= changed.to) changed.to = end + 1;
     if (changed.from > change.from.line) changed.from = change.from.line;
-
     if (doc.lineCount() > bigDoc && change.to - changed.from > 100) setTimeout(function() {
       if (data.changed && data.changed.to - data.changed.from > 100) sendDoc(ts, data);
     }, 200);
   }
-
   function sendDoc(ts, doc) {
     ts.server.request({files: [{type: "full", name: doc.name, text: docValue(ts, doc)}]}, function(error) {
       if (error) window.console.error(error);
       else doc.changed = null;
     });
   }
-
   // Completion
-
   function hint(ts, cm, c) {
     ts.request(cm, {type: "completions", types: true, docs: true, urls: true}, function(error, data) {
       if (error) return showError(ts, cm, error);
@@ -212,7 +182,6 @@
       if (cm.getRange(Pos(from.line, from.ch - 2), from) == "[\"" &&
           cm.getRange(to, Pos(to.line, to.ch + 2)) != "\"]")
         after = "\"]";
-
       for (var i = 0; i < data.completions.length; ++i) {
         var completion = data.completions[i], className = typeToIcon(completion.type);
         if (data.guess) className += " " + cls + "guess";
@@ -221,7 +190,6 @@
                           className: className,
                           data: completion});
       }
-
       var obj = {from: from, to: to, list: completions};
       var tooltip = null;
       CodeMirror.on(obj, "close", function() { remove(tooltip); });
@@ -237,7 +205,6 @@
       c(obj);
     });
   }
-
   function typeToIcon(type) {
     var suffix;
     if (type == "?") suffix = "unknown";
@@ -247,9 +214,7 @@
     else suffix = "object";
     return cls + "completion " + cls + "completion-" + suffix;
   }
-
   // Type queries
-
   function showContextInfo(ts, cm, pos, queryName, c) {
     ts.request(cm, queryName, function(error, data) {
       if (error) return showError(ts, cm, error);
@@ -270,19 +235,15 @@
       if (c) c();
     }, pos);
   }
-
   // Maintaining argument hints
-
   function updateArgHints(ts, cm) {
     closeArgHints(ts);
-
     if (cm.somethingSelected()) return;
     var state = cm.getTokenAt(cm.getCursor()).state;
     var inner = CodeMirror.innerMode(cm.getMode(), state);
     if (inner.mode.name != "javascript") return;
     var lex = inner.state.lexical;
     if (lex.info != "call") return;
-
     var ch, argPos = lex.pos || 0, tabSize = cm.getOption("tabSize");
     for (var line = cm.getCursor().line, e = Math.max(0, line - 9), found = false; line >= e; --line) {
       var str = cm.getLine(line), extra = 0;
@@ -296,12 +257,10 @@
       if (str.charAt(ch) == "(") {found = true; break;}
     }
     if (!found) return;
-
     var start = Pos(line, ch);
     var cache = ts.cachedArgHints;
     if (cache && cache.doc == cm.getDoc() && cmpPos(start, cache.start) == 0)
       return showArgHints(ts, cm, argPos);
-
     ts.request(cm, {type: "type", preferFunction: true, end: start}, function(error, data) {
       if (error || !data.type || !(/^fn\(/).test(data.type)) return;
       ts.cachedArgHints = {
@@ -314,10 +273,8 @@
       showArgHints(ts, cm, argPos);
     });
   }
-
   function showArgHints(ts, cm, pos) {
     closeArgHints(ts);
-
     var cache = ts.cachedArgHints, tp = cache.type;
     var tip = elt("span", cache.guess ? cls + "fhint-guess" : null,
                   elt("span", cls + "fname", cache.name), "(");
@@ -339,10 +296,8 @@
         if (ts.activeArgHints == tooltip) closeArgHints(ts) })
     }, 20)
   }
-
   function parseFnType(text) {
     var args = [], pos = 3;
-
     function skipMatching(upto) {
       var depth = 0, start = pos;
       for (;;) {
@@ -353,7 +308,6 @@
         ++pos;
       }
     }
-
     // Parse arguments
     if (text.charAt(pos) != ")") for (;;) {
       var name = text.slice(pos).match(/^([^, \(\[\{]+): /);
@@ -365,14 +319,10 @@
       if (text.charAt(pos) == ")") break;
       pos += 2;
     }
-
     var rettype = text.slice(pos).match(/^\) -> (.*)$/);
-
     return {args: args, rettype: rettype && rettype[1]};
   }
-
   // Moving to the definition of something
-
   function jumpToDef(ts, cm) {
     function inner(varName) {
       var req = {type: "definition", variable: varName || null};
@@ -380,7 +330,6 @@
       ts.server.request(buildRequest(ts, doc, req), function(error, data) {
         if (error) return showError(ts, cm, error);
         if (!data.file && data.url) { window.open(data.url); return; }
-
         if (data.file) {
           var localDoc = ts.docs[data.file], found;
           if (localDoc && (found = findContext(localDoc.doc, data))) {
@@ -394,19 +343,16 @@
         showError(ts, cm, "Could not find a definition.");
       });
     }
-
     if (!atInterestingExpression(cm))
       dialog(cm, "Jump to variable", function(name) { if (name) inner(name); });
     else
       inner();
   }
-
   function jumpBack(ts, cm) {
     var pos = ts.jumpStack.pop(), doc = pos && ts.docs[pos.file];
     if (!doc) return;
     moveTo(ts, findDoc(ts, cm.getDoc()), doc, pos.start, pos.end);
   }
-
   function moveTo(ts, curDoc, doc, start, end) {
     doc.doc.setSelection(start, end);
     if (curDoc != doc && ts.options.switchToDoc) {
@@ -414,18 +360,15 @@
       ts.options.switchToDoc(doc.name, doc.doc);
     }
   }
-
   // The {line,ch} representation of positions makes this rather awkward.
   function findContext(doc, data) {
     var before = data.context.slice(0, data.contextOffset).split("\n");
     var startLine = data.start.line - (before.length - 1);
     var start = Pos(startLine, (before.length == 1 ? data.start.ch : doc.getLine(startLine).length) - before[0].length);
-
     var text = doc.getLine(startLine).slice(start.ch);
     for (var cur = startLine + 1; cur < doc.lineCount() && text.length < data.context.length; ++cur)
       text += "\n" + doc.getLine(cur);
     if (text.slice(0, data.context.length) == data.context) return data;
-
     var cursor = doc.getSearchCursor(data.context, 0, false);
     var nearest, nearestDist = Infinity;
     while (cursor.findNext()) {
@@ -434,7 +377,6 @@
       if (dist < nearestDist) { nearest = from; nearestDist = dist; }
     }
     if (!nearest) return null;
-
     if (before.length == 1)
       nearest.ch += before[0].length;
     else
@@ -445,15 +387,12 @@
       var end = Pos(nearest.line + (data.end.line - data.start.line), data.end.ch);
     return {start: nearest, end: end};
   }
-
   function atInterestingExpression(cm) {
     var pos = cm.getCursor("end"), tok = cm.getTokenAt(pos);
     if (tok.start < pos.ch && tok.type == "comment") return false;
     return /[\w)\]]/.test(cm.getLine(pos.line).slice(Math.max(pos.ch - 1, 0), pos.ch + 1));
   }
-
   // Variable renaming
-
   function rename(ts, cm) {
     var token = cm.getTokenAt(cm.getCursor());
     if (!/\w/.test(token.string)) return showError(ts, cm, "Not at a variable");
@@ -464,7 +403,6 @@
       });
     });
   }
-
   function selectName(ts, cm) {
     var name = findDoc(ts, cm.doc).name;
     ts.request(cm, {type: "refs"}, function(error, data) {
@@ -482,7 +420,6 @@
       cm.setSelections(ranges, cur);
     });
   }
-
   var nextChangeOrig = 0;
   function applyChanges(ts, changes) {
     var perFile = Object.create(null);
@@ -501,9 +438,7 @@
       }
     }
   }
-
   // Generic request-building helper
-
   function buildRequest(ts, doc, query, pos) {
     var files = [], offsetLines = 0, allowFragments = !query.fullDocs;
     if (!allowFragments) delete query.fullDocs;
@@ -515,7 +450,6 @@
         query.start = doc.doc.getCursor("start");
     }
     var startPos = query.start || query.end;
-
     if (doc.changed) {
       if (doc.doc.lineCount() > bigDoc && allowFragments !== false &&
           doc.changed.to - doc.changed.from < 100 &&
@@ -542,10 +476,8 @@
         cur.changed = null;
       }
     }
-
     return {query: query, files: files};
   }
-
   function getFragmentAround(data, start, end) {
     var doc = data.doc;
     var minIndent = null, minLine = null, endLine, tabSize = 4;
@@ -566,17 +498,13 @@
       if (indent <= minIndent) break;
     }
     var from = Pos(minLine, 0);
-
     return {type: "part",
             name: data.name,
             offsetLines: from.line,
             text: doc.getRange(from, Pos(endLine, end.line == endLine ? null : 0))};
   }
-
   // Generic utilities
-
   var cmpPos = CodeMirror.cmpPos;
-
   function elt(tagname, cls /*, ... elts*/) {
     var e = document.createElement(tagname);
     if (cls) e.className = cls;
@@ -587,16 +515,13 @@
     }
     return e;
   }
-
   function dialog(cm, text, f) {
     if (cm.openDialog)
       cm.openDialog(text + ": <input type=text>", f);
     else
       f(prompt(text, ""));
   }
-
   // Tooltips
-
   function tempTooltip(cm, content, ts) {
     if (cm.state.ternTooltip) remove(cm.state.ternTooltip);
     var where = cm.cursorCoords();
@@ -622,7 +547,6 @@
     setTimeout(maybeClear, ts.options.hintDelay ? ts.options.hintDelay : 1700);
     var clearActivity = onEditorActivity(cm, clear)
   }
-
   function onEditorActivity(cm, f) {
     cm.on("cursorActivity", f)
     cm.on("blur", f)
@@ -635,14 +559,12 @@
       cm.off("setDoc", f)
     }
   }
-
   function makeTooltip(x, y, content, cm, className) {
     var node = elt("div", cls + "tooltip" + " " + (className || ""), content);
     node.style.left = x + "px";
     node.style.top = y + "px";
     var container = ((cm.options || {}).hintOptions || {}).container || document.body;
     container.appendChild(node);
-
     var pos = cm.cursorCoords();
     var winW = window.innerWidth;
     var winH = window.innerHeight;
@@ -650,7 +572,6 @@
     var hints = document.querySelector(".CodeMirror-hints");
     var overlapY = box.bottom - winH;
     var overlapX = box.right - winW;
-
     if (hints && overlapX > 0) {
       node.style.left = 0;
       var box = node.getBoundingClientRect();
@@ -673,27 +594,22 @@
       }
       node.style.left = (x - overlapX) + "px";
     }
-
     return node;
   }
-
   function remove(node) {
     var p = node && node.parentNode;
     if (p) p.removeChild(node);
   }
-
   function fadeOut(tooltip) {
     tooltip.style.opacity = "0";
     setTimeout(function() { remove(tooltip); }, 1100);
   }
-
   function showError(ts, cm, msg) {
     if (ts.options.showError)
       ts.options.showError(cm, msg);
     else
       tempTooltip(cm, String(msg), ts);
   }
-
   function closeArgHints(ts) {
     if (ts.activeArgHints) {
       if (ts.activeArgHints.clear) ts.activeArgHints.clear()
@@ -701,15 +617,12 @@
       ts.activeArgHints = null
     }
   }
-
   function docValue(ts, doc) {
     var val = doc.doc.getValue();
     if (ts.options.fileFilter) val = ts.options.fileFilter(val, doc.name, doc.doc);
     return val;
   }
-
   // Worker wrapper
-
   function WorkerServer(ts) {
     var worker = ts.worker = new Worker(ts.options.workerScript);
     worker.postMessage({type: "init",
@@ -717,7 +630,6 @@
                         plugins: ts.options.plugins,
                         scripts: ts.options.workerDeps});
     var msgId = 0, pending = {};
-
     function send(data, c) {
       if (c) {
         data.id = ++msgId;
@@ -742,7 +654,6 @@
       for (var id in pending) pending[id](e);
       pending = {};
     };
-
     this.addFile = function(name, text) { send({type: "add", name: name, text: text}); };
     this.delFile = function(name) { send({type: "del", name: name}); };
     this.request = function(body, c) { send({type: "req", body: body}, c); };

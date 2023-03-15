@@ -21,7 +21,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEAL-
 // INGS IN THE SOFTWARE.
-
 /* Jison generated parser */
 var jsonlint = (function(){
 var parser = {trace: function trace() { },
@@ -30,7 +29,6 @@ symbols_: {"error":2,"JSONString":3,"STRING":4,"JSONNumber":5,"NUMBER":6,"JSONNu
 terminals_: {2:"error",4:"STRING",6:"NUMBER",8:"NULL",10:"TRUE",11:"FALSE",14:"EOF",17:"{",18:"}",21:":",22:",",23:"[",24:"]"},
 productions_: [0,[3,1],[5,1],[7,1],[9,1],[9,1],[12,2],[13,1],[13,1],[13,1],[13,1],[13,1],[13,1],[15,2],[15,3],[20,3],[19,1],[19,3],[16,2],[16,3],[25,1],[25,3]],
 performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
-
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1: // replace escaped characters with actual character
@@ -41,7 +39,6 @@ case 1: // replace escaped characters with actual character
                      .replace(/\\v/g,'\v')
                      .replace(/\\f/g,'\f')
                      .replace(/\\b/g,'\b');
-
 break;
 case 2:this.$ = Number(yytext);
 break;
@@ -90,9 +87,7 @@ parse: function parse(input) {
         recovering = 0,
         TERROR = 2,
         EOF = 1;
-
     //this.reductionCount = this.shiftCount = 0;
-
     this.lexer.setInput(input);
     this.lexer.yy = this.yy;
     this.yy.lexer = this.lexer;
@@ -100,16 +95,13 @@ parse: function parse(input) {
         this.lexer.yylloc = {};
     var yyloc = this.lexer.yylloc;
     lstack.push(yyloc);
-
     if (typeof this.yy.parseError === 'function')
         this.parseError = this.yy.parseError;
-
     function popStack (n) {
         stack.length = stack.length - 2*n;
         vstack.length = vstack.length - n;
         lstack.length = lstack.length - n;
     }
-
     function lex() {
         var token;
         token = self.lexer.lex() || 1; // $end = 1
@@ -119,12 +111,10 @@ parse: function parse(input) {
         }
         return token;
     }
-
     var symbol, preErrorSymbol, state, action, r, yyval={},p,len,newState, expected;
     while (true) {
         // retreive state number from top of stack
         state = stack[stack.length-1];
-
         // use default actions if available
         if (this.defaultActions[state]) {
             action = this.defaultActions[state];
@@ -134,11 +124,9 @@ parse: function parse(input) {
             // read action for current state and first input
             action = table[state] && table[state][symbol];
         }
-
         // handle parse error
         _handle_error:
         if (typeof action === 'undefined' || !action.length || !action[0]) {
-
             if (!recovering) {
                 // Report error
                 expected = [];
@@ -156,13 +144,11 @@ parse: function parse(input) {
                 this.parseError(errStr,
                     {text: this.lexer.match, token: this.terminals_[symbol] || symbol, line: this.lexer.yylineno, loc: yyloc, expected: expected});
             }
-
             // just recovered from another error
             if (recovering == 3) {
                 if (symbol == EOF) {
                     throw new Error(errStr || 'Parsing halted.');
                 }
-
                 // discard current lookahead and grab another
                 yyleng = this.lexer.yyleng;
                 yytext = this.lexer.yytext;
@@ -170,7 +156,6 @@ parse: function parse(input) {
                 yyloc = this.lexer.yylloc;
                 symbol = lex();
             }
-
             // try to recover from error
             while (1) {
                 // check for error recovery rule in this state
@@ -183,24 +168,19 @@ parse: function parse(input) {
                 popStack(1);
                 state = stack[stack.length-1];
             }
-
             preErrorSymbol = symbol; // save the lookahead token
             symbol = TERROR;         // insert generic error symbol as new lookahead
             state = stack[stack.length-1];
             action = table[state] && table[state][TERROR];
             recovering = 3; // allow 3 real symbols to be shifted before reporting a new error
         }
-
         // this shouldn't happen, unless resolve defaults are off
         if (action[0] instanceof Array && action.length > 1) {
             throw new Error('Parse Error: multiple actions possible at state: '+state+', token: '+symbol);
         }
-
         switch (action[0]) {
-
             case 1: // shift
                 //this.shiftCount++;
-
                 stack.push(symbol);
                 vstack.push(this.lexer.yytext);
                 lstack.push(this.lexer.yylloc);
@@ -218,12 +198,9 @@ parse: function parse(input) {
                     preErrorSymbol = null;
                 }
                 break;
-
             case 2: // reduce
                 //this.reductionCount++;
-
                 len = this.productions_[action[1]][1];
-
                 // perform semantic action
                 yyval.$ = vstack[vstack.length-len]; // default to $$ = $1
                 // default location, uses first token for firsts, last for lasts
@@ -234,18 +211,15 @@ parse: function parse(input) {
                     last_column: lstack[lstack.length-1].last_column
                 };
                 r = this.performAction.call(yyval, yytext, yyleng, yylineno, this.yy, action[1], vstack, lstack);
-
                 if (typeof r !== 'undefined') {
                     return r;
                 }
-
                 // pop off stack
                 if (len) {
                     stack = stack.slice(0,-1*len*2);
                     vstack = vstack.slice(0, -1*len);
                     lstack = lstack.slice(0, -1*len);
                 }
-
                 stack.push(this.productions_[action[1]][0]);    // push nonterminal (reduce)
                 vstack.push(yyval.$);
                 lstack.push(yyval._$);
@@ -253,13 +227,10 @@ parse: function parse(input) {
                 newState = table[stack[stack.length-2]][stack[stack.length-1]];
                 stack.push(newState);
                 break;
-
             case 3: // accept
                 return true;
         }
-
     }
-
 }};
 /* Jison generated lexer */
 var lexer = (function(){
@@ -280,7 +251,7 @@ setInput:function (input) {
         this.yylloc = {first_line:1,first_column:0,last_line:1,last_column:0};
         return this;
     },
-input:function () {
+input:function() {
         var ch = this._input[0];
         this.yytext+=ch;
         this.yyleng++;
@@ -295,35 +266,34 @@ unput:function (ch) {
         this._input = ch + this._input;
         return this;
     },
-more:function () {
+more:function() {
         this._more = true;
         return this;
     },
 less:function (n) {
         this._input = this.match.slice(n) + this._input;
     },
-pastInput:function () {
+pastInput:function() {
         var past = this.matched.substr(0, this.matched.length - this.match.length);
         return (past.length > 20 ? '...':'') + past.substr(-20).replace(/\n/g, "");
     },
-upcomingInput:function () {
+upcomingInput:function() {
         var next = this.match;
         if (next.length < 20) {
             next += this._input.substr(0, 20-next.length);
         }
         return (next.substr(0,20)+(next.length > 20 ? '...':'')).replace(/\n/g, "");
     },
-showPosition:function () {
+showPosition:function() {
         var pre = this.pastInput();
         var c = new Array(pre.length + 1).join("-");
         return pre + this.upcomingInput() + "\n" + c+"^";
     },
-next:function () {
+next:function() {
         if (this.done) {
             return this.EOF;
         }
         if (!this._input) this.done = true;
-
         var token,
             match,
             tempMatch,
@@ -384,7 +354,7 @@ popState:function popState() {
 _currentRules:function _currentRules() {
         return this.conditions[this.conditionStack[this.conditionStack.length-1]].rules;
     },
-topState:function () {
+topState:function() {
         return this.conditionStack[this.conditionStack.length-2];
     },
 pushState:function begin(condition) {
@@ -392,7 +362,6 @@ pushState:function begin(condition) {
     }});
 lexer.options = {};
 lexer.performAction = function anonymous(yy,yy_,$avoiding_name_collisions) {
-
 switch($avoiding_name_collisions) {
 case 0:/* skip whitespace */
 break;
@@ -426,8 +395,6 @@ break;
 };
 lexer.rules = [/^(?:\s+)/,/^(?:(-?([0-9]|[1-9][0-9]+))(\.[0-9]+)?([eE][-+]?[0-9]+)?\b)/,/^(?:"(?:\\[\\"bfnrt/]|\\u[a-fA-F0-9]{4}|[^\\\0-\x09\x0a-\x1f"])*")/,/^(?:\{)/,/^(?:\})/,/^(?:\[)/,/^(?:\])/,/^(?:,)/,/^(?::)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:null\b)/,/^(?:$)/,/^(?:.)/];
 lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"inclusive":true}};
-
-
 ;
 return lexer;})()
 parser.lexer = lexer;
@@ -435,7 +402,7 @@ return parser;
 })();
 if (typeof require !== 'undefined' && typeof exports !== 'undefined') {
 exports.parser = jsonlint;
-exports.parse = function () { return jsonlint.parse.apply(jsonlint, arguments); }
+exports.parse = function() { return jsonlint.parse.apply(jsonlint, arguments); }
 exports.main = function commonjsMain(args) {
     if (!args[1])
         throw new Error('Usage: '+args[0]+' FILE');

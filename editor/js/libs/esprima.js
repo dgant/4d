@@ -13,42 +13,31 @@
 return /******/ (function(modules) { // webpackBootstrap
 /******/   // The module cache
 /******/   var installedModules = {};
-
 /******/   // The require function
 /******/   function __webpack_require__(moduleId) {
-
 /******/     // Check if module is in cache
 /* istanbul ignore if */
 /******/     if(installedModules[moduleId])
 /******/       return installedModules[moduleId].exports;
-
 /******/     // Create a new module (and put it into the cache)
 /******/     var module = installedModules[moduleId] = {
 /******/       exports: {},
 /******/       id: moduleId,
 /******/       loaded: false
 /******/     };
-
 /******/     // Execute the module function
 /******/     modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
 /******/     // Flag the module as loaded
 /******/     module.loaded = true;
-
 /******/     // Return the exports of the module
 /******/     return module.exports;
 /******/   }
-
-
 /******/   // expose the modules object (__webpack_modules__)
 /******/   __webpack_require__.m = modules;
-
 /******/   // expose the module cache
 /******/   __webpack_require__.c = installedModules;
-
 /******/   // __webpack_public_path__
 /******/   __webpack_require__.p = "";
-
 /******/   // Load entry module and return exports
 /******/   return __webpack_require__(0);
 /******/ })
@@ -56,19 +45,15 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ ([
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
-
   /*
     Copyright JS Foundation and other contributors, https://js.foundation/
-
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
-
       * Redistributions of source code must retain the above copyright
         notice, this list of conditions and the following disclaimer.
       * Redistributions in binary form must reproduce the above copyright
         notice, this list of conditions and the following disclaimer in the
         documentation and/or other materials provided with the distribution.
-
     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
     AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
     IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -156,15 +141,12 @@ return /******/ (function(modules) { // webpackBootstrap
   exports.Syntax = syntax_1.Syntax;
   // Sync with *.json manifests.
   exports.version = '3.1.3';
-
-
 /***/ },
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
-
   "use strict";
   var syntax_1 = __webpack_require__(2);
-  var CommentHandler = (function () {
+  var CommentHandler = (function() {
       function CommentHandler() {
           this.attach = false;
           this.comments = [];
@@ -309,12 +291,9 @@ return /******/ (function(modules) { // webpackBootstrap
       return CommentHandler;
   }());
   exports.CommentHandler = CommentHandler;
-
-
 /***/ },
 /* 2 */
 /***/ function(module, exports) {
-
   "use strict";
   exports.Syntax = {
       AssignmentExpression: 'AssignmentExpression',
@@ -383,12 +362,9 @@ return /******/ (function(modules) { // webpackBootstrap
       WithStatement: 'WithStatement',
       YieldExpression: 'YieldExpression'
   };
-
-
 /***/ },
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
-
   "use strict";
   var assert_1 = __webpack_require__(4);
   var messages_1 = __webpack_require__(5);
@@ -398,7 +374,7 @@ return /******/ (function(modules) { // webpackBootstrap
   var syntax_1 = __webpack_require__(2);
   var Node = __webpack_require__(10);
   var ArrowParameterPlaceHolder = 'ArrowParameterPlaceHolder';
-  var Parser = (function () {
+  var Parser = (function() {
       function Parser(code, options, delegate) {
           if (options === void 0) { options = {}; }
           this.config = {
@@ -554,7 +530,7 @@ return /******/ (function(modules) { // webpackBootstrap
       Parser.prototype.tolerateUnexpectedToken = function (token, message) {
           this.errorHandler.tolerate(this.unexpectedTokenError(token, message));
       };
-      Parser.prototype.collectComments = function () {
+      Parser.prototype.collectComments = function() {
           if (!this.config.comment) {
               this.scanner.scanComments();
           }
@@ -621,7 +597,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return t;
       };
-      Parser.prototype.nextToken = function () {
+      Parser.prototype.nextToken = function() {
           var token = this.lookahead;
           this.lastMarker.index = this.scanner.index;
           this.lastMarker.lineNumber = this.scanner.lineNumber;
@@ -644,7 +620,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return token;
       };
-      Parser.prototype.nextRegexToken = function () {
+      Parser.prototype.nextRegexToken = function() {
           this.collectComments();
           var token = this.scanner.scanRegExp();
           if (this.config.tokens) {
@@ -658,7 +634,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.nextToken();
           return token;
       };
-      Parser.prototype.createNode = function () {
+      Parser.prototype.createNode = function() {
           return {
               index: this.startMarker.index,
               line: this.startMarker.lineNumber,
@@ -717,7 +693,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
       };
       // Quietly expect a comma when in tolerant mode, otherwise delegates to expect().
-      Parser.prototype.expectCommaSeparator = function () {
+      Parser.prototype.expectCommaSeparator = function() {
           if (this.config.tolerant) {
               var token = this.lookahead;
               if (token.type === token_1.Token.Punctuator && token.value === ',') {
@@ -757,7 +733,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.lookahead.type === token_1.Token.Identifier && this.lookahead.value === keyword;
       };
       // Return true if the next token is an assignment operator
-      Parser.prototype.matchAssign = function () {
+      Parser.prototype.matchAssign = function() {
           if (this.lookahead.type !== token_1.Token.Punctuator) {
               return false;
           }
@@ -836,7 +812,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.context.firstCoverInitializedNameError = previousFirstCoverInitializedNameError || this.context.firstCoverInitializedNameError;
           return result;
       };
-      Parser.prototype.consumeSemicolon = function () {
+      Parser.prototype.consumeSemicolon = function() {
           if (this.match(';')) {
               this.nextToken();
           }
@@ -850,7 +826,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
       };
       // ECMA-262 12.2 Primary Expressions
-      Parser.prototype.parsePrimaryExpression = function () {
+      Parser.prototype.parsePrimaryExpression = function() {
           var node = this.createNode();
           var expr;
           var value, token, raw;
@@ -948,13 +924,13 @@ return /******/ (function(modules) { // webpackBootstrap
           return expr;
       };
       // ECMA-262 12.2.5 Array Initializer
-      Parser.prototype.parseSpreadElement = function () {
+      Parser.prototype.parseSpreadElement = function() {
           var node = this.createNode();
           this.expect('...');
           var arg = this.inheritCoverGrammar(this.parseAssignmentExpression);
           return this.finalize(node, new Node.SpreadElement(arg));
       };
-      Parser.prototype.parseArrayInitializer = function () {
+      Parser.prototype.parseArrayInitializer = function() {
           var node = this.createNode();
           var elements = [];
           this.expect('[');
@@ -997,7 +973,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.context.strict = previousStrict;
           return body;
       };
-      Parser.prototype.parsePropertyMethodFunction = function () {
+      Parser.prototype.parsePropertyMethodFunction = function() {
           var isGenerator = false;
           var node = this.createNode();
           var previousAllowYield = this.context.allowYield;
@@ -1007,7 +983,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.context.allowYield = previousAllowYield;
           return this.finalize(node, new Node.FunctionExpression(null, params.params, method, isGenerator));
       };
-      Parser.prototype.parseObjectPropertyKey = function () {
+      Parser.prototype.parseObjectPropertyKey = function() {
           var node = this.createNode();
           var token = this.nextToken();
           var key = null;
@@ -1124,7 +1100,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, new Node.Property(kind, key, computed, value, method, shorthand));
       };
-      Parser.prototype.parseObjectInitializer = function () {
+      Parser.prototype.parseObjectInitializer = function() {
           var node = this.createNode();
           this.expect('{');
           var properties = [];
@@ -1139,7 +1115,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.ObjectExpression(properties));
       };
       // ECMA-262 12.2.9 Template Literals
-      Parser.prototype.parseTemplateHead = function () {
+      Parser.prototype.parseTemplateHead = function() {
           assert_1.assert(this.lookahead.head, 'Template literal must start with a template head');
           var node = this.createNode();
           var token = this.nextToken();
@@ -1149,7 +1125,7 @@ return /******/ (function(modules) { // webpackBootstrap
           };
           return this.finalize(node, new Node.TemplateElement(value, token.tail));
       };
-      Parser.prototype.parseTemplateElement = function () {
+      Parser.prototype.parseTemplateElement = function() {
           if (this.lookahead.type !== token_1.Token.Template) {
               this.throwUnexpectedToken();
           }
@@ -1161,7 +1137,7 @@ return /******/ (function(modules) { // webpackBootstrap
           };
           return this.finalize(node, new Node.TemplateElement(value, token.tail));
       };
-      Parser.prototype.parseTemplateLiteral = function () {
+      Parser.prototype.parseTemplateLiteral = function() {
           var node = this.createNode();
           var expressions = [];
           var quasis = [];
@@ -1210,7 +1186,7 @@ return /******/ (function(modules) { // webpackBootstrap
                   break;
           }
       };
-      Parser.prototype.parseGroupExpression = function () {
+      Parser.prototype.parseGroupExpression = function() {
           var expr;
           this.expect('(');
           if (this.match(')')) {
@@ -1316,7 +1292,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return expr;
       };
       // ECMA-262 12.3 Left-Hand-Side Expressions
-      Parser.prototype.parseArguments = function () {
+      Parser.prototype.parseArguments = function() {
           this.expect('(');
           var args = [];
           if (!this.match(')')) {
@@ -1339,7 +1315,7 @@ return /******/ (function(modules) { // webpackBootstrap
               token.type === token_1.Token.BooleanLiteral ||
               token.type === token_1.Token.NullLiteral;
       };
-      Parser.prototype.parseIdentifierName = function () {
+      Parser.prototype.parseIdentifierName = function() {
           var node = this.createNode();
           var token = this.nextToken();
           if (!this.isIdentifierName(token)) {
@@ -1347,7 +1323,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, new Node.Identifier(token.value));
       };
-      Parser.prototype.parseNewExpression = function () {
+      Parser.prototype.parseNewExpression = function() {
           var node = this.createNode();
           var id = this.parseIdentifierName();
           assert_1.assert(id.name === 'new', 'New expression must start with `new`');
@@ -1371,7 +1347,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, expr);
       };
-      Parser.prototype.parseLeftHandSideExpressionAllowCall = function () {
+      Parser.prototype.parseLeftHandSideExpressionAllowCall = function() {
           var startToken = this.lookahead;
           var previousAllowIn = this.context.allowIn;
           this.context.allowIn = true;
@@ -1420,7 +1396,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.context.allowIn = previousAllowIn;
           return expr;
       };
-      Parser.prototype.parseSuper = function () {
+      Parser.prototype.parseSuper = function() {
           var node = this.createNode();
           this.expectKeyword('super');
           if (!this.match('[') && !this.match('.')) {
@@ -1428,7 +1404,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, new Node.Super());
       };
-      Parser.prototype.parseLeftHandSideExpression = function () {
+      Parser.prototype.parseLeftHandSideExpression = function() {
           assert_1.assert(this.context.allowIn, 'callee of new expression always allow in keyword.');
           var node = this.startNode(this.lookahead);
           var expr = (this.matchKeyword('super') && this.context.inFunctionBody) ? this.parseSuper() :
@@ -1460,7 +1436,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return expr;
       };
       // ECMA-262 12.4 Update Expressions
-      Parser.prototype.parseUpdateExpression = function () {
+      Parser.prototype.parseUpdateExpression = function() {
           var expr;
           var startToken = this.lookahead;
           if (this.match('++') || this.match('--')) {
@@ -1499,7 +1475,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return expr;
       };
       // ECMA-262 12.5 Unary Operators
-      Parser.prototype.parseUnaryExpression = function () {
+      Parser.prototype.parseUnaryExpression = function() {
           var expr;
           if (this.match('+') || this.match('-') || this.match('~') || this.match('!') ||
               this.matchKeyword('delete') || this.matchKeyword('void') || this.matchKeyword('typeof')) {
@@ -1518,7 +1494,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return expr;
       };
-      Parser.prototype.parseExponentiationExpression = function () {
+      Parser.prototype.parseExponentiationExpression = function() {
           var startToken = this.lookahead;
           var expr = this.inheritCoverGrammar(this.parseUnaryExpression);
           if (expr.type !== syntax_1.Syntax.UnaryExpression && this.match('**')) {
@@ -1553,7 +1529,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return precedence;
       };
-      Parser.prototype.parseBinaryExpression = function () {
+      Parser.prototype.parseBinaryExpression = function() {
           var startToken = this.lookahead;
           var expr = this.inheritCoverGrammar(this.parseExponentiationExpression);
           var token = this.lookahead;
@@ -1601,7 +1577,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return expr;
       };
       // ECMA-262 12.14 Conditional Operator
-      Parser.prototype.parseConditionalExpression = function () {
+      Parser.prototype.parseConditionalExpression = function() {
           var startToken = this.lookahead;
           var expr = this.inheritCoverGrammar(this.parseBinaryExpression);
           if (this.match('?')) {
@@ -1697,7 +1673,7 @@ return /******/ (function(modules) { // webpackBootstrap
               message: options.message
           };
       };
-      Parser.prototype.parseAssignmentExpression = function () {
+      Parser.prototype.parseAssignmentExpression = function() {
           var expr;
           if (!this.context.allowYield && this.matchKeyword('yield')) {
               expr = this.parseYieldExpression();
@@ -1766,7 +1742,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return expr;
       };
       // ECMA-262 12.16 Comma Operator
-      Parser.prototype.parseExpression = function () {
+      Parser.prototype.parseExpression = function() {
           var startToken = this.lookahead;
           var expr = this.isolateCoverGrammar(this.parseAssignmentExpression);
           if (this.match(',')) {
@@ -1784,7 +1760,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return expr;
       };
       // ECMA-262 13.2 Block
-      Parser.prototype.parseStatementListItem = function () {
+      Parser.prototype.parseStatementListItem = function() {
           var statement = null;
           this.context.isAssignmentTarget = true;
           this.context.isBindingElement = true;
@@ -1824,7 +1800,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return statement;
       };
-      Parser.prototype.parseBlock = function () {
+      Parser.prototype.parseBlock = function() {
           var node = this.createNode();
           this.expect('{');
           var block = [];
@@ -1869,7 +1845,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return list;
       };
-      Parser.prototype.isLexicalDeclaration = function () {
+      Parser.prototype.isLexicalDeclaration = function() {
           var previousIndex = this.scanner.index;
           var previousLineNumber = this.scanner.lineNumber;
           var previousLineStart = this.scanner.lineStart;
@@ -2060,7 +2036,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return list;
       };
-      Parser.prototype.parseVariableStatement = function () {
+      Parser.prototype.parseVariableStatement = function() {
           var node = this.createNode();
           this.expectKeyword('var');
           var declarations = this.parseVariableDeclarationList({ inFor: false });
@@ -2068,20 +2044,20 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.VariableDeclaration(declarations, 'var'));
       };
       // ECMA-262 13.4 Empty Statement
-      Parser.prototype.parseEmptyStatement = function () {
+      Parser.prototype.parseEmptyStatement = function() {
           var node = this.createNode();
           this.expect(';');
           return this.finalize(node, new Node.EmptyStatement());
       };
       // ECMA-262 13.5 Expression Statement
-      Parser.prototype.parseExpressionStatement = function () {
+      Parser.prototype.parseExpressionStatement = function() {
           var node = this.createNode();
           var expr = this.parseExpression();
           this.consumeSemicolon();
           return this.finalize(node, new Node.ExpressionStatement(expr));
       };
       // ECMA-262 13.6 If statement
-      Parser.prototype.parseIfStatement = function () {
+      Parser.prototype.parseIfStatement = function() {
           var node = this.createNode();
           var consequent;
           var alternate = null;
@@ -2103,7 +2079,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.IfStatement(test, consequent, alternate));
       };
       // ECMA-262 13.7.2 The do-while Statement
-      Parser.prototype.parseDoWhileStatement = function () {
+      Parser.prototype.parseDoWhileStatement = function() {
           var node = this.createNode();
           this.expectKeyword('do');
           var previousInIteration = this.context.inIteration;
@@ -2120,7 +2096,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.DoWhileStatement(body, test));
       };
       // ECMA-262 13.7.3 The while Statement
-      Parser.prototype.parseWhileStatement = function () {
+      Parser.prototype.parseWhileStatement = function() {
           var node = this.createNode();
           var body;
           this.expectKeyword('while');
@@ -2141,7 +2117,7 @@ return /******/ (function(modules) { // webpackBootstrap
       };
       // ECMA-262 13.7.4 The for Statement
       // ECMA-262 13.7.5 The for-in and for-of Statements
-      Parser.prototype.parseForStatement = function () {
+      Parser.prototype.parseForStatement = function() {
           var init = null;
           var test = null;
           var update = null;
@@ -2288,7 +2264,7 @@ return /******/ (function(modules) { // webpackBootstrap
                   this.finalize(node, new Node.ForOfStatement(left, right, body));
       };
       // ECMA-262 13.8 The continue statement
-      Parser.prototype.parseContinueStatement = function () {
+      Parser.prototype.parseContinueStatement = function() {
           var node = this.createNode();
           this.expectKeyword('continue');
           var label = null;
@@ -2306,7 +2282,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.ContinueStatement(label));
       };
       // ECMA-262 13.9 The break statement
-      Parser.prototype.parseBreakStatement = function () {
+      Parser.prototype.parseBreakStatement = function() {
           var node = this.createNode();
           this.expectKeyword('break');
           var label = null;
@@ -2324,7 +2300,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.BreakStatement(label));
       };
       // ECMA-262 13.10 The return statement
-      Parser.prototype.parseReturnStatement = function () {
+      Parser.prototype.parseReturnStatement = function() {
           if (!this.context.inFunctionBody) {
               this.tolerateError(messages_1.Messages.IllegalReturn);
           }
@@ -2337,7 +2313,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.ReturnStatement(argument));
       };
       // ECMA-262 13.11 The with statement
-      Parser.prototype.parseWithStatement = function () {
+      Parser.prototype.parseWithStatement = function() {
           if (this.context.strict) {
               this.tolerateError(messages_1.Messages.StrictModeWith);
           }
@@ -2350,7 +2326,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.WithStatement(object, body));
       };
       // ECMA-262 13.12 The switch statement
-      Parser.prototype.parseSwitchCase = function () {
+      Parser.prototype.parseSwitchCase = function() {
           var node = this.createNode();
           var test;
           if (this.matchKeyword('default')) {
@@ -2371,7 +2347,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, new Node.SwitchCase(test, consequent));
       };
-      Parser.prototype.parseSwitchStatement = function () {
+      Parser.prototype.parseSwitchStatement = function() {
           var node = this.createNode();
           this.expectKeyword('switch');
           this.expect('(');
@@ -2400,7 +2376,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.SwitchStatement(discriminant, cases));
       };
       // ECMA-262 13.13 Labelled Statements
-      Parser.prototype.parseLabelledStatement = function () {
+      Parser.prototype.parseLabelledStatement = function() {
           var node = this.createNode();
           var expr = this.parseExpression();
           var statement;
@@ -2423,7 +2399,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, statement);
       };
       // ECMA-262 13.14 The throw statement
-      Parser.prototype.parseThrowStatement = function () {
+      Parser.prototype.parseThrowStatement = function() {
           var node = this.createNode();
           this.expectKeyword('throw');
           if (this.hasLineTerminator) {
@@ -2434,7 +2410,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.ThrowStatement(argument));
       };
       // ECMA-262 13.15 The try statement
-      Parser.prototype.parseCatchClause = function () {
+      Parser.prototype.parseCatchClause = function() {
           var node = this.createNode();
           this.expectKeyword('catch');
           this.expect('(');
@@ -2460,11 +2436,11 @@ return /******/ (function(modules) { // webpackBootstrap
           var body = this.parseBlock();
           return this.finalize(node, new Node.CatchClause(param, body));
       };
-      Parser.prototype.parseFinallyClause = function () {
+      Parser.prototype.parseFinallyClause = function() {
           this.expectKeyword('finally');
           return this.parseBlock();
       };
-      Parser.prototype.parseTryStatement = function () {
+      Parser.prototype.parseTryStatement = function() {
           var node = this.createNode();
           this.expectKeyword('try');
           var block = this.parseBlock();
@@ -2476,14 +2452,14 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.TryStatement(block, handler, finalizer));
       };
       // ECMA-262 13.16 The debugger statement
-      Parser.prototype.parseDebuggerStatement = function () {
+      Parser.prototype.parseDebuggerStatement = function() {
           var node = this.createNode();
           this.expectKeyword('debugger');
           this.consumeSemicolon();
           return this.finalize(node, new Node.DebuggerStatement());
       };
       // ECMA-262 13 Statements
-      Parser.prototype.parseStatement = function () {
+      Parser.prototype.parseStatement = function() {
           var statement = null;
           switch (this.lookahead.type) {
               case token_1.Token.BooleanLiteral:
@@ -2567,7 +2543,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return statement;
       };
       // ECMA-262 14.1 Function Definition
-      Parser.prototype.parseFunctionSourceElements = function () {
+      Parser.prototype.parseFunctionSourceElements = function() {
           var node = this.createNode();
           this.expect('{');
           var body = this.parseDirectivePrologues();
@@ -2721,7 +2697,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.context.allowYield = previousAllowYield;
           return this.finalize(node, new Node.FunctionDeclaration(id, params, body, isGenerator));
       };
-      Parser.prototype.parseFunctionExpression = function () {
+      Parser.prototype.parseFunctionExpression = function() {
           var node = this.createNode();
           this.expectKeyword('function');
           var isGenerator = this.match('*');
@@ -2772,7 +2748,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.FunctionExpression(id, params, body, isGenerator));
       };
       // ECMA-262 14.1.1 Directive Prologues
-      Parser.prototype.parseDirective = function () {
+      Parser.prototype.parseDirective = function() {
           var token = this.lookahead;
           var directive = null;
           var node = this.createNode();
@@ -2784,7 +2760,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, directive ? new Node.Directive(expr, directive) :
               new Node.ExpressionStatement(expr));
       };
-      Parser.prototype.parseDirectivePrologues = function () {
+      Parser.prototype.parseDirectivePrologues = function() {
           var firstRestricted = null;
           var body = [];
           while (true) {
@@ -2827,7 +2803,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return false;
       };
-      Parser.prototype.parseGetterMethod = function () {
+      Parser.prototype.parseGetterMethod = function() {
           var node = this.createNode();
           this.expect('(');
           this.expect(')');
@@ -2844,7 +2820,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.context.allowYield = previousAllowYield;
           return this.finalize(node, new Node.FunctionExpression(null, params.params, method, isGenerator));
       };
-      Parser.prototype.parseSetterMethod = function () {
+      Parser.prototype.parseSetterMethod = function() {
           var node = this.createNode();
           var options = {
               params: [],
@@ -2866,7 +2842,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.context.allowYield = previousAllowYield;
           return this.finalize(node, new Node.FunctionExpression(null, options.params, method, isGenerator));
       };
-      Parser.prototype.parseGeneratorMethod = function () {
+      Parser.prototype.parseGeneratorMethod = function() {
           var node = this.createNode();
           var isGenerator = true;
           var previousAllowYield = this.context.allowYield;
@@ -2878,7 +2854,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.FunctionExpression(null, params.params, method, isGenerator));
       };
       // ECMA-262 14.4 Generator Function Definitions
-      Parser.prototype.isStartOfExpression = function () {
+      Parser.prototype.isStartOfExpression = function() {
           var start = true;
           var value = this.lookahead.value;
           switch (this.lookahead.type) {
@@ -2900,7 +2876,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return start;
       };
-      Parser.prototype.parseYieldExpression = function () {
+      Parser.prototype.parseYieldExpression = function() {
           var node = this.createNode();
           this.expectKeyword('yield');
           var argument = null;
@@ -3002,7 +2978,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, new Node.MethodDefinition(key, computed, value, kind, isStatic));
       };
-      Parser.prototype.parseClassElementList = function () {
+      Parser.prototype.parseClassElementList = function() {
           var body = [];
           var hasConstructor = { value: false };
           this.expect('{');
@@ -3017,7 +2993,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.expect('}');
           return body;
       };
-      Parser.prototype.parseClassBody = function () {
+      Parser.prototype.parseClassBody = function() {
           var node = this.createNode();
           var elementList = this.parseClassElementList();
           return this.finalize(node, new Node.ClassBody(elementList));
@@ -3037,7 +3013,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.context.strict = previousStrict;
           return this.finalize(node, new Node.ClassDeclaration(id, superClass, classBody));
       };
-      Parser.prototype.parseClassExpression = function () {
+      Parser.prototype.parseClassExpression = function() {
           var node = this.createNode();
           var previousStrict = this.context.strict;
           this.context.strict = true;
@@ -3054,7 +3030,7 @@ return /******/ (function(modules) { // webpackBootstrap
       };
       // ECMA-262 15.1 Scripts
       // ECMA-262 15.2 Modules
-      Parser.prototype.parseProgram = function () {
+      Parser.prototype.parseProgram = function() {
           var node = this.createNode();
           var body = this.parseDirectivePrologues();
           while (this.startMarker.index < this.scanner.length) {
@@ -3063,7 +3039,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.Program(body, this.sourceType));
       };
       // ECMA-262 15.2.2 Imports
-      Parser.prototype.parseModuleSpecifier = function () {
+      Parser.prototype.parseModuleSpecifier = function() {
           var node = this.createNode();
           if (this.lookahead.type !== token_1.Token.StringLiteral) {
               this.throwError(messages_1.Messages.InvalidModuleSpecifier);
@@ -3073,7 +3049,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.Literal(token.value, raw));
       };
       // import {<foo as bar>} ...;
-      Parser.prototype.parseImportSpecifier = function () {
+      Parser.prototype.parseImportSpecifier = function() {
           var node = this.createNode();
           var imported;
           var local;
@@ -3099,7 +3075,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.ImportSpecifier(local, imported));
       };
       // {foo, bar as bas}
-      Parser.prototype.parseNamedImports = function () {
+      Parser.prototype.parseNamedImports = function() {
           this.expect('{');
           var specifiers = [];
           while (!this.match('}')) {
@@ -3112,13 +3088,13 @@ return /******/ (function(modules) { // webpackBootstrap
           return specifiers;
       };
       // import <foo> ...;
-      Parser.prototype.parseImportDefaultSpecifier = function () {
+      Parser.prototype.parseImportDefaultSpecifier = function() {
           var node = this.createNode();
           var local = this.parseIdentifierName();
           return this.finalize(node, new Node.ImportDefaultSpecifier(local));
       };
       // import <* as foo> ...;
-      Parser.prototype.parseImportNamespaceSpecifier = function () {
+      Parser.prototype.parseImportNamespaceSpecifier = function() {
           var node = this.createNode();
           this.expect('*');
           if (!this.matchContextualKeyword('as')) {
@@ -3128,7 +3104,7 @@ return /******/ (function(modules) { // webpackBootstrap
           var local = this.parseIdentifierName();
           return this.finalize(node, new Node.ImportNamespaceSpecifier(local));
       };
-      Parser.prototype.parseImportDeclaration = function () {
+      Parser.prototype.parseImportDeclaration = function() {
           if (this.context.inFunctionBody) {
               this.throwError(messages_1.Messages.IllegalImportDeclaration);
           }
@@ -3181,7 +3157,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.finalize(node, new Node.ImportDeclaration(specifiers, src));
       };
       // ECMA-262 15.2.3 Exports
-      Parser.prototype.parseExportSpecifier = function () {
+      Parser.prototype.parseExportSpecifier = function() {
           var node = this.createNode();
           var local = this.parseIdentifierName();
           var exported = local;
@@ -3191,7 +3167,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, new Node.ExportSpecifier(local, exported));
       };
-      Parser.prototype.parseExportDeclaration = function () {
+      Parser.prototype.parseExportDeclaration = function() {
           if (this.context.inFunctionBody) {
               this.throwError(messages_1.Messages.IllegalExportDeclaration);
           }
@@ -3203,7 +3179,7 @@ return /******/ (function(modules) { // webpackBootstrap
               this.nextToken();
               if (this.matchKeyword('function')) {
                   // export default function foo () {}
-                  // export default function () {}
+                  // export default function() {}
                   var declaration = this.parseFunctionDeclaration(true);
                   exportDeclaration = this.finalize(node, new Node.ExportDefaultDeclaration(declaration));
               }
@@ -3291,12 +3267,9 @@ return /******/ (function(modules) { // webpackBootstrap
       return Parser;
   }());
   exports.Parser = Parser;
-
-
 /***/ },
 /* 4 */
 /***/ function(module, exports) {
-
   // Ensure the condition is true, otherwise throw an error.
   // This is only to have a better contract semantic, i.e. another safety net
   // to catch a logic error. The condition shall be fulfilled in normal case.
@@ -3309,12 +3282,9 @@ return /******/ (function(modules) { // webpackBootstrap
       }
   }
   exports.assert = assert;
-
-
 /***/ },
 /* 5 */
 /***/ function(module, exports) {
-
   "use strict";
   // Error messages should be identical to V8.
   exports.Messages = {
@@ -3366,14 +3336,11 @@ return /******/ (function(modules) { // webpackBootstrap
       DuplicateBinding: 'Duplicate binding %0',
       ForInOfLoopInitializer: '%0 loop variable declaration may not have an initializer'
   };
-
-
 /***/ },
 /* 6 */
 /***/ function(module, exports) {
-
   "use strict";
-  var ErrorHandler = (function () {
+  var ErrorHandler = (function() {
       function ErrorHandler() {
           this.errors = [];
           this.tolerant = false;
@@ -3435,12 +3402,9 @@ return /******/ (function(modules) { // webpackBootstrap
       return ErrorHandler;
   }());
   exports.ErrorHandler = ErrorHandler;
-
-
 /***/ },
 /* 7 */
 /***/ function(module, exports) {
-
   "use strict";
   (function (Token) {
       Token[Token["BooleanLiteral"] = 1] = "BooleanLiteral";
@@ -3467,12 +3431,9 @@ return /******/ (function(modules) { // webpackBootstrap
   exports.TokenName[Token.StringLiteral] = 'String';
   exports.TokenName[Token.RegularExpression] = 'RegularExpression';
   exports.TokenName[Token.Template] = 'Template';
-
-
 /***/ },
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
-
   "use strict";
   var assert_1 = __webpack_require__(4);
   var messages_1 = __webpack_require__(5);
@@ -3484,7 +3445,7 @@ return /******/ (function(modules) { // webpackBootstrap
   function octalValue(ch) {
       return '01234567'.indexOf(ch);
   }
-  var Scanner = (function () {
+  var Scanner = (function() {
       function Scanner(code, handler) {
           this.source = code;
           this.errorHandler = handler;
@@ -3496,7 +3457,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.curlyStack = [];
       }
       ;
-      Scanner.prototype.eof = function () {
+      Scanner.prototype.eof = function() {
           return this.index >= this.length;
       };
       ;
@@ -3505,7 +3466,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.errorHandler.throwError(this.index, this.lineNumber, this.index - this.lineStart + 1, message);
       };
       ;
-      Scanner.prototype.tolerateUnexpectedToken = function () {
+      Scanner.prototype.tolerateUnexpectedToken = function() {
           this.errorHandler.tolerateError(this.index, this.lineNumber, this.index - this.lineStart + 1, messages_1.Messages.UnexpectedTokenIllegal);
       };
       ;
@@ -3565,7 +3526,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return comments;
       };
       ;
-      Scanner.prototype.skipMultiLineComment = function () {
+      Scanner.prototype.skipMultiLineComment = function() {
           var comments;
           var start, loc;
           if (this.trackComment) {
@@ -3632,7 +3593,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return comments;
       };
       ;
-      Scanner.prototype.scanComments = function () {
+      Scanner.prototype.scanComments = function() {
           var comments;
           if (this.trackComment) {
               comments = [];
@@ -3795,7 +3756,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return String.fromCharCode(code);
       };
       ;
-      Scanner.prototype.scanUnicodeCodePointEscape = function () {
+      Scanner.prototype.scanUnicodeCodePointEscape = function() {
           var ch = this.source[this.index];
           var code = 0;
           // At least, one hex digit is required.
@@ -3815,7 +3776,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return character_1.Character.fromCodePoint(code);
       };
       ;
-      Scanner.prototype.getIdentifier = function () {
+      Scanner.prototype.getIdentifier = function() {
           var start = this.index++;
           while (!this.eof()) {
               var ch = this.source.charCodeAt(this.index);
@@ -3839,7 +3800,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return this.source.slice(start, this.index);
       };
       ;
-      Scanner.prototype.getComplexIdentifier = function () {
+      Scanner.prototype.getComplexIdentifier = function() {
           var cp = this.codePointAt(this.index);
           var id = character_1.Character.fromCodePoint(cp);
           this.index += id.length;
@@ -3915,7 +3876,7 @@ return /******/ (function(modules) { // webpackBootstrap
       };
       ;
       // ECMA-262 11.6 Names and Keywords
-      Scanner.prototype.scanIdentifier = function () {
+      Scanner.prototype.scanIdentifier = function() {
           var type;
           var start = this.index;
           // Backslash (U+005C) starts an escaped character.
@@ -3948,7 +3909,7 @@ return /******/ (function(modules) { // webpackBootstrap
       };
       ;
       // ECMA-262 11.7 Punctuators
-      Scanner.prototype.scanPunctuator = function () {
+      Scanner.prototype.scanPunctuator = function() {
           var token = {
               type: token_1.Token.Punctuator,
               value: '',
@@ -4120,7 +4081,7 @@ return /******/ (function(modules) { // webpackBootstrap
           };
       };
       ;
-      Scanner.prototype.isImplicitOctalLiteral = function () {
+      Scanner.prototype.isImplicitOctalLiteral = function() {
           // Implicit octal, unless there is a non-octal digit.
           // (Annex B.1.1 on Numeric Literals)
           for (var i = this.index + 1; i < this.length; ++i) {
@@ -4135,7 +4096,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return true;
       };
       ;
-      Scanner.prototype.scanNumericLiteral = function () {
+      Scanner.prototype.scanNumericLiteral = function() {
           var start = this.index;
           var ch = this.source[start];
           assert_1.assert(character_1.Character.isDecimalDigit(ch.charCodeAt(0)) || (ch === '.'), 'Numeric literal must start with a decimal digit or a decimal point');
@@ -4206,7 +4167,7 @@ return /******/ (function(modules) { // webpackBootstrap
       };
       ;
       // ECMA-262 11.8.4 String Literals
-      Scanner.prototype.scanStringLiteral = function () {
+      Scanner.prototype.scanStringLiteral = function() {
           var start = this.index;
           var quote = this.source[start];
           assert_1.assert((quote === '\'' || quote === '"'), 'String literal must starts with a quote');
@@ -4303,7 +4264,7 @@ return /******/ (function(modules) { // webpackBootstrap
       };
       ;
       // ECMA-262 11.8.6 Template Literal Lexical Components
-      Scanner.prototype.scanTemplate = function () {
+      Scanner.prototype.scanTemplate = function() {
           var cooked = '';
           var terminated = false;
           var start = this.index;
@@ -4471,7 +4432,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
       };
       ;
-      Scanner.prototype.scanRegExpBody = function () {
+      Scanner.prototype.scanRegExpBody = function() {
           var ch = this.source[this.index];
           assert_1.assert(ch === '/', 'Regular expression literal must start with a slash');
           var str = this.source[this.index++];
@@ -4517,7 +4478,7 @@ return /******/ (function(modules) { // webpackBootstrap
           };
       };
       ;
-      Scanner.prototype.scanRegExpFlags = function () {
+      Scanner.prototype.scanRegExpFlags = function() {
           var str = '';
           var flags = '';
           while (!this.eof()) {
@@ -4561,7 +4522,7 @@ return /******/ (function(modules) { // webpackBootstrap
           };
       };
       ;
-      Scanner.prototype.scanRegExp = function () {
+      Scanner.prototype.scanRegExp = function() {
           var start = this.index;
           var body = this.scanRegExpBody();
           var flags = this.scanRegExpFlags();
@@ -4581,7 +4542,7 @@ return /******/ (function(modules) { // webpackBootstrap
           };
       };
       ;
-      Scanner.prototype.lex = function () {
+      Scanner.prototype.lex = function() {
           if (this.eof()) {
               return {
                   type: token_1.Token.EOF,
@@ -4595,7 +4556,7 @@ return /******/ (function(modules) { // webpackBootstrap
           if (character_1.Character.isIdentifierStart(cp)) {
               return this.scanIdentifier();
           }
-          // Very common: ( and ) and ;
+          // Very common: (and) and ;
           if (cp === 0x28 || cp === 0x29 || cp === 0x3B) {
               return this.scanPunctuator();
           }
@@ -4631,12 +4592,9 @@ return /******/ (function(modules) { // webpackBootstrap
       return Scanner;
   }());
   exports.Scanner = Scanner;
-
-
 /***/ },
 /* 9 */
 /***/ function(module, exports) {
-
   "use strict";
   // See also tools/generate-unicode-regex.js.
   var Regex = {
@@ -4689,15 +4647,12 @@ return /******/ (function(modules) { // webpackBootstrap
           return (cp >= 0x30 && cp <= 0x37); // 0..7
       }
   };
-
-
 /***/ },
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
-
   "use strict";
   var syntax_1 = __webpack_require__(2);
-  var ArrayExpression = (function () {
+  var ArrayExpression = (function() {
       function ArrayExpression(elements) {
           this.type = syntax_1.Syntax.ArrayExpression;
           this.elements = elements;
@@ -4705,7 +4660,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ArrayExpression;
   }());
   exports.ArrayExpression = ArrayExpression;
-  var ArrayPattern = (function () {
+  var ArrayPattern = (function() {
       function ArrayPattern(elements) {
           this.type = syntax_1.Syntax.ArrayPattern;
           this.elements = elements;
@@ -4713,7 +4668,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ArrayPattern;
   }());
   exports.ArrayPattern = ArrayPattern;
-  var ArrowFunctionExpression = (function () {
+  var ArrowFunctionExpression = (function() {
       function ArrowFunctionExpression(params, body, expression) {
           this.type = syntax_1.Syntax.ArrowFunctionExpression;
           this.id = null;
@@ -4725,7 +4680,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ArrowFunctionExpression;
   }());
   exports.ArrowFunctionExpression = ArrowFunctionExpression;
-  var AssignmentExpression = (function () {
+  var AssignmentExpression = (function() {
       function AssignmentExpression(operator, left, right) {
           this.type = syntax_1.Syntax.AssignmentExpression;
           this.operator = operator;
@@ -4735,7 +4690,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return AssignmentExpression;
   }());
   exports.AssignmentExpression = AssignmentExpression;
-  var AssignmentPattern = (function () {
+  var AssignmentPattern = (function() {
       function AssignmentPattern(left, right) {
           this.type = syntax_1.Syntax.AssignmentPattern;
           this.left = left;
@@ -4744,7 +4699,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return AssignmentPattern;
   }());
   exports.AssignmentPattern = AssignmentPattern;
-  var BinaryExpression = (function () {
+  var BinaryExpression = (function() {
       function BinaryExpression(operator, left, right) {
           var logical = (operator === '||' || operator === '&&');
           this.type = logical ? syntax_1.Syntax.LogicalExpression : syntax_1.Syntax.BinaryExpression;
@@ -4755,7 +4710,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return BinaryExpression;
   }());
   exports.BinaryExpression = BinaryExpression;
-  var BlockStatement = (function () {
+  var BlockStatement = (function() {
       function BlockStatement(body) {
           this.type = syntax_1.Syntax.BlockStatement;
           this.body = body;
@@ -4763,7 +4718,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return BlockStatement;
   }());
   exports.BlockStatement = BlockStatement;
-  var BreakStatement = (function () {
+  var BreakStatement = (function() {
       function BreakStatement(label) {
           this.type = syntax_1.Syntax.BreakStatement;
           this.label = label;
@@ -4771,7 +4726,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return BreakStatement;
   }());
   exports.BreakStatement = BreakStatement;
-  var CallExpression = (function () {
+  var CallExpression = (function() {
       function CallExpression(callee, args) {
           this.type = syntax_1.Syntax.CallExpression;
           this.callee = callee;
@@ -4780,7 +4735,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return CallExpression;
   }());
   exports.CallExpression = CallExpression;
-  var CatchClause = (function () {
+  var CatchClause = (function() {
       function CatchClause(param, body) {
           this.type = syntax_1.Syntax.CatchClause;
           this.param = param;
@@ -4789,7 +4744,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return CatchClause;
   }());
   exports.CatchClause = CatchClause;
-  var ClassBody = (function () {
+  var ClassBody = (function() {
       function ClassBody(body) {
           this.type = syntax_1.Syntax.ClassBody;
           this.body = body;
@@ -4797,7 +4752,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ClassBody;
   }());
   exports.ClassBody = ClassBody;
-  var ClassDeclaration = (function () {
+  var ClassDeclaration = (function() {
       function ClassDeclaration(id, superClass, body) {
           this.type = syntax_1.Syntax.ClassDeclaration;
           this.id = id;
@@ -4807,7 +4762,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ClassDeclaration;
   }());
   exports.ClassDeclaration = ClassDeclaration;
-  var ClassExpression = (function () {
+  var ClassExpression = (function() {
       function ClassExpression(id, superClass, body) {
           this.type = syntax_1.Syntax.ClassExpression;
           this.id = id;
@@ -4817,7 +4772,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ClassExpression;
   }());
   exports.ClassExpression = ClassExpression;
-  var ComputedMemberExpression = (function () {
+  var ComputedMemberExpression = (function() {
       function ComputedMemberExpression(object, property) {
           this.type = syntax_1.Syntax.MemberExpression;
           this.computed = true;
@@ -4827,7 +4782,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ComputedMemberExpression;
   }());
   exports.ComputedMemberExpression = ComputedMemberExpression;
-  var ConditionalExpression = (function () {
+  var ConditionalExpression = (function() {
       function ConditionalExpression(test, consequent, alternate) {
           this.type = syntax_1.Syntax.ConditionalExpression;
           this.test = test;
@@ -4837,7 +4792,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ConditionalExpression;
   }());
   exports.ConditionalExpression = ConditionalExpression;
-  var ContinueStatement = (function () {
+  var ContinueStatement = (function() {
       function ContinueStatement(label) {
           this.type = syntax_1.Syntax.ContinueStatement;
           this.label = label;
@@ -4845,14 +4800,14 @@ return /******/ (function(modules) { // webpackBootstrap
       return ContinueStatement;
   }());
   exports.ContinueStatement = ContinueStatement;
-  var DebuggerStatement = (function () {
+  var DebuggerStatement = (function() {
       function DebuggerStatement() {
           this.type = syntax_1.Syntax.DebuggerStatement;
       }
       return DebuggerStatement;
   }());
   exports.DebuggerStatement = DebuggerStatement;
-  var Directive = (function () {
+  var Directive = (function() {
       function Directive(expression, directive) {
           this.type = syntax_1.Syntax.ExpressionStatement;
           this.expression = expression;
@@ -4861,7 +4816,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return Directive;
   }());
   exports.Directive = Directive;
-  var DoWhileStatement = (function () {
+  var DoWhileStatement = (function() {
       function DoWhileStatement(body, test) {
           this.type = syntax_1.Syntax.DoWhileStatement;
           this.body = body;
@@ -4870,14 +4825,14 @@ return /******/ (function(modules) { // webpackBootstrap
       return DoWhileStatement;
   }());
   exports.DoWhileStatement = DoWhileStatement;
-  var EmptyStatement = (function () {
+  var EmptyStatement = (function() {
       function EmptyStatement() {
           this.type = syntax_1.Syntax.EmptyStatement;
       }
       return EmptyStatement;
   }());
   exports.EmptyStatement = EmptyStatement;
-  var ExportAllDeclaration = (function () {
+  var ExportAllDeclaration = (function() {
       function ExportAllDeclaration(source) {
           this.type = syntax_1.Syntax.ExportAllDeclaration;
           this.source = source;
@@ -4885,7 +4840,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ExportAllDeclaration;
   }());
   exports.ExportAllDeclaration = ExportAllDeclaration;
-  var ExportDefaultDeclaration = (function () {
+  var ExportDefaultDeclaration = (function() {
       function ExportDefaultDeclaration(declaration) {
           this.type = syntax_1.Syntax.ExportDefaultDeclaration;
           this.declaration = declaration;
@@ -4893,7 +4848,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ExportDefaultDeclaration;
   }());
   exports.ExportDefaultDeclaration = ExportDefaultDeclaration;
-  var ExportNamedDeclaration = (function () {
+  var ExportNamedDeclaration = (function() {
       function ExportNamedDeclaration(declaration, specifiers, source) {
           this.type = syntax_1.Syntax.ExportNamedDeclaration;
           this.declaration = declaration;
@@ -4903,7 +4858,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ExportNamedDeclaration;
   }());
   exports.ExportNamedDeclaration = ExportNamedDeclaration;
-  var ExportSpecifier = (function () {
+  var ExportSpecifier = (function() {
       function ExportSpecifier(local, exported) {
           this.type = syntax_1.Syntax.ExportSpecifier;
           this.exported = exported;
@@ -4912,7 +4867,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ExportSpecifier;
   }());
   exports.ExportSpecifier = ExportSpecifier;
-  var ExpressionStatement = (function () {
+  var ExpressionStatement = (function() {
       function ExpressionStatement(expression) {
           this.type = syntax_1.Syntax.ExpressionStatement;
           this.expression = expression;
@@ -4920,7 +4875,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ExpressionStatement;
   }());
   exports.ExpressionStatement = ExpressionStatement;
-  var ForInStatement = (function () {
+  var ForInStatement = (function() {
       function ForInStatement(left, right, body) {
           this.type = syntax_1.Syntax.ForInStatement;
           this.left = left;
@@ -4931,7 +4886,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ForInStatement;
   }());
   exports.ForInStatement = ForInStatement;
-  var ForOfStatement = (function () {
+  var ForOfStatement = (function() {
       function ForOfStatement(left, right, body) {
           this.type = syntax_1.Syntax.ForOfStatement;
           this.left = left;
@@ -4941,7 +4896,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ForOfStatement;
   }());
   exports.ForOfStatement = ForOfStatement;
-  var ForStatement = (function () {
+  var ForStatement = (function() {
       function ForStatement(init, test, update, body) {
           this.type = syntax_1.Syntax.ForStatement;
           this.init = init;
@@ -4952,7 +4907,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ForStatement;
   }());
   exports.ForStatement = ForStatement;
-  var FunctionDeclaration = (function () {
+  var FunctionDeclaration = (function() {
       function FunctionDeclaration(id, params, body, generator) {
           this.type = syntax_1.Syntax.FunctionDeclaration;
           this.id = id;
@@ -4964,7 +4919,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return FunctionDeclaration;
   }());
   exports.FunctionDeclaration = FunctionDeclaration;
-  var FunctionExpression = (function () {
+  var FunctionExpression = (function() {
       function FunctionExpression(id, params, body, generator) {
           this.type = syntax_1.Syntax.FunctionExpression;
           this.id = id;
@@ -4976,7 +4931,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return FunctionExpression;
   }());
   exports.FunctionExpression = FunctionExpression;
-  var Identifier = (function () {
+  var Identifier = (function() {
       function Identifier(name) {
           this.type = syntax_1.Syntax.Identifier;
           this.name = name;
@@ -4984,7 +4939,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return Identifier;
   }());
   exports.Identifier = Identifier;
-  var IfStatement = (function () {
+  var IfStatement = (function() {
       function IfStatement(test, consequent, alternate) {
           this.type = syntax_1.Syntax.IfStatement;
           this.test = test;
@@ -4994,7 +4949,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return IfStatement;
   }());
   exports.IfStatement = IfStatement;
-  var ImportDeclaration = (function () {
+  var ImportDeclaration = (function() {
       function ImportDeclaration(specifiers, source) {
           this.type = syntax_1.Syntax.ImportDeclaration;
           this.specifiers = specifiers;
@@ -5003,7 +4958,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ImportDeclaration;
   }());
   exports.ImportDeclaration = ImportDeclaration;
-  var ImportDefaultSpecifier = (function () {
+  var ImportDefaultSpecifier = (function() {
       function ImportDefaultSpecifier(local) {
           this.type = syntax_1.Syntax.ImportDefaultSpecifier;
           this.local = local;
@@ -5011,7 +4966,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ImportDefaultSpecifier;
   }());
   exports.ImportDefaultSpecifier = ImportDefaultSpecifier;
-  var ImportNamespaceSpecifier = (function () {
+  var ImportNamespaceSpecifier = (function() {
       function ImportNamespaceSpecifier(local) {
           this.type = syntax_1.Syntax.ImportNamespaceSpecifier;
           this.local = local;
@@ -5019,7 +4974,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ImportNamespaceSpecifier;
   }());
   exports.ImportNamespaceSpecifier = ImportNamespaceSpecifier;
-  var ImportSpecifier = (function () {
+  var ImportSpecifier = (function() {
       function ImportSpecifier(local, imported) {
           this.type = syntax_1.Syntax.ImportSpecifier;
           this.local = local;
@@ -5028,7 +4983,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ImportSpecifier;
   }());
   exports.ImportSpecifier = ImportSpecifier;
-  var LabeledStatement = (function () {
+  var LabeledStatement = (function() {
       function LabeledStatement(label, body) {
           this.type = syntax_1.Syntax.LabeledStatement;
           this.label = label;
@@ -5037,7 +4992,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return LabeledStatement;
   }());
   exports.LabeledStatement = LabeledStatement;
-  var Literal = (function () {
+  var Literal = (function() {
       function Literal(value, raw) {
           this.type = syntax_1.Syntax.Literal;
           this.value = value;
@@ -5046,7 +5001,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return Literal;
   }());
   exports.Literal = Literal;
-  var MetaProperty = (function () {
+  var MetaProperty = (function() {
       function MetaProperty(meta, property) {
           this.type = syntax_1.Syntax.MetaProperty;
           this.meta = meta;
@@ -5055,7 +5010,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return MetaProperty;
   }());
   exports.MetaProperty = MetaProperty;
-  var MethodDefinition = (function () {
+  var MethodDefinition = (function() {
       function MethodDefinition(key, computed, value, kind, isStatic) {
           this.type = syntax_1.Syntax.MethodDefinition;
           this.key = key;
@@ -5067,7 +5022,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return MethodDefinition;
   }());
   exports.MethodDefinition = MethodDefinition;
-  var NewExpression = (function () {
+  var NewExpression = (function() {
       function NewExpression(callee, args) {
           this.type = syntax_1.Syntax.NewExpression;
           this.callee = callee;
@@ -5076,7 +5031,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return NewExpression;
   }());
   exports.NewExpression = NewExpression;
-  var ObjectExpression = (function () {
+  var ObjectExpression = (function() {
       function ObjectExpression(properties) {
           this.type = syntax_1.Syntax.ObjectExpression;
           this.properties = properties;
@@ -5084,7 +5039,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ObjectExpression;
   }());
   exports.ObjectExpression = ObjectExpression;
-  var ObjectPattern = (function () {
+  var ObjectPattern = (function() {
       function ObjectPattern(properties) {
           this.type = syntax_1.Syntax.ObjectPattern;
           this.properties = properties;
@@ -5092,7 +5047,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ObjectPattern;
   }());
   exports.ObjectPattern = ObjectPattern;
-  var Program = (function () {
+  var Program = (function() {
       function Program(body, sourceType) {
           this.type = syntax_1.Syntax.Program;
           this.body = body;
@@ -5101,7 +5056,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return Program;
   }());
   exports.Program = Program;
-  var Property = (function () {
+  var Property = (function() {
       function Property(kind, key, computed, value, method, shorthand) {
           this.type = syntax_1.Syntax.Property;
           this.key = key;
@@ -5114,7 +5069,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return Property;
   }());
   exports.Property = Property;
-  var RegexLiteral = (function () {
+  var RegexLiteral = (function() {
       function RegexLiteral(value, raw, regex) {
           this.type = syntax_1.Syntax.Literal;
           this.value = value;
@@ -5124,7 +5079,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return RegexLiteral;
   }());
   exports.RegexLiteral = RegexLiteral;
-  var RestElement = (function () {
+  var RestElement = (function() {
       function RestElement(argument) {
           this.type = syntax_1.Syntax.RestElement;
           this.argument = argument;
@@ -5132,7 +5087,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return RestElement;
   }());
   exports.RestElement = RestElement;
-  var ReturnStatement = (function () {
+  var ReturnStatement = (function() {
       function ReturnStatement(argument) {
           this.type = syntax_1.Syntax.ReturnStatement;
           this.argument = argument;
@@ -5140,7 +5095,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ReturnStatement;
   }());
   exports.ReturnStatement = ReturnStatement;
-  var SequenceExpression = (function () {
+  var SequenceExpression = (function() {
       function SequenceExpression(expressions) {
           this.type = syntax_1.Syntax.SequenceExpression;
           this.expressions = expressions;
@@ -5148,7 +5103,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return SequenceExpression;
   }());
   exports.SequenceExpression = SequenceExpression;
-  var SpreadElement = (function () {
+  var SpreadElement = (function() {
       function SpreadElement(argument) {
           this.type = syntax_1.Syntax.SpreadElement;
           this.argument = argument;
@@ -5156,7 +5111,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return SpreadElement;
   }());
   exports.SpreadElement = SpreadElement;
-  var StaticMemberExpression = (function () {
+  var StaticMemberExpression = (function() {
       function StaticMemberExpression(object, property) {
           this.type = syntax_1.Syntax.MemberExpression;
           this.computed = false;
@@ -5166,14 +5121,14 @@ return /******/ (function(modules) { // webpackBootstrap
       return StaticMemberExpression;
   }());
   exports.StaticMemberExpression = StaticMemberExpression;
-  var Super = (function () {
+  var Super = (function() {
       function Super() {
           this.type = syntax_1.Syntax.Super;
       }
       return Super;
   }());
   exports.Super = Super;
-  var SwitchCase = (function () {
+  var SwitchCase = (function() {
       function SwitchCase(test, consequent) {
           this.type = syntax_1.Syntax.SwitchCase;
           this.test = test;
@@ -5182,7 +5137,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return SwitchCase;
   }());
   exports.SwitchCase = SwitchCase;
-  var SwitchStatement = (function () {
+  var SwitchStatement = (function() {
       function SwitchStatement(discriminant, cases) {
           this.type = syntax_1.Syntax.SwitchStatement;
           this.discriminant = discriminant;
@@ -5191,7 +5146,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return SwitchStatement;
   }());
   exports.SwitchStatement = SwitchStatement;
-  var TaggedTemplateExpression = (function () {
+  var TaggedTemplateExpression = (function() {
       function TaggedTemplateExpression(tag, quasi) {
           this.type = syntax_1.Syntax.TaggedTemplateExpression;
           this.tag = tag;
@@ -5200,7 +5155,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return TaggedTemplateExpression;
   }());
   exports.TaggedTemplateExpression = TaggedTemplateExpression;
-  var TemplateElement = (function () {
+  var TemplateElement = (function() {
       function TemplateElement(value, tail) {
           this.type = syntax_1.Syntax.TemplateElement;
           this.value = value;
@@ -5209,7 +5164,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return TemplateElement;
   }());
   exports.TemplateElement = TemplateElement;
-  var TemplateLiteral = (function () {
+  var TemplateLiteral = (function() {
       function TemplateLiteral(quasis, expressions) {
           this.type = syntax_1.Syntax.TemplateLiteral;
           this.quasis = quasis;
@@ -5218,14 +5173,14 @@ return /******/ (function(modules) { // webpackBootstrap
       return TemplateLiteral;
   }());
   exports.TemplateLiteral = TemplateLiteral;
-  var ThisExpression = (function () {
+  var ThisExpression = (function() {
       function ThisExpression() {
           this.type = syntax_1.Syntax.ThisExpression;
       }
       return ThisExpression;
   }());
   exports.ThisExpression = ThisExpression;
-  var ThrowStatement = (function () {
+  var ThrowStatement = (function() {
       function ThrowStatement(argument) {
           this.type = syntax_1.Syntax.ThrowStatement;
           this.argument = argument;
@@ -5233,7 +5188,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return ThrowStatement;
   }());
   exports.ThrowStatement = ThrowStatement;
-  var TryStatement = (function () {
+  var TryStatement = (function() {
       function TryStatement(block, handler, finalizer) {
           this.type = syntax_1.Syntax.TryStatement;
           this.block = block;
@@ -5243,7 +5198,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return TryStatement;
   }());
   exports.TryStatement = TryStatement;
-  var UnaryExpression = (function () {
+  var UnaryExpression = (function() {
       function UnaryExpression(operator, argument) {
           this.type = syntax_1.Syntax.UnaryExpression;
           this.operator = operator;
@@ -5253,7 +5208,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return UnaryExpression;
   }());
   exports.UnaryExpression = UnaryExpression;
-  var UpdateExpression = (function () {
+  var UpdateExpression = (function() {
       function UpdateExpression(operator, argument, prefix) {
           this.type = syntax_1.Syntax.UpdateExpression;
           this.operator = operator;
@@ -5263,7 +5218,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return UpdateExpression;
   }());
   exports.UpdateExpression = UpdateExpression;
-  var VariableDeclaration = (function () {
+  var VariableDeclaration = (function() {
       function VariableDeclaration(declarations, kind) {
           this.type = syntax_1.Syntax.VariableDeclaration;
           this.declarations = declarations;
@@ -5272,7 +5227,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return VariableDeclaration;
   }());
   exports.VariableDeclaration = VariableDeclaration;
-  var VariableDeclarator = (function () {
+  var VariableDeclarator = (function() {
       function VariableDeclarator(id, init) {
           this.type = syntax_1.Syntax.VariableDeclarator;
           this.id = id;
@@ -5281,7 +5236,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return VariableDeclarator;
   }());
   exports.VariableDeclarator = VariableDeclarator;
-  var WhileStatement = (function () {
+  var WhileStatement = (function() {
       function WhileStatement(test, body) {
           this.type = syntax_1.Syntax.WhileStatement;
           this.test = test;
@@ -5290,7 +5245,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return WhileStatement;
   }());
   exports.WhileStatement = WhileStatement;
-  var WithStatement = (function () {
+  var WithStatement = (function() {
       function WithStatement(object, body) {
           this.type = syntax_1.Syntax.WithStatement;
           this.object = object;
@@ -5299,7 +5254,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return WithStatement;
   }());
   exports.WithStatement = WithStatement;
-  var YieldExpression = (function () {
+  var YieldExpression = (function() {
       function YieldExpression(argument, delegate) {
           this.type = syntax_1.Syntax.YieldExpression;
           this.argument = argument;
@@ -5308,12 +5263,9 @@ return /******/ (function(modules) { // webpackBootstrap
       return YieldExpression;
   }());
   exports.YieldExpression = YieldExpression;
-
-
 /***/ },
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
-
   "use strict";
 /* istanbul ignore next */
   var __extends = (this && this.__extends) || function (d, b) {
@@ -5361,20 +5313,20 @@ return /******/ (function(modules) { // webpackBootstrap
       function JSXParser(code, options, delegate) {
           _super.call(this, code, options, delegate);
       }
-      JSXParser.prototype.parsePrimaryExpression = function () {
+      JSXParser.prototype.parsePrimaryExpression = function() {
           return this.match('<') ? this.parseJSXRoot() : _super.prototype.parsePrimaryExpression.call(this);
       };
-      JSXParser.prototype.startJSX = function () {
+      JSXParser.prototype.startJSX = function() {
           // Unwind the scanner before the lookahead token.
           this.scanner.index = this.startMarker.index;
           this.scanner.lineNumber = this.startMarker.lineNumber;
           this.scanner.lineStart = this.startMarker.lineStart;
       };
-      JSXParser.prototype.finishJSX = function () {
+      JSXParser.prototype.finishJSX = function() {
           // Prime the next lookahead.
           this.nextToken();
       };
-      JSXParser.prototype.reenterJSX = function () {
+      JSXParser.prototype.reenterJSX = function() {
           this.startJSX();
           this.expectJSX('}');
           // Pop the closing '}' added from the lookahead.
@@ -5382,7 +5334,7 @@ return /******/ (function(modules) { // webpackBootstrap
               this.tokens.pop();
           }
       };
-      JSXParser.prototype.createJSXNode = function () {
+      JSXParser.prototype.createJSXNode = function() {
           this.collectComments();
           return {
               index: this.scanner.index,
@@ -5390,7 +5342,7 @@ return /******/ (function(modules) { // webpackBootstrap
               column: this.scanner.index - this.scanner.lineStart
           };
       };
-      JSXParser.prototype.createJSXChildNode = function () {
+      JSXParser.prototype.createJSXChildNode = function() {
           return {
               index: this.scanner.index,
               line: this.scanner.lineNumber,
@@ -5448,7 +5400,7 @@ return /******/ (function(modules) { // webpackBootstrap
           return result;
       };
       // Scan the next JSX token. This replaces Scanner#lex when in JSX mode.
-      JSXParser.prototype.lexJSX = function () {
+      JSXParser.prototype.lexJSX = function() {
           var cp = this.scanner.source.charCodeAt(this.scanner.index);
           // < > / : = { }
           if (cp === 60 || cp === 62 || cp === 47 || cp === 58 || cp === 61 || cp === 123 || cp === 125) {
@@ -5544,7 +5496,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           this.scanner.throwUnexpectedToken();
       };
-      JSXParser.prototype.nextJSXToken = function () {
+      JSXParser.prototype.nextJSXToken = function() {
           this.collectComments();
           this.startMarker.index = this.scanner.index;
           this.startMarker.lineNumber = this.scanner.lineNumber;
@@ -5558,7 +5510,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return token;
       };
-      JSXParser.prototype.nextJSXText = function () {
+      JSXParser.prototype.nextJSXText = function() {
           this.startMarker.index = this.scanner.index;
           this.startMarker.lineNumber = this.scanner.lineNumber;
           this.startMarker.lineStart = this.scanner.lineStart;
@@ -5595,7 +5547,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return token;
       };
-      JSXParser.prototype.peekJSXToken = function () {
+      JSXParser.prototype.peekJSXToken = function() {
           var previousIndex = this.scanner.index;
           var previousLineNumber = this.scanner.lineNumber;
           var previousLineStart = this.scanner.lineStart;
@@ -5619,7 +5571,7 @@ return /******/ (function(modules) { // webpackBootstrap
           var next = this.peekJSXToken();
           return next.type === token_1.Token.Punctuator && next.value === value;
       };
-      JSXParser.prototype.parseJSXIdentifier = function () {
+      JSXParser.prototype.parseJSXIdentifier = function() {
           var node = this.createJSXNode();
           var token = this.nextJSXToken();
           if (token.type !== JSXToken.Identifier) {
@@ -5627,7 +5579,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, new JSXNode.JSXIdentifier(token.value));
       };
-      JSXParser.prototype.parseJSXElementName = function () {
+      JSXParser.prototype.parseJSXElementName = function() {
           var node = this.createJSXNode();
           var elementName = this.parseJSXIdentifier();
           if (this.matchJSX(':')) {
@@ -5646,7 +5598,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return elementName;
       };
-      JSXParser.prototype.parseJSXAttributeName = function () {
+      JSXParser.prototype.parseJSXAttributeName = function() {
           var node = this.createJSXNode();
           var attributeName;
           var identifier = this.parseJSXIdentifier();
@@ -5661,7 +5613,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return attributeName;
       };
-      JSXParser.prototype.parseJSXStringLiteralAttribute = function () {
+      JSXParser.prototype.parseJSXStringLiteralAttribute = function() {
           var node = this.createJSXNode();
           var token = this.nextJSXToken();
           if (token.type !== token_1.Token.StringLiteral) {
@@ -5670,7 +5622,7 @@ return /******/ (function(modules) { // webpackBootstrap
           var raw = this.getTokenRaw(token);
           return this.finalize(node, new Node.Literal(token.value, raw));
       };
-      JSXParser.prototype.parseJSXExpressionAttribute = function () {
+      JSXParser.prototype.parseJSXExpressionAttribute = function() {
           var node = this.createJSXNode();
           this.expectJSX('{');
           this.finishJSX();
@@ -5681,11 +5633,11 @@ return /******/ (function(modules) { // webpackBootstrap
           this.reenterJSX();
           return this.finalize(node, new JSXNode.JSXExpressionContainer(expression));
       };
-      JSXParser.prototype.parseJSXAttributeValue = function () {
+      JSXParser.prototype.parseJSXAttributeValue = function() {
           return this.matchJSX('{') ? this.parseJSXExpressionAttribute() :
               this.matchJSX('<') ? this.parseJSXElement() : this.parseJSXStringLiteralAttribute();
       };
-      JSXParser.prototype.parseJSXNameValueAttribute = function () {
+      JSXParser.prototype.parseJSXNameValueAttribute = function() {
           var node = this.createJSXNode();
           var name = this.parseJSXAttributeName();
           var value = null;
@@ -5695,7 +5647,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, new JSXNode.JSXAttribute(name, value));
       };
-      JSXParser.prototype.parseJSXSpreadAttribute = function () {
+      JSXParser.prototype.parseJSXSpreadAttribute = function() {
           var node = this.createJSXNode();
           this.expectJSX('{');
           this.expectJSX('...');
@@ -5704,7 +5656,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.reenterJSX();
           return this.finalize(node, new JSXNode.JSXSpreadAttribute(argument));
       };
-      JSXParser.prototype.parseJSXAttributes = function () {
+      JSXParser.prototype.parseJSXAttributes = function() {
           var attributes = [];
           while (!this.matchJSX('/') && !this.matchJSX('>')) {
               var attribute = this.matchJSX('{') ? this.parseJSXSpreadAttribute() :
@@ -5713,7 +5665,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return attributes;
       };
-      JSXParser.prototype.parseJSXOpeningElement = function () {
+      JSXParser.prototype.parseJSXOpeningElement = function() {
           var node = this.createJSXNode();
           this.expectJSX('<');
           var name = this.parseJSXElementName();
@@ -5725,7 +5677,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.expectJSX('>');
           return this.finalize(node, new JSXNode.JSXOpeningElement(name, selfClosing, attributes));
       };
-      JSXParser.prototype.parseJSXBoundaryElement = function () {
+      JSXParser.prototype.parseJSXBoundaryElement = function() {
           var node = this.createJSXNode();
           this.expectJSX('<');
           if (this.matchJSX('/')) {
@@ -5743,7 +5695,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.expectJSX('>');
           return this.finalize(node, new JSXNode.JSXOpeningElement(name, selfClosing, attributes));
       };
-      JSXParser.prototype.parseJSXEmptyExpression = function () {
+      JSXParser.prototype.parseJSXEmptyExpression = function() {
           var node = this.createJSXChildNode();
           this.collectComments();
           this.lastMarker.index = this.scanner.index;
@@ -5751,7 +5703,7 @@ return /******/ (function(modules) { // webpackBootstrap
           this.lastMarker.lineStart = this.scanner.lineStart;
           return this.finalize(node, new JSXNode.JSXEmptyExpression());
       };
-      JSXParser.prototype.parseJSXExpressionContainer = function () {
+      JSXParser.prototype.parseJSXExpressionContainer = function() {
           var node = this.createJSXNode();
           this.expectJSX('{');
           var expression;
@@ -5766,7 +5718,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, new JSXNode.JSXExpressionContainer(expression));
       };
-      JSXParser.prototype.parseJSXChildren = function () {
+      JSXParser.prototype.parseJSXChildren = function() {
           var children = [];
           while (!this.scanner.eof()) {
               var node = this.createJSXChildNode();
@@ -5822,7 +5774,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return el;
       };
-      JSXParser.prototype.parseJSXElement = function () {
+      JSXParser.prototype.parseJSXElement = function() {
           var node = this.createJSXNode();
           var opening = this.parseJSXOpeningElement();
           var children = [];
@@ -5834,7 +5786,7 @@ return /******/ (function(modules) { // webpackBootstrap
           }
           return this.finalize(node, new JSXNode.JSXElement(opening, children, closing));
       };
-      JSXParser.prototype.parseJSXRoot = function () {
+      JSXParser.prototype.parseJSXRoot = function() {
           // Pop the opening '<' added from the lookahead.
           if (this.config.tokens) {
               this.tokens.pop();
@@ -5847,12 +5799,9 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXParser;
   }(parser_1.Parser));
   exports.JSXParser = JSXParser;
-
-
 /***/ },
 /* 12 */
 /***/ function(module, exports) {
-
   // Generated by generate-xhtml-entities.js. DO NOT MODIFY!
   "use strict";
   exports.XHTMLEntities = {
@@ -6109,12 +6058,9 @@ return /******/ (function(modules) { // webpackBootstrap
       lang: '\u27E8',
       rang: '\u27E9'
   };
-
-
 /***/ },
 /* 13 */
 /***/ function(module, exports) {
-
   "use strict";
   exports.JSXSyntax = {
       JSXAttribute: 'JSXAttribute',
@@ -6129,15 +6075,12 @@ return /******/ (function(modules) { // webpackBootstrap
       JSXSpreadAttribute: 'JSXSpreadAttribute',
       JSXText: 'JSXText'
   };
-
-
 /***/ },
 /* 14 */
 /***/ function(module, exports, __webpack_require__) {
-
   "use strict";
   var jsx_syntax_1 = __webpack_require__(13);
-  var JSXClosingElement = (function () {
+  var JSXClosingElement = (function() {
       function JSXClosingElement(name) {
           this.type = jsx_syntax_1.JSXSyntax.JSXClosingElement;
           this.name = name;
@@ -6145,7 +6088,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXClosingElement;
   }());
   exports.JSXClosingElement = JSXClosingElement;
-  var JSXElement = (function () {
+  var JSXElement = (function() {
       function JSXElement(openingElement, children, closingElement) {
           this.type = jsx_syntax_1.JSXSyntax.JSXElement;
           this.openingElement = openingElement;
@@ -6155,14 +6098,14 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXElement;
   }());
   exports.JSXElement = JSXElement;
-  var JSXEmptyExpression = (function () {
+  var JSXEmptyExpression = (function() {
       function JSXEmptyExpression() {
           this.type = jsx_syntax_1.JSXSyntax.JSXEmptyExpression;
       }
       return JSXEmptyExpression;
   }());
   exports.JSXEmptyExpression = JSXEmptyExpression;
-  var JSXExpressionContainer = (function () {
+  var JSXExpressionContainer = (function() {
       function JSXExpressionContainer(expression) {
           this.type = jsx_syntax_1.JSXSyntax.JSXExpressionContainer;
           this.expression = expression;
@@ -6170,7 +6113,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXExpressionContainer;
   }());
   exports.JSXExpressionContainer = JSXExpressionContainer;
-  var JSXIdentifier = (function () {
+  var JSXIdentifier = (function() {
       function JSXIdentifier(name) {
           this.type = jsx_syntax_1.JSXSyntax.JSXIdentifier;
           this.name = name;
@@ -6178,7 +6121,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXIdentifier;
   }());
   exports.JSXIdentifier = JSXIdentifier;
-  var JSXMemberExpression = (function () {
+  var JSXMemberExpression = (function() {
       function JSXMemberExpression(object, property) {
           this.type = jsx_syntax_1.JSXSyntax.JSXMemberExpression;
           this.object = object;
@@ -6187,7 +6130,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXMemberExpression;
   }());
   exports.JSXMemberExpression = JSXMemberExpression;
-  var JSXAttribute = (function () {
+  var JSXAttribute = (function() {
       function JSXAttribute(name, value) {
           this.type = jsx_syntax_1.JSXSyntax.JSXAttribute;
           this.name = name;
@@ -6196,7 +6139,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXAttribute;
   }());
   exports.JSXAttribute = JSXAttribute;
-  var JSXNamespacedName = (function () {
+  var JSXNamespacedName = (function() {
       function JSXNamespacedName(namespace, name) {
           this.type = jsx_syntax_1.JSXSyntax.JSXNamespacedName;
           this.namespace = namespace;
@@ -6205,7 +6148,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXNamespacedName;
   }());
   exports.JSXNamespacedName = JSXNamespacedName;
-  var JSXOpeningElement = (function () {
+  var JSXOpeningElement = (function() {
       function JSXOpeningElement(name, selfClosing, attributes) {
           this.type = jsx_syntax_1.JSXSyntax.JSXOpeningElement;
           this.name = name;
@@ -6215,7 +6158,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXOpeningElement;
   }());
   exports.JSXOpeningElement = JSXOpeningElement;
-  var JSXSpreadAttribute = (function () {
+  var JSXSpreadAttribute = (function() {
       function JSXSpreadAttribute(argument) {
           this.type = jsx_syntax_1.JSXSyntax.JSXSpreadAttribute;
           this.argument = argument;
@@ -6223,7 +6166,7 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXSpreadAttribute;
   }());
   exports.JSXSpreadAttribute = JSXSpreadAttribute;
-  var JSXText = (function () {
+  var JSXText = (function() {
       function JSXText(value, raw) {
           this.type = jsx_syntax_1.JSXSyntax.JSXText;
           this.value = value;
@@ -6232,17 +6175,14 @@ return /******/ (function(modules) { // webpackBootstrap
       return JSXText;
   }());
   exports.JSXText = JSXText;
-
-
 /***/ },
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
-
   "use strict";
   var scanner_1 = __webpack_require__(8);
   var error_handler_1 = __webpack_require__(6);
   var token_1 = __webpack_require__(7);
-  var Reader = (function () {
+  var Reader = (function() {
       function Reader() {
           this.values = [];
           this.curly = this.paren = -1;
@@ -6263,7 +6203,7 @@ return /******/ (function(modules) { // webpackBootstrap
       ;
       // Determine if forward slash (/) is an operator or part of a regular expression
       // https://github.com/mozilla/sweet.js/wiki/design
-      Reader.prototype.isRegexStart = function () {
+      Reader.prototype.isRegexStart = function() {
           var previous = this.values[this.values.length - 1];
           var regex = (previous !== null);
           switch (previous) {
@@ -6310,7 +6250,7 @@ return /******/ (function(modules) { // webpackBootstrap
       ;
       return Reader;
   }());
-  var Tokenizer = (function () {
+  var Tokenizer = (function() {
       function Tokenizer(code, config) {
           this.errorHandler = new error_handler_1.ErrorHandler();
           this.errorHandler.tolerant = config ? (typeof config.tolerant === 'boolean' && config.tolerant) : false;
@@ -6322,11 +6262,11 @@ return /******/ (function(modules) { // webpackBootstrap
           this.reader = new Reader();
       }
       ;
-      Tokenizer.prototype.errors = function () {
+      Tokenizer.prototype.errors = function() {
           return this.errorHandler.errors;
       };
       ;
-      Tokenizer.prototype.getNextToken = function () {
+      Tokenizer.prototype.getNextToken = function() {
           if (this.buffer.length === 0) {
               var comments = this.scanner.scanComments();
               if (this.scanner.trackComment) {
@@ -6393,8 +6333,6 @@ return /******/ (function(modules) { // webpackBootstrap
       return Tokenizer;
   }());
   exports.Tokenizer = Tokenizer;
-
-
 /***/ }
 /******/ ])
 });
