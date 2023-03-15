@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+
+<!-- This is an example HTML wrapper for loading apps exported from the editor -->
+
 <html lang="en">
 	<head>
 		<title><!-- title --></title>
@@ -20,9 +23,9 @@
 	<body ontouchstart="">
 		<script type="module">
 
-			import * as THREE from './js/three.module.js';
-			import { APP } from './js/app.js';
-			import { VRButton } from './js/VRButton.js';
+			import * as THREE from '../../../../node_modules/three/build/three.module.js';
+			import { APP } from './app.js';
+			import { VRButton } from '../../../../node_modules/three/examples/jsm/webxr/VRButton.js';
 
 			window.THREE = THREE; // Used by APP Scripts.
 			window.VRButton = VRButton; // Used by APP Scripts.
