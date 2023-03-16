@@ -55,10 +55,9 @@ function Loader(editor) {
           });
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// The 3DS (3D Studio) stores information on the makeup of 3D vector graphics.
-      case '3ds':
+      break; case '3ds':
       {
         reader.addEventListener('load', async function (event) {
           const { TDSLoader } = await import('three/addons/loaders/TDSLoader.js');
@@ -66,10 +65,9 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, object));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// The 3D Manufacturing Format is an industry-supported file format for full-fidelity 3D CAD models.
-      case '3mf':
+      break; case '3mf':
       {
         reader.addEventListener('load', async function (event) {
           const { ThreeMFLoader } = await import('three/addons/loaders/3MFLoader.js');
@@ -77,10 +75,9 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, object));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// An Additive Manufacturing File is a CAD format for 3D printing.
-      case 'amf':
+      break; case 'amf':
       {
         reader.addEventListener('load', async function (event) {
           const { AMFLoader } = await import('three/addons/loaders/AMFLoader.js');
@@ -88,10 +85,9 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, amfobject));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// A COLLADA Digital Asset Exchange file can store content including images, textures, and 3D models.
-      case 'dae':
+      break; case 'dae':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -101,10 +97,9 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, collada.scene));
         }, false);
         reader.readAsText(file);
-        break;
       }
 			// A file with .drc extension is a compressed 3D file format created with Google Draco library.
-      case 'drc':
+      break; case 'drc':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -126,10 +121,9 @@ function Loader(editor) {
           });
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// FBX files transfer files between 3D animation software like as Maya, 3ds Max, MotionBuilder, Mudbox.
-      case 'fbx':
+      break; case 'fbx':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -139,10 +133,9 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, object));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// GLB standard specifies 3D scenes, models, lighting, materials, node hierarchy and animations.
-      case 'glb':
+      break; case 'glb':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -161,10 +154,9 @@ function Loader(editor) {
           });
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// GL Transmission Format is a specification for 3D scenes and models.
-      case 'gltf':
+      break; case 'gltf':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -183,18 +175,16 @@ function Loader(editor) {
           });
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// Load files exported from the editor itself
-      case 'js': case 'json':
+      break; case 'js': case 'json':
       {
         reader.addEventListener('load', function (event) {
           const contents = event.target.result;
           // 2.0
           if (contents.indexOf('postMessage') !== - 1) {
             const blob = new Blob([ contents ], { type: 'text/javascript' });
-            const url = URL.createObjectURL(blob);
-            const worker = new Worker(url);
+            const worker = new Worker(URL.createObjectURL(blob));
             worker.onmessage = function (event) {
               event.data.metadata = { version: 2 };
               handleJSON(event.data);
@@ -208,10 +198,9 @@ function Loader(editor) {
           handleJSON(data);
         }, false);
         reader.readAsText(file);
-        break;
       }
 			// Industry Foundation Classes is a CAD schema for architectural, building and construction industry data.
-      case 'ifc':
+      break; case 'ifc':
       {
         reader.addEventListener('load', async function (event) {
           const { IFCLoader } = await import('three/addons/loaders/IFCLoader.js');
@@ -222,26 +211,22 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, model.mesh));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// Keyhole Markup Language (Google Earth) expresses geographic annotation and visualization
 			// within two-dimensional maps and three-dimensional Earth browsers.
-      case 'kmz':
+      break; case 'kmz':
       {
         reader.addEventListener('load', async function (event) {
           const { KMZLoader } = await import('three/addons/loaders/KMZLoader.js');
-          const loader = new KMZLoader();
-          const collada = loader.parse(event.target.result);
+          const collada = new KMZLoader().parse(event.target.result);
           collada.scene.name = filename;
           editor.execute(new AddObjectCommand(editor, collada.scene));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// An LDR file is a 3D LEGO model created with LDraw computer-aided design program
 			// A MPD file consists out of blocks of LDraw code separated by 0 FILE or 0 !DATA statements.
-      case 'ldr':
-      case 'mpd':
+      break; case 'ldr': case 'mpd':
       {
         reader.addEventListener('load', async function (event) {
           const { LDrawLoader } = await import('three/addons/loaders/LDrawLoader.js');
@@ -255,10 +240,9 @@ function Loader(editor) {
           });
         }, false);
         reader.readAsText(file);
-        break;
       }
 			// MD2 (Quake 2 model format) is a 3-D modeling format.
-      case 'md2':
+      break; case 'md2':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -270,11 +254,10 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, mesh));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// OBJ represents 3D geometry alone — vertex, UV position of each texture coordinate vertex,
 			// vertex normals, the faces that make each polygon defined as a list of vertices, and texture vertices. 
-      case 'obj':
+      break; case 'obj':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -284,10 +267,9 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, object));
         }, false);
         reader.readAsText(file);
-        break;
       }
 			// The PCD (Point Cloud Data) is a file format for storing 3D point cloud data.
-      case 'pcd':
+      break; case 'pcd':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -297,10 +279,9 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, points));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// The Polygon File Format or Stanford Triangle Format stores three-dimensional data from 3D scanners.
-      case 'ply':
+      break; case 'ply':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -318,11 +299,10 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, object));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// STL is a file format commonly used for 3D printing and computer-aided design (CAD).
 			// The name STL is an acronym that stands for stereolithography — a popular 3D printing technology
-      case 'stl':
+      break; case 'stl':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -336,10 +316,9 @@ function Loader(editor) {
         } else {
           reader.readAsArrayBuffer(file);
         }
-        break;
       }
 			// Scalable Vector Graphics (SVG) is a web-friendly vector file format
-      case 'svg':
+      break; case 'svg':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -350,25 +329,20 @@ function Loader(editor) {
           group.scale.y *= - 1;
           for (let i = 0; i < paths.length; ++i) {
             const path = paths[ i ];
-            const material = new THREE.MeshBasicMaterial({
-              color: path.color,
-              depthWrite: false
-            });
+            const material = new THREE.MeshBasicMaterial({ color: path.color, depthWrite: false });
             const shapes = SVGLoader.createShapes(path);
             for (let j = 0; j < shapes.length; j ++) {
               const shape = shapes[ j ];
-              const geometry = new THREE.ShapeGeometry(shape);
-              const mesh = new THREE.Mesh(geometry, material);
+              const mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), material);
               group.add(mesh);
             }
           }
           editor.execute(new AddObjectCommand(editor, group));
         }, false);
         reader.readAsText(file);
-        break;
       }
 			// USDZ is a 3D file format created by Pixar. It has been adopted by Apple as their format for AR applications.
-      case 'usdz':
+      break; case 'usdz':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -378,10 +352,9 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, group));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// 3D model Voxel format ("VOX" for short), a blocky 3D format used by the Voxlap game engine.
-      case 'vox':
+      break; case 'vox':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -397,27 +370,23 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, group));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// VTK supports 1D, 2D, and 3D structured point datasets
 			// VTP is a file format for storing VTK surface models (polydata)
-      case 'vtk': case 'vtp':
+      break; case 'vtk': case 'vtp':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
           const { VTKLoader } = await import('three/addons/loaders/VTKLoader.js');
-          const geometry = new VTKLoader().parse(contents);
-          const material = new THREE.MeshStandardMaterial();
-          const mesh = new THREE.Mesh(geometry, material);
+          const mesh = new THREE.Mesh(new VTKLoader().parse(contents), new THREE.MeshStandardMaterial());
           mesh.name = filename;
           editor.execute(new AddObjectCommand(editor, mesh));
         }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
 			// WRL files are an extension of the Virtual Reality Modeling Language (VRML) format.
 			// VRML file types enable browser plugins to display virtual reality environments
-      case 'wrl':
+      break; case 'wrl':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -426,10 +395,9 @@ function Loader(editor) {
           editor.execute(new SetSceneCommand(editor, result));
         }, false);
         reader.readAsText(file);
-        break;
       }
 			// XYZ (Point cloud data) is a file extension used for ASCII text files with point cloud data.
-      case 'xyz':
+      break; case 'xyz':
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
@@ -442,60 +410,42 @@ function Loader(editor) {
           editor.execute(new AddObjectCommand(editor, points));
         }, false);
         reader.readAsText(file);
-        break;
       }
 			// Supports zips containing: MTL, OBJ, FBX, GLB, or GLTF
-      case 'zip':
+      break; case 'zip':
       {
-        reader.addEventListener('load', function (event) {
-          handleZIP(event.target.result);
-        }, false);
+        reader.addEventListener('load', function (event) { handleZIP(event.target.result); }, false);
         reader.readAsArrayBuffer(file);
-        break;
       }
-      default:
+      break; default:
         console.error('Unsupported file format (' + extension + ').');
         break;
     }
   };
   function handleJSON(data) {
-    if (data.metadata === undefined) { // 2.0
-      data.metadata = { type: 'Geometry' };
-    }
-    if (data.metadata.type === undefined) { // 3.0
-      data.metadata.type = 'Geometry';
-    }
-    if (data.metadata.formatVersion !== undefined) {
-      data.metadata.version = data.metadata.formatVersion;
-    }
+    if (data.metadata 							=== undefined) { data.metadata 					= { type: 'Geometry' }; } // 2.0
+    if (data.metadata.type 					=== undefined) { data.metadata.type 		= 'Geometry'; } // 3.0
+    if (data.metadata.formatVersion !== undefined) { data.metadata.version 	= data.metadata.formatVersion; }
     switch (data.metadata.type.toLowerCase()) {
+			case 'geometry': console.error('Loader: "Geometry" is no longer supported.'); break;
+			case 'app': editor.fromJSON(data); break;
       case 'buffergeometry':
       {
-        const loader = new THREE.BufferGeometryLoader();
-        const result = loader.parse(data);
-        const mesh = new THREE.Mesh(result);
+        const mesh = new THREE.Mesh(new THREE.BufferGeometryLoader().parse(data));
         editor.execute(new AddObjectCommand(editor, mesh));
         break;
-      }
-      case 'geometry':
-        console.error('Loader: "Geometry" is no longer supported.');
-        break;
+      }      
       case 'object':
       {
         const loader = new THREE.ObjectLoader();
         loader.setResourcePath(scope.texturePath);
         loader.parse(data, function (result) {
-          if (result.isScene) {
-            editor.execute(new SetSceneCommand(editor, result));
-          } else {
-            editor.execute(new AddObjectCommand(editor, result));
-          }
+					editor.execute(result.isScene
+						? new SetSceneCommand(editor, result)
+          	: new AddObjectCommand(editor, result));
         });
         break;
-      }
-      case 'app':
-        editor.fromJSON(data);
-        break;
+      }      
     }
   }
   async function handleZIP(contents) {
@@ -525,12 +475,10 @@ function Loader(editor) {
         case 'fbx':
         {
           const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js');
-          const loader = new FBXLoader(manager);
-          const object = loader.parse(file.buffer);
+          const object = new FBXLoader(manager).parse(file.buffer);
           editor.execute(new AddObjectCommand(editor, object));
-          break;
         }
-        case 'glb':
+        break; case 'glb':
         {
           const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
           const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
@@ -544,9 +492,8 @@ function Loader(editor) {
             editor.execute(new AddObjectCommand(editor, scene));
             dracoLoader.dispose();
           });
-          break;
-        }
-        case 'gltf':
+        }        
+				break; case 'gltf':
         {
           const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
           const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
@@ -560,8 +507,8 @@ function Loader(editor) {
             editor.execute(new AddObjectCommand(editor, scene));
             dracoLoader.dispose();
           });
-          break;
-        }
+        }				
+				break;
       }
     }
   }
