@@ -368,18 +368,16 @@ Editor.prototype = {
     this.deselect();
     this.signals.editorCleared.dispatch();
   },
-  //
   fromJSON: async function (json) {
-    var loader = new THREE.ObjectLoader();
-    var camera = await loader.parseAsync(json.camera);
+    const loader = new THREE.ObjectLoader();
+    const camera = await loader.parseAsync(json.camera);
     this.camera.copy(camera);
     this.signals.cameraResetted.dispatch();
     this.history.fromJSON(json.history);
     this.scripts = json.scripts;
     this.setScene(await loader.parseAsync(json.scene));
   },
-  toJSON: function() {
-		
+  toJSON: function() {		
     // scripts clean up
     var scene = this.scene;
     var scripts = this.scripts;

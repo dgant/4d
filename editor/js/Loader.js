@@ -49,7 +49,7 @@ function Loader(editor) {
           const contents = event.target.result;
           const { Rhino3dmLoader } = await import('three/addons/loaders/3DMLoader.js');
           const loader = new Rhino3dmLoader();
-          loader.setLibraryPath('../examples/jsm/libs/rhino3dm/');
+          loader.setLibraryPath('../node_modules/three/examples/jsm/libs/rhino3dm/');
           loader.parse(contents, function (object) {
             editor.execute(new AddObjectCommand(editor, object));
           });
@@ -105,16 +105,16 @@ function Loader(editor) {
           const contents = event.target.result;
           const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
           const loader = new DRACOLoader();
-          loader.setDecoderPath('../examples/jsm/libs/draco/');
+          loader.setDecoderPath('../node_modules/three/examples/jsm/libs/draco/');
           loader.parse(contents, function (geometry) {
-            let object, material;
+            let material;
             if (geometry.index !== null) {
               material = new THREE.MeshStandardMaterial();
             } else {
               material = new THREE.PointsMaterial({ size: 0.01 });
               material.vertexColors = geometry.hasAttribute('color');
             }
-						object = new THREE.Mesh(geometry, material);
+						const object = new THREE.Mesh(geometry, material);
 						object.name = filename;
             loader.dispose();
             editor.execute(new AddObjectCommand(editor, object));
@@ -128,8 +128,7 @@ function Loader(editor) {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
           const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js');
-          const loader = new FBXLoader(manager);
-          const object = loader.parse(contents);
+          const object = new FBXLoader(manager).parse(contents);
           editor.execute(new AddObjectCommand(editor, object));
         }, false);
         reader.readAsArrayBuffer(file);
@@ -142,7 +141,7 @@ function Loader(editor) {
           const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
           const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
           const dracoLoader = new DRACOLoader();
-          dracoLoader.setDecoderPath('../examples/jsm/libs/draco/gltf/');
+          dracoLoader.setDecoderPath('../node_modules/three/examples/jsm/libs/draco/gltf/');
           const loader = new GLTFLoader();
           loader.setDRACOLoader(dracoLoader);
           loader.parse(contents, '', function (result) {
@@ -163,7 +162,7 @@ function Loader(editor) {
           const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
           const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
           const dracoLoader = new DRACOLoader();
-          dracoLoader.setDecoderPath('../examples/jsm/libs/draco/gltf/');
+          dracoLoader.setDecoderPath('../node_modules/three/examples/jsm/libs/draco/gltf/');
           const loader = new GLTFLoader(manager);
           loader.setDRACOLoader(dracoLoader);
           loader.parse(contents, '', function (result) {
@@ -199,7 +198,7 @@ function Loader(editor) {
         }, false);
         reader.readAsText(file);
       }
-			// Industry Foundation Classes is a CAD schema for architectural, building and construction industry data.
+			// Industry Foundation Classes is a CAD schema for architectural, building and construction data.
       break; case 'ifc':
       {
         reader.addEventListener('load', async function (event) {
@@ -231,7 +230,7 @@ function Loader(editor) {
         reader.addEventListener('load', async function (event) {
           const { LDrawLoader } = await import('three/addons/loaders/LDrawLoader.js');
           const loader = new LDrawLoader();
-          loader.setPath('../../examples/models/ldraw/officialLibrary/');
+          loader.setPath('../../node_modules/three/examples/models/ldraw/officialLibrary/');
           loader.parse(event.target.result, undefined, function (group) {
             group.name = filename;
             // Convert from LDraw coordinates: rotate 180 degrees around OX
@@ -273,7 +272,7 @@ function Loader(editor) {
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
-          const { PCDLoader } = await import('../../examples/jsm/loaders/PCDLoader.js');
+          const { PCDLoader } = await import('../../node_modules/three/examples/jsm/loaders/PCDLoader.js');
           const points = new PCDLoader().parse(contents);
           points.name = filename;
           editor.execute(new AddObjectCommand(editor, points));
@@ -346,7 +345,7 @@ function Loader(editor) {
       {
         reader.addEventListener('load', async function (event) {
           const contents = event.target.result;
-          const { USDZLoader } = await import('../../examples/jsm/loaders/USDZLoader.js');
+          const { USDZLoader } = await import('../../node_modules/three/examples/jsm/loaders/USDZLoader.js');
           const group = new USDZLoader().parse(contents);
           group.name = filename;
           editor.execute(new AddObjectCommand(editor, group));
@@ -483,7 +482,7 @@ function Loader(editor) {
           const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
           const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
           const dracoLoader = new DRACOLoader();
-          dracoLoader.setDecoderPath('../examples/jsm/libs/draco/gltf/');
+          dracoLoader.setDecoderPath('../node_modules/three/examples/jsm/libs/draco/gltf/');
           const loader = new GLTFLoader();
           loader.setDRACOLoader(dracoLoader);
           loader.parse(file.buffer, '', function (result) {
@@ -498,7 +497,7 @@ function Loader(editor) {
           const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
           const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
           const dracoLoader = new DRACOLoader();
-          dracoLoader.setDecoderPath('../examples/jsm/libs/draco/gltf/');
+          dracoLoader.setDecoderPath('../node_modules/three/examples/jsm/libs/draco/gltf/');
           const loader = new GLTFLoader(manager);
           loader.setDRACOLoader(dracoLoader);
           loader.parse(strFromU8(file), '', function (result) {

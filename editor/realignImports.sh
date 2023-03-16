@@ -1,8 +1,9 @@
 /bin/bash
 
 # Fix paths of imports
-find . -name *.html | xargs sed --binary -i s:'"../examples':'"../node_modules/three/examples':g
-find . -name *.js | xargs sed --binary -i s:"from '../../examples":"from '../../node_modules/three/examples":g
+find . -name "*.html" | xargs sed --binary -i s:'"../examples':'"../node_modules/three/examples':g
+find . -name "*.js" | xargs sed --binary -i s:"from '../../examples":"from '../../node_modules/three/examples":g
+find . -name "*.js" | xargs sed -i -e 's@\.\.\/examples@\.\.\/node_modules\/three\/examples@g'
 
 # Condense code
 find . -name "*.js" | xargs sed -i -e "s@( @(@g"

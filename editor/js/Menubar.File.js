@@ -290,7 +290,7 @@ function MenubarFile(editor) {
     loader.load('../build/three.module.js', function (content) {
       toZip[ 'js/three.module.js' ] = strToU8(content);
     });
-    loader.load('../examples/jsm/webxr/VRButton.js', function (content) {
+    loader.load('../node_modules/three/examples/jsm/webxr/VRButton.js', function (content) {
       toZip[ 'js/VRButton.js' ] = strToU8(content);
     });
   });
