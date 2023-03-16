@@ -5,11 +5,14 @@ import { History as _History } from './History.js';
 import { Strings } from './Strings.js';
 import { Storage as _Storage } from './Storage.js';
 import { Selector } from './Viewport.Selector.js';
+
 THREE.ColorManagement.enabled = true;
+
 var _DEFAULT_CAMERA = new THREE.PerspectiveCamera(50, 1, 0.01, 1000);
 _DEFAULT_CAMERA.name = 'Camera';
 _DEFAULT_CAMERA.position.set(0, 5, 10);
 _DEFAULT_CAMERA.lookAt(new THREE.Vector3());
+
 function Editor() {
   const Signal = signals.Signal; // eslint-disable-line no-undef
   this.signals = {
@@ -105,7 +108,6 @@ Editor.prototype = {
     this.signals.sceneGraphChanged.active = true;
     this.signals.sceneGraphChanged.dispatch();
   },
-  //
   addObject: function (object, parent, index) {
     var scope = this;
     object.traverse(function (child) {
