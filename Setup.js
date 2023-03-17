@@ -5,6 +5,7 @@ import constants from './Constants.js';
 import Octree from './Octree.js';
 import player from './Player.js';
 import global from './Global.js';
+import { Levels } from './Levels.js';
 import * as Math4d from './Math4d.js';
 import * as Make4d from './Make4d.js';
 import { HypercubeGeometry } from './Hypercube.js';
@@ -38,7 +39,7 @@ function setup() {
   window.addEventListener('resize', onWindowResize);
 
   // Create terrain
-  const terrainGroup = new THREE.Group();
+  global.terrainGroup = new THREE.Group();
 
   // Generate floor
   let floorGeometry = new THREE.PlaneGeometry(400, 400, 100, 100);
@@ -52,9 +53,11 @@ function setup() {
   floorGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsFloor, 3));
   const floorMaterial = new THREE.MeshBasicMaterial({ vertexColors: true });
   const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-  terrainGroup.attach(floor);
+  global.terrainGroup.attach(floor);
 
   // Load level
+  const levels = new Levels();
+  levels.loadAllLevels();
  
   // Generate cubes
   if (document.generateCubes) { // Disabled
@@ -84,17 +87,17 @@ function setup() {
 
       Make4d.bless4d(box);
       box.setW4d(Math.random() * Math4d.TAU);
-      terrainGroup.attach(box);
+      global.terrainGroup.attach(box);
     }
   }
 
   // Build collider    
   global.octree = new Octree();
-  global.octree.fromGraphNode(terrainGroup);
+  global.octree.fromGraphNode(global.terrainGroup);
 
   global.scene.add(light);
   global.scene.add(global.camera);
-	global.scene.add(terrainGroup);
+	global.scene.add(global.terrainGroup);
 }
 
 function onKeyDown (event) {

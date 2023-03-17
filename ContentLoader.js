@@ -2,82 +2,63 @@ import * as THREE from 'three';
 import { TGALoader } from 'three/addons/loaders/TGALoader.js';
 import { unzipSync, strFromU8 } from 'three/addons/libs/fflate.module.js';
 
-const LoaderUtils = {
-  createFilesMap: function (files) {
-    const map = {};
-    for (let i = 0; i < files.length; i ++) {
-      const file = files[ i ];
-      map[ file.name ] = file;
-    }
-    return map;
-  },
-  getFilesFromItemList: function (items, onDone) {
-    // TOFIX: setURLModifier() breaks when the file being loaded is not in root
-    let itemsCount = 0;
-    let itemsTotal = 0;
-    const files = [];
-    const filesMap = {};
-    function onEntryHandled() {
-      itemsCount ++;
-      if (itemsCount === itemsTotal) {
-        onDone(files, filesMap);
-      }
-    }
-    function handleEntry(entry) {
-      if (entry.isDirectory) {
-        const reader = entry.createReader();
-        reader.readEntries(function (entries) {
-          for (let i = 0; i < entries.length; i ++) {
-            handleEntry(entries[ i ]);
-          }
-          onEntryHandled();
-        });
-      } else if (entry.isFile) {
-        entry.file(function (file) {
-          files.push(file);
-          filesMap[ entry.fullPath.slice(1) ] = file;
-          onEntryHandled();
-        });
-      }
-      itemsTotal ++;
-    }
-    for (let i = 0; i < items.length; i ++) {
-      const item = items[ i ];
-      if (item.kind === 'file') {
-        handleEntry(item.webkitGetAsEntry());
-      }
-    }
+function getFilesFromItemList(items, onDone) {
+  // TOFIX: setURLModifier() breaks when the file being loaded is not in root
+  let itemsCount = 0;
+  let itemsTotal = 0;
+  const files = [];
+  const filesMap = {};
+  function onEntryHandled() {
+    ++itemsCount;
+    if (itemsCount === itemsTotal) { onDone(files, filesMap); }
   }
-};
+  function handleEntry(entry) {
+    if (entry.isDirectory) {
+      const reader = entry.createReader();
+      reader.readEntries(function (entries) {
+        for (const entry of entries) { handleEntry(entry); }
+        onEntryHandled();
+      });
+    } else if (entry.isFile) {
+      entry.file(function (file) {
+        files.push(file);
+        filesMap[entry.fullPath.slice(1)] = file;
+        onEntryHandled();
+      });
+    }
+    ++itemsTotal;
+  }
+  for (const item of items) { if (item.kind === 'file') { handleEntry(item.webkitGetAsEntry()); }}
+}
 
 function ContentLoader(callbacks) {
   const scope = this;
+  const manager = new THREE.LoadingManager();  
+  manager.addHandler(/\.tga$/i, new TGALoader());
   this.texturePath = '';
+  // Loads ITEMS. For example, from a drop event: 
+  // > document.addEventListener('drop', function (event) { loadItemList(event.dataTransfer.items); });
+  // See https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer
   this.loadItemList = function (items) {
-    LoaderUtils.getFilesFromItemList(items, function (files, filesMap) {
+    getFilesFromItemList(items, function (files, filesMap) {
       scope.loadFiles(files, filesMap);
     });
   };
-  this.loadFiles = function (files, filesMap) {
+  // Loads FILES. For example, from a drop event:
+  // > document.addEventListener('drop', function (event) { loadItemList(event.dataTransfer.files); });
+  // See https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer
+  this.loadFiles = function (files, filesByName) {
     if (files.length > 0) {
-      filesMap = filesMap || LoaderUtils.createFilesMap(files);
-      const manager = new THREE.LoadingManager();
+      filesByName = filesByName || new Map(Array.from(files).map(file => [file.name, file]));      
       manager.setURLModifier(function (url) {
         url = url.replace(/^(\.?\/)/, ''); // remove './'
-        const file = filesMap[ url ];
-        if (file) {
-          console.log('Loading', url);
-          return URL.createObjectURL(file);
-        }
-        return url;
+        const file = filesByName[url];
+        return file ? URL.createObjectURL(file) : url;
       });
-      manager.addHandler(/\.tga$/i, new TGALoader());
-      for (let i = 0; i < files.length; ++i) {
-        scope.loadFile(files[ i ], manager);
-      }
+      for (const file of files) { scope.loadFile(file); }
     }
   };
-  this.loadFile = function (file, manager) {
+  this.loadFile = function (file) {
     const filename = file.name;
     const extension = filename.split('.').pop().toLowerCase();
     const reader = new FileReader();
@@ -471,27 +452,18 @@ function ContentLoader(callbacks) {
     if (data.metadata.type 					=== undefined) { data.metadata.type 		= 'Geometry'; } // 3.0
     if (data.metadata.formatVersion !== undefined) { data.metadata.version 	= data.metadata.formatVersion; }
     switch (data.metadata.type.toLowerCase()) {
-			case 'geometry': console.error('Loader: "Geometry" is no longer supported.'); break;
-			case 'app': callbacks.onLoadAppJson(data); break;
-      case 'buffergeometry':
-      {
-        const mesh = new THREE.Mesh(new THREE.BufferGeometryLoader().parse(data));
-        callbacks.onAddObject(mesh);
-        break;
-      }      
-      case 'object':
+			case 'geometry': console.error('Loader: "Geometry" is no longer supported.');
+			break; case 'app': callbacks.onLoadAppJson(data);
+      break; case 'buffergeometry': callbacks.onAddObject(new THREE.Mesh(new THREE.BufferGeometryLoader().parse(data)));
+      break; case 'object':
       {
         const loader = new THREE.ObjectLoader();
         loader.setResourcePath(scope.texturePath);
         loader.parse(data, function (result) {
-					if(result.isScene) {
-            callbacks.onSetScene(result);
-          } else {
-            callbacks.onAddObject(result);
-          }
+					if (result.isScene) { callbacks.onSetScene(result); } else { callbacks.onAddObject(result); }
         });
-        break;
-      }      
+      }
+      break;  
     }
   }
   async function handleZIP(contents) {
