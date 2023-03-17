@@ -1,0 +1,97 @@
+{
+	"metadata": {
+		"version": 4.5,
+		"type": "Object",
+		"generator": "Object3D.toJSON"
+	},
+	"geometries": [
+		{
+			"uuid": "5cdc2292-0dbd-4731-a0b7-1a5386d63c21",
+			"type": "BoxGeometry",
+			"width": 1,
+			"height": 1,
+			"depth": 1,
+			"widthSegments": 1,
+			"heightSegments": 1,
+			"depthSegments": 1
+		},
+		{
+			"uuid": "75c54aab-bf8f-4e78-a7ca-4d8051f28ed1",
+			"type": "BoxGeometry",
+			"width": 1,
+			"height": 1,
+			"depth": 1,
+			"widthSegments": 1,
+			"heightSegments": 1,
+			"depthSegments": 1
+		}],
+	"materials": [
+		{
+			"uuid": "a4b7a8a0-c505-4e63-a9f8-f7d617d4fbb9",
+			"type": "MeshStandardMaterial",
+			"color": 16711422,
+			"roughness": 1,
+			"metalness": 0,
+			"emissive": 0,
+			"envMapIntensity": 1,
+			"depthFunc": 3,
+			"depthTest": true,
+			"depthWrite": true,
+			"colorWrite": true,
+			"stencilWrite": false,
+			"stencilWriteMask": 255,
+			"stencilFunc": 519,
+			"stencilRef": 0,
+			"stencilFuncMask": 255,
+			"stencilFail": 7680,
+			"stencilZFail": 7680,
+			"stencilZPass": 7680
+		},
+		{
+			"uuid": "eba46524-30f6-44ed-b9d2-75f4415f92b9",
+			"type": "MeshStandardMaterial",
+			"color": 16711422,
+			"roughness": 1,
+			"metalness": 0,
+			"emissive": 0,
+			"envMapIntensity": 1,
+			"depthFunc": 3,
+			"depthTest": true,
+			"depthWrite": true,
+			"colorWrite": true,
+			"stencilWrite": false,
+			"stencilWriteMask": 255,
+			"stencilFunc": 519,
+			"stencilRef": 0,
+			"stencilFuncMask": 255,
+			"stencilFail": 7680,
+			"stencilZFail": 7680,
+			"stencilZPass": 7680
+		}],
+	"object": {
+		"uuid": "e4823796-3fa2-4fb8-bfd4-8731e5fd307b",
+		"type": "Scene",
+		"name": "Scene",
+		"layers": 1,
+		"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+		"children": [
+			{
+				"uuid": "121fe9e6-2e1e-4248-9aed-eb23b1d89133",
+				"type": "Mesh",
+				"name": "Box",
+				"layers": 1,
+				"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,2.6646012808665267,0,1],
+				"geometry": "5cdc2292-0dbd-4731-a0b7-1a5386d63c21",
+				"material": "a4b7a8a0-c505-4e63-a9f8-f7d617d4fbb9"
+			},
+			{
+				"uuid": "3cca7053-5ae9-4447-b401-b5cec322ceeb",
+				"type": "Mesh",
+				"name": "Box",
+				"layers": 1,
+				"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,3.5443802715503026,2.5383968150920655,0,1],
+				"geometry": "75c54aab-bf8f-4e78-a7ca-4d8051f28ed1",
+				"material": "eba46524-30f6-44ed-b9d2-75f4415f92b9"
+			}]
+	}
+}

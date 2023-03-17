@@ -1,8 +1,8 @@
-import global from './global.js';
-import setup from './setup.js';
-import updateDebugging from './debugging.js';
-import updatePhysics from './physics.js';
-import * as Make4d from './make4d.js';
+import global from './Global.js';
+import setup from './Setup.js';
+import updateDebugging from './Debugging.js';
+import updatePhysics from './Physics.js';
+import * as Make4d from './Make4d.js';
 
 function loop() {
   requestAnimationFrame(loop);
