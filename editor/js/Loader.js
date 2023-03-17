@@ -1,6 +1,5 @@
 import { AddObjectCommand } from './commands/AddObjectCommand.js';
 import { SetSceneCommand } from './commands/SetSceneCommand.js';
-import { LoaderUtils } from './LoaderUtils.js';
 import { ContentLoader } from '../../contentloader.js';
 
 function Loader(editor) {
@@ -22,9 +21,7 @@ function Loader(editor) {
 		scope.contentLoader.loadFiles(files, filesMap);
   };
 	this.loadItemList = function (items) {
-    LoaderUtils.getFilesFromItemList(items, function (files, filesMap) {
-      scope.loadFiles(files, filesMap);
-    });
+		scope.contentLoader.loadItemList(items);
   };
 }
 export { Loader };

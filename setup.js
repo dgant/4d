@@ -55,33 +55,35 @@ function setup() {
   terrainGroup.attach(floor);
  
   // Generate cubes
-  const boxGeometry = new THREE.BoxGeometry(constants.gridSize, constants.gridSize, constants.gridSize).toNonIndexed();
-  const colorsBox = [];
-  for (let i = 0, l = boxGeometry.attributes.position.count; i < l; ++i) {
-    color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-    colorsBox.push(color.r, color.g, color.b);
-  }
-  boxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsBox, 3));
-  for (let i = 0; i < 1500; ++i) {
-    const material = new THREE.MeshPhongMaterial({
-      specular: 0xffffff,
-      depthTest: false, // Might fix wrong-order rendering? Per https://stackoverflow.com/questions/61739339/threejs-is-render-order-dependent-on-object-creation-order
-      depthWrite: false, // This prevents occlusion while transparent. Reenable later for opaque boxes
-      flatShading: true,
-      vertexColors: true,
-      transparent: true,
-      wireframe: false
-    });
-    material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+  if (document.generateCubes) { // Disabled
+    const boxGeometry = new THREE.BoxGeometry(constants.gridSize, constants.gridSize, constants.gridSize).toNonIndexed();
+    const colorsBox = [];
+    for (let i = 0, l = boxGeometry.attributes.position.count; i < l; ++i) {
+      color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+      colorsBox.push(color.r, color.g, color.b);
+    }
+    boxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsBox, 3));
+    for (let i = 0; i < 1500; ++i) {
+      const material = new THREE.MeshPhongMaterial({
+        specular: 0xffffff,
+        depthTest: false, // Might fix wrong-order rendering? Per https://stackoverflow.com/questions/61739339/threejs-is-render-order-dependent-on-object-creation-order
+        depthWrite: false, // This prevents occlusion while transparent. Reenable later for opaque boxes
+        flatShading: true,
+        vertexColors: true,
+        transparent: true,
+        wireframe: false
+      });
+      material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 
-    const box = new THREE.Mesh(boxGeometry, material);
-    box.position.x = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
-    box.position.y = Math.floor(constants.mapSize * (Math.random() * 2    )) * constants.gridSize + constants.gridSize / 2;
-    box.position.z = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
+      const box = new THREE.Mesh(boxGeometry, material);
+      box.position.x = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
+      box.position.y = Math.floor(constants.mapSize * (Math.random() * 2    )) * constants.gridSize + constants.gridSize / 2;
+      box.position.z = Math.floor(constants.mapSize * (Math.random() * 2 - 1)) * constants.gridSize;
 
-    Make4d.bless4d(box);
-    box.setW4d(Math.random() * Math4d.TAU);
-    terrainGroup.attach(box);
+      Make4d.bless4d(box);
+      box.setW4d(Math.random() * Math4d.TAU);
+      terrainGroup.attach(box);
+    }
   }
 
   // Build collider    
