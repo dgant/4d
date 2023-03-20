@@ -23,17 +23,8 @@ function Levels() {
       return fetch(level.url)
       .then(  response  => { return { id: level.id, url: level.url, response: response }})
       .catch( error     => { return { id: level.id, url: level.url, error: error }})
-      .then(  level     => { return {};});
     });
-    Promises.all(levelPromises)
-    .then(levelFile => )
-
-    const levelFiles = [];
-    for (const i in levels) {
-      fetch('levels/' + levels[i])
-      .then(response => levelFiles[i] = )
-    }
-    scope.contentLoader.loadFiles(levels);
+    Promise.all(levelPromises).then(response => { if (response.response) contentLoader.loadFile(response.blob)});
   };
 }
 export { Levels };

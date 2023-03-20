@@ -57,7 +57,7 @@ function setup() {
 
   // Load level
   const levels = new Levels();
-  levels.loadAllLevels();
+  //levels.loadAllLevels();
  
   // Generate cubes
   if (document.generateCubes) { // Disabled
