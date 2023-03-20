@@ -18,11 +18,12 @@ function Levels() {
 
   this.loadAllLevels = function() {
     const levelIds = ['level1'];
-    const levelURLs = levelIds.map(levelId => { return { id: levelId, url: 'levels/' + level + '.json' }});
+    const levelURLs = levelIds.map(levelId => { return { id: levelId, url: `levels/${levelId}.json` }});
     const levelPromises = levelURLs.map(level => {
       return fetch(level.url)
-      .then(response => { return { id: level.id, url: level.url, response: response }; })
-      .catch(error => { return { id: level.id, url: level.url, error: error }});
+      .then(  response  => { return { id: level.id, url: level.url, response: response }})
+      .catch( error     => { return { id: level.id, url: level.url, error: error }})
+      .then(  level     => { return {};});
     });
     Promises.all(levelPromises)
     .then(levelFile => )

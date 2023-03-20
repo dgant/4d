@@ -15,12 +15,12 @@ function getFilesFromItemList(items, onDone) {
   function handleEntry(entry) {
     if (entry.isDirectory) {
       const reader = entry.createReader();
-      reader.readEntries(function (entries) {
+      reader.readEntries(entries => {
         for (const entry of entries) { handleEntry(entry); }
         onEntryHandled();
       });
     } else if (entry.isFile) {
-      entry.file(function (file) {
+      entry.file(file => {
         files.push(file);
         filesMap[entry.fullPath.slice(1)] = file;
         onEntryHandled();
@@ -36,30 +36,19 @@ class ContentLoader {
     this.callbacks = callbacks;
     this.manager = new THREE.LoadingManager();
     this.manager.addHandler(/\.tga$/i, new TGALoader());
+    this.manager.setURLModifier(url => { return url.replace(/^(\.?\/)/, '')}); // remove './'
     this.texturePath = '';
-    // Loads ITEMS. For example, from a drop event: 
-    // > document.addEventListener('drop', event => { loadItemList(event.dataTransfer.items); });
-    // See https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer
   }
+  // Loads ITEMS. For example, from a drop event: 
+  // > document.addEventListener('drop', event => { loadItemList(event.dataTransfer.items); });
+  // See https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer
   loadItemList(items) {
-    getFilesFromItemList(items, files, filesMap => {
-      this.loadFiles(files, filesMap);
-    });
+    getFilesFromItemList(items, (files, filesMap) => { this.loadFiles(files, filesMap) });
   };
   // Loads FILES. For example, from a drop event:
   // > document.addEventListener('drop', event => { loadItemList(event.dataTransfer.files); });
   // See https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer
-  loadFiles(files, filesByName) {
-    if (files.length > 0) {
-      filesByName = filesByName || new Map(Array.from(files).map(file => [file.name, file]));
-      this.manager.setURLModifier(url => {
-        url = url.replace(/^(\.?\/)/, ''); // remove './'
-        const file = filesByName[url];
-        return file ? URL.createObjectURL(file) : url;
-      });
-      for (const file of files) { this.loadFile(file); }
-    }
-  };
+  loadFiles(files) { for (const file of files) { this.loadFile(file) }};
   loadFile(file) {
     const filename = file.name;
     const extension = filename.split('.').pop().toLowerCase();
