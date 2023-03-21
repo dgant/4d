@@ -54,7 +54,7 @@ class ContentLoader {
     const extension = filename.split('.').pop().toLowerCase();
     const reader = new FileReader();
     reader.addEventListener('progress', event => {
-      console.log(`Loading ${filename} ${Math.floor(event.total / 1000).format()} KB @ ${Math.floor((event.loaded / event.total) * 100)}%`);
+      console.log(`Loading ${filename} ${Math.floor(event.total / 1000)} KB @ ${Math.floor((event.loaded / event.total) * 100)}%`);
     });
     switch (extension) {
       // A 3DM file is an open source file format which is used for 3D graphics software.
