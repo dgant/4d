@@ -3,7 +3,6 @@ import { TGALoader } from 'three/addons/loaders/TGALoader.js';
 import { unzipSync, strFromU8 } from 'three/addons/libs/fflate.module.js';
 
 function getFilesFromItemList(items, onDone) {
-  // TOFIX: setURLModifier() breaks when the file being loaded is not in root
   let itemsCount = 0;
   let itemsTotal = 0;
   const files = [];
@@ -50,13 +49,18 @@ class ContentLoader {
   // Loads FILES. For example, from a drop event:
   // > document.addEventListener('drop', event => { loadItemList(event.dataTransfer.files); });
   // See https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer
-  async loadFiles(files) { return Promise.all(files.map(loadFile)) };
+  async loadFiles(files) { 
+    const self = this;
+    return Promise.all(Array.from(files).map(file => self.loadFile(file)));
+  };
   
   async loadFile(file) {
     return new Promise((resolve, reject) => {
       try {
         const extension = file.name.split('.').pop().toLowerCase();
         const reader = new FileReader();
+        reader.addEventListener('abort', reject);
+        reader.addEventListener('error', reject);
         reader.addEventListener('progress', event => {
           console.log(`Loading ${file.name} ${Math.floor(event.total / 1000)} KB @ ${Math.floor((event.loaded / event.total) * 100)}%`);
         });
@@ -94,116 +98,51 @@ class ContentLoader {
       } catch(error) { reject(error); }
     });
   };
-  async handleZIP(contents) {
-    const zip = unzipSync(new Uint8Array(contents));
-    if (zip['model.obj'] && zip['materials.mtl']) { // Poly[gons?]
-      const { MTLLoader } = await import('three/addons/loaders/MTLLoader.js');
-      const { OBJLoader } = await import('three/addons/loaders/OBJLoader.js');
-      this.callbacks.onAddObject(new OBJLoader()
-        .setMaterials(new MTLLoader().parse(strFromU8(zip['materials.mtl'])))
-        .parse(strFromU8(zip['model.obj'])));
-    }
-    for (const path of zip) { // TODO: Did I screw up the conversion here?
-      const file = zip[path];
-      const manager = new THREE.LoadingManager();
-      manager.setURLModifier(url => {
-        const file = zip[url];
-        if (file) {
-          console.log('Loading', url);
-          const blob = new Blob([file.buffer], { type: 'application/octet-stream' });
-          return URL.createObjectURL(blob);
-        }
-        return url;
-      });
-      const extension = path.split('.').pop().toLowerCase();
-      switch (extension) {
-        case 'fbx': {
-          const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js');
-          this.callbacks.onAddObject(new FBXLoader(manager).parse(file.buffer));
-        }
-        break; case 'glb': {
-          const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
-          const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
-          const dracoLoader = new DRACOLoader();
-          dracoLoader.setDecoderPath('../node_modules/three/examples/jsm/libs/draco/gltf/');
-          const loader = new GLTFLoader();
-          loader.setDRACOLoader(dracoLoader);
-          loader.parse(file.buffer, '', result =>  {
-            const scene = result.scene;
-            scene.animations.push(...result.animations);
-            this.callbacks.onAddObject(scene);
-            dracoLoader.dispose();
-          });
-        }
-        break; case 'gltf': {
-          const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
-          const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
-          const dracoLoader = new DRACOLoader();
-          dracoLoader.setDecoderPath('../node_modules/three/examples/jsm/libs/draco/gltf/');
-          const loader = new GLTFLoader(manager);
-          loader.setDRACOLoader(dracoLoader);
-          loader.parse(strFromU8(file), '', result =>  {
-            const scene = result.scene;
-            scene.animations.push(...result.animations);
-            this.callbacks.onAddObject(scene);
-            dracoLoader.dispose();
-          });
-        }
-        break;
-      }
-    }
-  }
   async load3dm(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // A 3DM file is an open source file format which is used for 3D graphics software.
     reader.addEventListener('load', async event => {
       const { Rhino3dmLoader } = await import('three/addons/loaders/3DMLoader.js');
       const loader = new Rhino3dmLoader();
       loader.setLibraryPath('../node_modules/three/examples/jsm/libs/rhino3dm/');
-      loader.parse(event.target.result, object => { this.callbacks.onAddObject(object); });
-    }, false);
+      loader.parse(event.target.result, object => { resolve(this.callbacks.onAddObject(object)); });
+    });
     reader.readAsArrayBuffer(file);
   }
   async load3ds(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // The 3DS (3D Studio) stores information on the makeup of 3D vector graphics.
     reader.addEventListener('load', async event => {
       const { TDSLoader } = await import('three/addons/loaders/TDSLoader.js');
-      this.callbacks.onAddObject(new TDSLoader().parse(event.target.result));
-    }, false);
+      resolve(this.callbacks.onAddObject(new TDSLoader().parse(event.target.result)));
+    });
     reader.readAsArrayBuffer(file);
   }
   async load3mf(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // The 3D Manufacturing Format is an industry-supported file format for full-fidelity 3D CAD models.
     reader.addEventListener('load', async event => {
       const { ThreeMFLoader } = await import('three/addons/loaders/3MFLoader.js');
-      this.callbacks.onAddObject(new ThreeMFLoader().parse(event.target.result));
-    }, false);
+      resolve(this.callbacks.onAddObject(new ThreeMFLoader().parse(event.target.result)));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadamf(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // An Additive Manufacturing File is a CAD format for 3D printing.
     reader.addEventListener('load', async event => {
       const { AMFLoader } = await import('three/addons/loaders/AMFLoader.js');
-      this.callbacks.onAddObject(new AMFLoader().parse(event.target.result));
-    }, false);
+      resolve(this.callbacks.onAddObject(new AMFLoader().parse(event.target.result)));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loaddae(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // A COLLADA Digital Asset Exchange file can store content including images, textures, and 3D models.
     reader.addEventListener('load', async event => {
       const { ColladaLoader } = await import('three/addons/loaders/ColladaLoader.js');
       const collada = new ColladaLoader(manager).parse(event.target.result);
       collada.scene.name = file.name;
-      this.callbacks.onAddObject(collada.scene);
-    }, false);
+      resolve(this.callbacks.onAddObject(collada.scene));
+    });
     reader.readAsText(file);
   }
   async loaddrc(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // A compressed 3D file format created with Google Draco library.
     reader.addEventListener('load', async event => {
       const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
@@ -220,22 +159,20 @@ class ContentLoader {
         const object = new THREE.Mesh(geometry, material);
         object.name = file.name;
         loader.dispose();
-        this.callbacks.onAddObject(object);
+        resolve(this.callbacks.onAddObject(object));
       });
-    }, false);
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadfbx(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // FBX files transfer files between 3D animation software like as Maya, 3ds Max, MotionBuilder, Mudbox.
     reader.addEventListener('load', async event => {
       const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js');
-      this.callbacks.onAddObject(new FBXLoader(manager).parse(event.target.result));
-    }, false);
+      resolve(this.callbacks.onAddObject(new FBXLoader(manager).parse(event.target.result)));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadglb(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // GLB standard specifies 3D scenes, models, lighting, materials, node hierarchy and animations.
     reader.addEventListener('load', async event => {
       const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
@@ -248,14 +185,13 @@ class ContentLoader {
         const scene = result.scene;
         scene.name = file.name;
         scene.animations.push(...result.animations);
-        this.callbacks.onAddObject(scene);
         dracoLoader.dispose();
+        resolve(this.callbacks.onAddObject(scene));
       });
-    }, false);
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadgltf(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // GL Transmission Format is a specification for 3D scenes and models.
     reader.addEventListener('load', async event => {
       const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
@@ -267,14 +203,14 @@ class ContentLoader {
       loader.parse(event.target.result, '', result =>  {
         result.scene.name = file.name;
         result.scene.animations.push(...result.animations);
-        this.callbacks.onAddObject(result.scene);
         dracoLoader.dispose();
+        resolve(this.callbacks.onAddObject(result.scene));
       });
-    }, false);
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadjson(file, reader, resolve, reject) {
-    // Load files exported from the editor itself
+    // Load files exported from the THREE.js Editor
     reader.addEventListener('load', event => {
       const data = JSON.parse(event.target.result);
       if (data.metadata               === undefined) { data.metadata          = { type: 'Geometry' }; } // 2.0
@@ -298,14 +234,14 @@ class ContentLoader {
                 resolve(this.callbacks.onAddObject(result));
               }
             });
-          } break; default: reject(`Did not recognize JSON type "${type}"`);
-          break;
+          } break; default: {
+            reject(`Did not recognize JSON type "${type}"`);
+          }
       }
-    }, false);
+    });
     reader.readAsText(file);
   }
   async loadifc(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // Industry Foundation Classes is a CAD schema for architectural, building and construction data.
     reader.addEventListener('load', async event => {
       const { IFCLoader } = await import('three/addons/loaders/IFCLoader.js');
@@ -313,24 +249,22 @@ class ContentLoader {
       loader.ifcManager.setWasmPath('three/addons/loaders/ifc/');
       const model = await loader.parse(event.target.result);
       model.mesh.name = file.name;
-      this.callbacks.onAddObject(model.mesh);
-    }, false);
+      resolve(this.callbacks.onAddObject(model.mesh));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadkmz(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // Keyhole Markup Language (Google Earth) expresses geographic annotation and visualization
     // within two-dimensional maps and three-dimensional Earth browsers.
     reader.addEventListener('load', async event => {
       const { KMZLoader } = await import('three/addons/loaders/KMZLoader.js');
       const collada = new KMZLoader().parse(event.target.result);
       collada.scene.name = file.name;
-      this.callbacks.onAddObject(collada.scene);
-    }, false);
+      resolve(this.callbacks.onAddObject(collada.scene));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadldr(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // An LDR file is a 3D LEGO model created with LDraw computer-aided design program
     // A MPD file consists out of blocks of LDraw code separated by 0 FILE or 0 !DATA statements.
     reader.addEventListener('load', async event => {
@@ -338,16 +272,14 @@ class ContentLoader {
       const loader = new LDrawLoader();
       loader.setPath('../../node_modules/three/examples/models/ldraw/officialLibrary/');
       loader.parse(event.target.result, undefined, group => {
-        group.name = file.name;
-        // Convert from LDraw coordinates: rotate 180 degrees around OX
-        group.rotation.x = Math.PI;
-        this.callbacks.onAddObject(group);
+        group.name = file.name;        
+        group.rotation.x = Math.PI; // Convert from LDraw coordinates: rotate 180 degrees around OX
+        resolve(this.callbacks.onAddObject(group));
       });
-    }, false);
+    });
     reader.readAsText(file);
   }
   async loadmd2(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // MD2 (Quake 2 model format) is a 3-D modeling format.
     reader.addEventListener('load', async event => {
       const { MD2Loader } = await import('three/addons/loaders/MD2Loader.js');
@@ -355,35 +287,32 @@ class ContentLoader {
       mesh.mixer = new THREE.AnimationMixer(mesh);
       mesh.name = file.name;
       mesh.animations.push(...geometry.animations);
-      this.callbacks.onAddObject(mesh);
-    }, false);
+      resolve(this.callbacks.onAddObject(mesh));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadobj(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // OBJ represents 3D geometry alone — vertex, UV position of each texture coordinate vertex,
     // vertex normals, the faces that make each polygon defined as a list of vertices, and texture vertices. 
     reader.addEventListener('load', async event => {
       const { OBJLoader } = await import('three/addons/loaders/OBJLoader.js');
       const object = new OBJLoader().parse(event.target.result);
       object.name = file.name;
-      this.callbacks.onAddObject(object);
-    }, false);
+      resolve(this.callbacks.onAddObject(object));
+    });
     reader.readAsText(file);
   }
   async loadpcd(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // The PCD (Point Cloud Data) is a file format for storing 3D point cloud data.
     reader.addEventListener('load', async event => {
       const { PCDLoader } = await import('../../node_modules/three/examples/jsm/loaders/PCDLoader.js');
       const points = new PCDLoader().parse(event.target.result);
       points.name = file.name;
-      this.callbacks.onAddObject(points);
-    }, false);
+      resolve(this.callbacks.onAddObject(points));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadply(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // The Polygon File Format or Stanford Triangle Format stores three-dimensional data from 3D scanners.
     reader.addEventListener('load', async event => {
       const { PLYLoader } = await import('three/addons/loaders/PLYLoader.js');
@@ -397,20 +326,19 @@ class ContentLoader {
         object = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial());            
       }
       object.name = file.name;
-      this.callbacks.onAddObject(object);
-    }, false);
+      resolve(this.callbacks.onAddObject(object));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadstl(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // STL is a file format commonly used for 3D printing and computer-aided design (CAD).
     // The name STL is an acronym that stands for stereolithography — a popular 3D printing technology
     reader.addEventListener('load', async event => {
       const { STLLoader } = await import('three/addons/loaders/STLLoader.js');
       const mesh = new THREE.Mesh(new STLLoader().parse(event.target.result), new THREE.MeshStandardMaterial());
       mesh.name = file.name;
-      this.callbacks.onAddObject(mesh);
-    }, false);
+      resolve(this.callbacks.onAddObject(mesh));
+    });
     if (reader.readAsBinaryString === undefined) {
       reader.readAsArrayBuffer(file);          
     } else {
@@ -418,7 +346,6 @@ class ContentLoader {
     }
   }
   async loadsvg(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // Scalable Vector Graphics (SVG) is a web-friendly vector file format
     reader.addEventListener('load', async event => {
       const { SVGLoader } = await import('three/addons/loaders/SVGLoader.js');
@@ -433,60 +360,53 @@ class ContentLoader {
           group.add(new THREE.Mesh(new THREE.ShapeGeometry(shape), material));
         }
       }
-      this.callbacks.onAddObject(group);
-    }, false);
+      resolve(this.callbacks.onAddObject(group));
+    });
     reader.readAsText(file);
   }
   async loadusdz(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // USDZ is a 3D file format created by Pixar. It has been adopted by Apple as their format for AR applications.
     reader.addEventListener('load', async event => {
       const { USDZLoader } = await import('../../node_modules/three/examples/jsm/loaders/USDZLoader.js');
       const group = new USDZLoader().parse(event.target.result);
       group.name = file.name;
-      this.callbacks.onAddObject(group);
-    }, false);
+      resolve(this.callbacks.onAddObject(group));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadvox(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // 3D model Voxel format ("VOX" for short), a blocky 3D format used by the Voxlap game engine.
     reader.addEventListener('load', async event => {
       const { VOXLoader, VOXMesh } = await import('three/addons/loaders/VOXLoader.js');
       const chunks = new VOXLoader().parse(event.target.result);
       const group = new THREE.Group();
       group.name = file.name;
-      for (const chunk of chunks) {
-        group.add(new VOXMesh(chunk));
-      }
-      this.callbacks.onAddObject(group);
-    }, false);
+      chunks.map(chunk => new VOXMesh(chunk)).forEach(group.add);
+      resolve(this.callbacks.onAddObject(group));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadvtk(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // VTK supports 1D, 2D, and 3D structured point datasets
     // VTP is a file format for storing VTK surface models (polydata)
     reader.addEventListener('load', async event => {
       const { VTKLoader } = await import('three/addons/loaders/VTKLoader.js');
       const mesh = new THREE.Mesh(new VTKLoader().parse(event.target.result), new THREE.MeshStandardMaterial());
       mesh.name = file.name;
-      this.callbacks.onAddObject(mesh);
-    }, false);
+      resolve(this.callbacks.onAddObject(mesh));
+    });
     reader.readAsArrayBuffer(file);
   }
   async loadwrl(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // WRL files are an extension of the Virtual Reality Modeling Language (VRML) format.
     // VRML file types enable browser plugins to display virtual reality environments
     reader.addEventListener('load', async event => {
       const { VRMLLoader } = await import('three/addons/loaders/VRMLLoader.js');
-      this.callbacks.onSetScene(new VRMLLoader().parse(event.target.result));
-    }, false);
+      resolve(this.callbacks.onSetScene(new VRMLLoader().parse(event.target.result)));
+    });
     reader.readAsText(file);
   }
   async loadxyz(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
     // XYZ (Point cloud data) is a file extension used for ASCII text files with point cloud data.
     reader.addEventListener('load', async event => {
       const { XYZLoader } = await import('three/addons/loaders/XYZLoader.js');
@@ -495,14 +415,70 @@ class ContentLoader {
       material.vertexColors = geometry.hasAttribute('color');
       const points = new THREE.Points(geometry, material);
       points.name = file.name;
-      this.callbacks.onAddObject(points);
-    }, false);
+      resolve(this.callbacks.onAddObject(points));
+    });
     reader.readAsText(file);
   }
   async loadzip(file, reader, resolve, reject) {
-    // TODO: NOT YET IMPLEMENTED AS ASYNC
+    // TODO: This function has not been fully converted to async
     // Supports zips containing: MTL, OBJ, FBX, GLB, or GLTF
-    reader.addEventListener('load', event => { handleZIP(event.target.result); }, false);
+    reader.addEventListener('load', async event => {
+      const zip = unzipSync(new Uint8Array(event.target.result));
+      if (zip['model.obj'] && zip['materials.mtl']) { // Poly[gons?]
+        const { MTLLoader } = await import('three/addons/loaders/MTLLoader.js');
+        const { OBJLoader } = await import('three/addons/loaders/OBJLoader.js');
+        resolve(this.callbacks.onAddObject(new OBJLoader()
+          .setMaterials(new MTLLoader().parse(strFromU8(zip['materials.mtl'])))
+          .parse(strFromU8(zip['model.obj']))));
+      }
+      for (const path of zip) { // TODO: Did I screw up the conversion here?
+        const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
+        const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+        const file = zip[path];
+        const manager = new THREE.LoadingManager();
+        manager.setURLModifier(url => {
+          const file = zip[url];
+          if (file) {
+            console.log('Loading', url);
+            const blob = new Blob([file.buffer], { type: 'application/octet-stream' });
+            return URL.createObjectURL(blob);
+          }
+          return url;
+        });
+        const extension = path.split('.').pop().toLowerCase();
+        switch (extension) {
+          case 'fbx': {
+            const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js');
+            resolve(this.callbacks.onAddObject(new FBXLoader(manager).parse(file.buffer)));
+          } break; case 'glb': {
+            const dracoLoader = new DRACOLoader();
+            dracoLoader.setDecoderPath('../node_modules/three/examples/jsm/libs/draco/gltf/');
+            const loader = new GLTFLoader();
+            loader.setDRACOLoader(dracoLoader);
+            loader.parse(file.buffer, '', result =>  {
+              const scene = result.scene;
+              scene.animations.push(...result.animations);
+              dracoLoader.dispose();
+              this.callbacks.onAddObject(scene);
+            });
+          } break; case 'gltf': {
+            const { DRACOLoader } = await import('three/addons/loaders/DRACOLoader.js');
+            const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+            const dracoLoader = new DRACOLoader();
+            dracoLoader.setDecoderPath('../node_modules/three/examples/jsm/libs/draco/gltf/');
+            const loader = new GLTFLoader(manager);
+            loader.setDRACOLoader(dracoLoader);
+            loader.parse(strFromU8(file), '', result =>  {
+              const scene = result.scene;
+              scene.animations.push(...result.animations);
+              dracoLoader.dispose();
+              this.callbacks.onAddObject(scene);
+            });
+          }
+          break; default: reject(`Did not recognize ZIP content extension ${extension}`);
+        }
+      }
+    });
     reader.readAsArrayBuffer(file);
   }
 }
