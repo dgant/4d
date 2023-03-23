@@ -77,17 +77,15 @@ function Viewport(editor) {
           if (! objectPositionOnDown.equals(object.position)) {
             editor.execute(new SetPositionCommand(editor, object, object.position, objectPositionOnDown));
           }
-          break;
-        case 'rotate':
+        break; case 'rotate':
           if (! objectRotationOnDown.equals(object.rotation)) {
             editor.execute(new SetRotationCommand(editor, object, object.rotation, objectRotationOnDown));
           }
-          break;
-        case 'scale':
+        break; case 'scale':
           if (! objectScaleOnDown.equals(object.scale)) {
             editor.execute(new SetScaleCommand(editor, object, object.scale, objectScaleOnDown));
           }
-          break;
+        break;
       }
     }
     controls.enabled = true;
@@ -96,7 +94,7 @@ function Viewport(editor) {
   // object picking
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
-  // events
+
   function updateAspectRatio() {
     camera.aspect = container.dom.offsetWidth / container.dom.offsetHeight;
     camera.updateProjectionMatrix();
@@ -105,12 +103,8 @@ function Viewport(editor) {
     mouse.set((point.x * 2) - 1, - (point.y * 2) + 1);
     raycaster.setFromCamera(mouse, camera);
     const objects = [];
-    scene.traverseVisible(function (child) {
-      objects.push(child);
-    });
-    sceneHelpers.traverseVisible(function (child) {
-      if (child.name === 'picker') objects.push(child);
-    });
+    scene.traverseVisible(function (child) { objects.push(child); });
+    sceneHelpers.traverseVisible(function (child) { if (child.name === 'picker') objects.push(child); });
     return raycaster.intersectObjects(objects, false);
   }
   const onDownPosition = new THREE.Vector2();
@@ -165,7 +159,8 @@ function Viewport(editor) {
   container.dom.addEventListener('mousedown', onMouseDown);
   container.dom.addEventListener('touchstart', onTouchStart, { passive: false });
   container.dom.addEventListener('dblclick', onDoubleClick);
-  // controls need to be added *after* main logic,
+
+  // EditorControls need to be added *after* main logic,
   // otherwise controls.enabled doesn't work.
   const controls = new EditorControls(camera, container.dom);
   controls.addEventListener('change', function() {
@@ -173,7 +168,7 @@ function Viewport(editor) {
     signals.refreshSidebarObject3D.dispatch(camera);
   });
   viewHelper.center = controls.center;
-  // signals
+
   signals.editorCleared.add(function() {
     controls.center.set(0, 0, 0);
     render();
@@ -222,12 +217,8 @@ function Viewport(editor) {
     container.dom.appendChild(renderer.domElement);
     render();
   });
-  signals.sceneGraphChanged.add(function() {
-    render();
-  });
-  signals.cameraChanged.add(function() {
-    render();
-  });
+  signals.sceneGraphChanged.add(function() { render(); });
+  signals.cameraChanged.add(function() { render(); });
   signals.objectSelected.add(function (object) {
     selectionBox.visible = false;
     transformControls.detach();
@@ -349,9 +340,7 @@ function Viewport(editor) {
     if (viewportCamera.isPerspectiveCamera) {
       viewportCamera.aspect = editor.camera.aspect;
       viewportCamera.projectionMatrix.copy(editor.camera.projectionMatrix);
-    } else if (viewportCamera.isOrthographicCamera) {
-      // TODO
-    }
+    } else if (viewportCamera.isOrthographicCamera) {} // TODO
     // disable EditorControls when setting a user camera
     controls.enabled = (viewportCamera === editor.camera);
     render();
@@ -359,20 +348,15 @@ function Viewport(editor) {
   signals.viewportShadingChanged.add(function() {
     const viewportShading = editor.viewportShading;
     switch (viewportShading) {
-      case 'default':
-        scene.overrideMaterial = null;
-        break;
-      case 'normals':
-        scene.overrideMaterial = new THREE.MeshNormalMaterial();
-        break;
-      case 'wireframe':
-        scene.overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
-        break;
+      case 'default':           scene.overrideMaterial = null;
+      break; case 'normals':    scene.overrideMaterial = new THREE.MeshNormalMaterial();
+      break; case 'wireframe':  scene.overrideMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true });
+      break;
     }
     render();
   });
   signals.exitedVR.add(render);
-  //
+
   signals.windowResize.add(function() {
     updateAspectRatio();
     renderer.setSize(container.dom.offsetWidth, container.dom.offsetHeight);
@@ -388,6 +372,7 @@ function Viewport(editor) {
     render();
   });
   signals.cameraResetted.add(updateAspectRatio);
+
   // animations
   let prevActionsInUse = 0;
   const clock = new THREE.Clock(); // only used for animations
@@ -407,12 +392,10 @@ function Viewport(editor) {
       viewHelper.update(delta);
       needsUpdate = true;
     }
-    if (vr.currentSession !== null) {
-      needsUpdate = true;
-    }
+    needsUpdate ||= vr.currentSession !== null;
     if (needsUpdate === true) render();
   }
-  //
+
   let startTime = 0;
   let endTime = 0;
   function render() {
@@ -431,7 +414,7 @@ function Viewport(editor) {
   return container;
 }
 function updateGridColors(grid1, grid2, colors) {
-  grid1.material.color.setHex(colors[ 0 ]);
-  grid2.material.color.setHex(colors[ 1 ]);
+  grid1.material.color.setHex(colors[0]);
+  grid2.material.color.setHex(colors[1]);
 }
 export { Viewport };

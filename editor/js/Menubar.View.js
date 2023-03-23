@@ -10,24 +10,18 @@ function MenubarView(editor) {
   const options = new UIPanel();
   options.setClass('options');
   container.add(options);
-  // Fullscreen
-  const option = new UIRow();
+
+  // Reset camera
+  let option = new UIRow();
   option.setClass('option');
-  option.setTextContent(strings.getKey('menubar/view/fullscreen'));
+  option.setTextContent('Reset camera');
   option.onClick(function() {
-    if (document.fullscreenElement === null) {
-      document.documentElement.requestFullscreen();
-    } else if (document.exitFullscreen) {
-      document.exitFullscreen();
-    }
-    // Safari
-    if (document.webkitFullscreenElement === null) {
-      document.documentElement.webkitRequestFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      document.webkitExitFullscreen();
-    }
+    editor.viewportCamera.position.set(0, 5, 10);
+    editor.viewportCamera.lookAt(new THREE.Vector3());
+    editor.signals.cameraChanged.dispatch();
   });
   options.add(option);
+
   // VR (Work in progress)
   if ('xr' in navigator) {
     navigator.xr.isSessionSupported('immersive-vr')

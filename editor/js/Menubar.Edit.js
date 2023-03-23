@@ -41,15 +41,10 @@ function MenubarEdit(editor) {
   });
   options.add(option);
   editor.signals.historyChanged.add(function() {
-    const history = editor.history;
     undo.setClass('option');
     redo.setClass('option');
-    if (history.undos.length == 0) {
-      undo.setClass('inactive');
-    }
-    if (history.redos.length == 0) {
-      redo.setClass('inactive');
-    }
+    if (editor.history.undos.length == 0) { undo.setClass('inactive'); }
+    if (editor.history.redos.length == 0) { redo.setClass('inactive'); }
   });
   // ---
   options.add(new UIHorizontalRule());
