@@ -12,5 +12,5 @@ function loop() {
   global.renderer.render(global.scene, global.camera);
 }
 
-setup();
+await setup();
 loop();

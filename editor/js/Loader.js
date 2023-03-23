@@ -1,6 +1,6 @@
 import { AddObjectCommand } from './commands/AddObjectCommand.js';
 import { SetSceneCommand } from './commands/SetSceneCommand.js';
-import { ContentLoader } from '../../contentloader.js';
+import { ContentLoader } from '../../ContentLoader.js';
 
 function Loader(editor) {
   const scope = this;

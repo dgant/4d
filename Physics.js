@@ -69,7 +69,10 @@ function stepPhysics(deltaS) {
   // if (Make4D.getDistanceW(Make4D.getGlobalW(tri)) < constants.substanceThreshold) {  
   const collisionResult = global.octree.capsuleIntersect(
     player.capsule,
-    tri => ! tri.is4d || Make4d.getDistanceW(Make4d.getGlobalW(tri), global.camera.getW4d()) < constants.substanceThreshold);
+    tri => {
+      if ( ! tri.is4d) return true; // Temporary debugging
+      return ! tri.is4d || Make4d.getDistanceW(Make4d.getGlobalW(tri), global.camera.getW4d()) < constants.substanceThreshold
+    });
   player.colliding = collisionResult && collisionResult.depth > 0;
   player.grounded = player.colliding && collisionResult.normal.y > 0;
   if (player.colliding) {
