@@ -4,6 +4,7 @@ import { MenubarEdit } from './Menubar.Edit.js';
 import { MenubarFile } from './Menubar.File.js';
 import { MenubarView } from './Menubar.View.js';
 import { MenubarPlay } from './Menubar.Play.js';
+import { MenubarGrid } from './Menubar.Grid.js';
 import { MenubarStatus } from './Menubar.Status.js';
 function Menubar(editor) {
   const container = new UIPanel();
@@ -13,7 +14,8 @@ function Menubar(editor) {
   container.add(new MenubarAdd(editor));  
   container.add(new MenubarView(editor));
   container.add(new MenubarPlay(editor));
-  container.add(new MenubarStatus(editor));
+  container.add(new MenubarStatus(editor));  
+  container.add(new MenubarGrid(editor));
   return container;
 }
 export { Menubar };

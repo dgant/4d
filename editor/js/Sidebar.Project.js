@@ -11,14 +11,7 @@ function SidebarProject(editor) {
   settings.setBorderTop('0');
   settings.setPaddingTop('20px');
   container.add(settings);
-  // Title
-  const titleRow = new UIRow();
-  const title = new UIInput(config.getKey('project/title')).setLeft('100px').setWidth('150px').onChange(function() {
-    config.setKey('project/title', this.getValue());
-  });
-  titleRow.add(new UIText(strings.getKey('sidebar/project/title')).setWidth('90px'));
-  titleRow.add(title);
-  settings.add(titleRow);
+
   // Editable
   const editableRow = new UIRow();
   const editable = new UICheckbox(config.getKey('project/editable')).setLeft('100px').onChange(function() {

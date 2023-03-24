@@ -5,7 +5,9 @@ function MenubarStatus(editor) {
   const strings = editor.strings;
   const container = new UIPanel();
   container.setClass('menu right');
-  const autosave = new UIBoolean(editor.config.getKey('autosave'), strings.getKey('menubar/status/autosave'));
+  const autosave = new UIBoolean(
+    editor.config.getKey('autosave'),
+    strings.getKey('menubar/status/autosave'));
   autosave.text.setColor('#888');
   autosave.onChange(function() {
     const value = this.getValue();

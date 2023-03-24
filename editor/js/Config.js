@@ -3,6 +3,7 @@ function Config() {
   const storage = {
     'language': 'en',
     'autosave': true,
+    'grid': true,
     'project/title': '',
     'project/editable': false,
     'project/vr': false,

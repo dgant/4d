@@ -67,7 +67,7 @@ class EditorControls extends THREE.EventDispatcher {
       object.lookAt(center);
       scope.dispatchEvent(changeEvent);
     };
-    //
+
     function onPointerDown(event) {
       if (scope.enabled === false) return;
       switch (event.pointerType) {
@@ -101,7 +101,7 @@ class EditorControls extends THREE.EventDispatcher {
       domElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
       domElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
     }
-    // mouse
+
     function onMouseDown(event) {
       if (event.button === 0) {
         state = STATE.ROTATE;
@@ -149,7 +149,7 @@ class EditorControls extends THREE.EventDispatcher {
     domElement.addEventListener('dblclick', onMouseUp);
     domElement.addEventListener('wheel', onMouseWheel, { passive: false });
     domElement.addEventListener('pointerdown', onPointerDown);
-    // touch
+
     var touches = [ new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3() ];
     var prevTouches = [ new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3() ];
     var prevDistance = null;
