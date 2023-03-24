@@ -1,11 +1,13 @@
 import { UIPanel } from './libs/ui.js';
-import { MenubarAdd } from './Menubar.Add.js';
-import { MenubarEdit } from './Menubar.Edit.js';
-import { MenubarFile } from './Menubar.File.js';
-import { MenubarView } from './Menubar.View.js';
-import { MenubarPlay } from './Menubar.Play.js';
-import { MenubarGrid } from './Menubar.Grid.js';
-import { MenubarStatus } from './Menubar.Status.js';
+import { MenubarAdd } from './menus/Menubar.Add.js';
+import { MenubarEdit } from './menus/Menubar.Edit.js';
+import { MenubarFile } from './menus/Menubar.File.js';
+import { MenubarView } from './menus/Menubar.View.js';
+import { MenubarPlay } from './menus/Menubar.Play.js';
+import { MenubarLevel } from './menus/Menubar.Level.js';
+import { MenubarGrid } from './menus/Menubar.Grid.js';
+import { MenubarStatus } from './menus/Menubar.Status.js';
+
 function Menubar(editor) {
   const container = new UIPanel();
   container.setId('menubar');
@@ -14,8 +16,9 @@ function Menubar(editor) {
   container.add(new MenubarAdd(editor));  
   container.add(new MenubarView(editor));
   container.add(new MenubarPlay(editor));
-  container.add(new MenubarStatus(editor));  
+  container.add(new MenubarLevel(editor));
   container.add(new MenubarGrid(editor));
+  container.add(new MenubarStatus(editor));
   return container;
 }
 export { Menubar };

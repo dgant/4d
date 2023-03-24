@@ -13,11 +13,6 @@ function Config() {
     'project/renderer/toneMapping': 0, // NoToneMapping
     'project/renderer/toneMappingExposure': 1,
     'settings/history': false,
-    'settings/shortcuts/translate': 'w',
-    'settings/shortcuts/rotate': 'e',
-    'settings/shortcuts/scale': 'r',
-    'settings/shortcuts/undo': 'z',
-    'settings/shortcuts/focus': 'f'
   };
   if (window.localStorage[ name ] === undefined) {
     window.localStorage[ name ] = JSON.stringify(storage);

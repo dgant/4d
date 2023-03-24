@@ -54,6 +54,7 @@ function SidebarSettingsShortcuts(editor) {
     createShortcutInput(shortcuts[ i ]);
   }
   document.addEventListener('keydown', function (event) {
+    const control = IS_MAC ? event.metaKey : event.ctrlKey;
     switch (event.key.toLowerCase()) {
       case 'backspace':
         event.preventDefault(); // prevent browser back
@@ -63,27 +64,18 @@ function SidebarSettingsShortcuts(editor) {
         if (object === null) return;
         const parent = object.parent;
         if (parent !== null) editor.execute(new RemoveObjectCommand(editor, object));
-        break;
-      case config.getKey('settings/shortcuts/translate'):
+      break; case '1':
         signals.transformModeChanged.dispatch('translate');
-        break;
-      case config.getKey('settings/shortcuts/rotate'):
+      break; case '2':
         signals.transformModeChanged.dispatch('rotate');
-        break;
-      case config.getKey('settings/shortcuts/scale'):
+      break; case '3':
         signals.transformModeChanged.dispatch('scale');
-        break;
-      case config.getKey('settings/shortcuts/undo'):
-        if (IS_MAC ? event.metaKey : event.ctrlKey) {
+      break; case 'z':
+        if (control) {
           event.preventDefault(); // Prevent browser specific hotkeys
-          if (event.shiftKey) {
-            editor.redo();
-          } else {
-            editor.undo();
-          }
+          if (event.shiftKey) { editor.redo(); } else { editor.undo(); }
         }
-        break;
-      case config.getKey('settings/shortcuts/focus'):
+      break; case 'f':
         if (editor.selected !== null) {
           editor.focus(editor.selected);
         }

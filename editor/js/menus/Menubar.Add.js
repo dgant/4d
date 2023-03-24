@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { UIPanel, UIRow, UIHorizontalRule } from './libs/ui.js';
-import { AddObjectCommand } from './commands/AddObjectCommand.js';
+import { UIPanel, UIRow, UIHorizontalRule } from '../libs/ui.js';
+import { AddObjectCommand } from '../commands/AddObjectCommand.js';
 function MenubarAdd(editor) {
   const strings = editor.strings;
   const container = new UIPanel();
