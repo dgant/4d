@@ -70,34 +70,16 @@ class EditorControls extends THREE.EventDispatcher {
 
     function onPointerDown(event) {
       if (scope.enabled === false) return;
-      switch (event.pointerType) {
-        case 'mouse':
-        case 'pen':
-          onMouseDown(event);
-          break;
-        // TODO touch
-      }
+      onMouseDown(event);
       domElement.ownerDocument.addEventListener('pointermove', onPointerMove);
       domElement.ownerDocument.addEventListener('pointerup', onPointerUp);
     }
     function onPointerMove(event) {
       if (scope.enabled === false) return;
-      switch (event.pointerType) {
-        case 'mouse':
-        case 'pen':
-          onMouseMove(event);
-          break;
-        // TODO touch
-      }
+      onMouseMove(event)
     }
     function onPointerUp(event) {
-      switch (event.pointerType) {
-        case 'mouse':
-        case 'pen':
-          onMouseUp();
-          break;
-        // TODO touch
-      }
+      onMouseUp();
       domElement.ownerDocument.removeEventListener('pointermove', onPointerMove);
       domElement.ownerDocument.removeEventListener('pointerup', onPointerUp);
     }
