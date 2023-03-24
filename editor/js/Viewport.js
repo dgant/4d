@@ -176,8 +176,11 @@ function Viewport(editor) {
   signals.transformModeChanged.add(function (mode) {
     transformControls.setMode(mode);
   });
-  signals.snapChanged.add(function (dist) {
-    transformControls.setTranslationSnap(dist);
+  signals.translationSnapChanged.add(function (distance) {
+    transformControls.setTranslationSnap(distance);
+  });
+  signals.rotationSnapChanged.add(function (dist) {
+    transformControls.setRotationSnap(dist);
   });
   signals.spaceChanged.add(function (space) {
     transformControls.setSpace(space);
