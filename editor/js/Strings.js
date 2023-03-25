@@ -931,7 +931,7 @@ function Strings(config) {
   };
   return {
     getKey: function (key) {
-      return values[ language ][ key ] || '???';
+      return values[language][key] || '???';
     }
   };
 }

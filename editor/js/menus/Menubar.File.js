@@ -136,7 +136,7 @@ function MenubarFile(editor) {
       decodeSpeed: 5,
       encodeSpeed: 5,
       encoderMethod: DRACOExporter.MESH_EDGEBREAKER_ENCODING,
-      quantization: [ 16, 8, 8, 8, 8 ],
+      quantization: [16, 8, 8, 8, 8],
       exportUvs: true,
       exportNormals: true,
       exportColor: object.geometry.hasAttribute('color')
@@ -257,12 +257,12 @@ function MenubarFile(editor) {
     delete output.history;
     output = JSON.stringify(output, null, '\t');
     output = output.replace(/[\n\t]+([\d\.e\-\[\]]+)/g, '$1');
-    toZip[ 'app.json' ] = strToU8(output);
+    toZip['app.json'] = strToU8(output);
     //
     const title = config.getKey('project/title');
     const manager = new THREE.LoadingManager(function() {
       const zipped = zipSync(toZip, { level: 9 });
-      const blob = new Blob([ zipped.buffer ], { type: 'application/zip' });
+      const blob = new Blob([zipped.buffer], { type: 'application/zip' });
       save(blob, (title !== '' ? title : 'untitled') + '.zip');
     });
     const loader = new THREE.FileLoader(manager);
@@ -279,19 +279,19 @@ function MenubarFile(editor) {
           '      button.target = \'_blank\';',
           '      button.textContent = \'EDIT\';',
           '      document.body.appendChild(button);',
-        ].join('\n');
+       ].join('\n');
       }
       content = content.replace('\t\t\t/* edit button */', editButton);
-      toZip[ 'index.html' ] = strToU8(content);
+      toZip['index.html'] = strToU8(content);
     });
     loader.load('js/libs/app.js', function (content) {
-      toZip[ 'js/app.js' ] = strToU8(content);
+      toZip['js/app.js'] = strToU8(content);
     });
     loader.load('../build/three.module.js', function (content) {
-      toZip[ 'js/three.module.js' ] = strToU8(content);
+      toZip['js/three.module.js'] = strToU8(content);
     });
     loader.load('../node_modules/three/examples/jsm/webxr/VRButton.js', function (content) {
-      toZip[ 'js/VRButton.js' ] = strToU8(content);
+      toZip['js/VRButton.js'] = strToU8(content);
     });
   });
   options.add(option);
@@ -306,10 +306,10 @@ function MenubarFile(editor) {
     link.dispatchEvent(new MouseEvent('click'));
   }
   function saveArrayBuffer(buffer, filename) {
-    save(new Blob([ buffer ], { type: 'application/octet-stream' }), filename);
+    save(new Blob([buffer], { type: 'application/octet-stream' }), filename);
   }
   function saveString(text, filename) {
-    save(new Blob([ text ], { type: 'text/plain' }), filename);
+    save(new Blob([text], { type: 'text/plain' }), filename);
   }
   function getAnimations(scene) {
     const animations = [];

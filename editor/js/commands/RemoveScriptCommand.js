@@ -13,21 +13,21 @@ class RemoveScriptCommand extends Command {
     this.object = object;
     this.script = script;
     if (this.object && this.script) {
-      this.index = this.editor.scripts[ this.object.uuid ].indexOf(this.script);
+      this.index = this.editor.scripts[this.object.uuid].indexOf(this.script);
     }
   }
   execute() {
-    if (this.editor.scripts[ this.object.uuid ] === undefined) return;
+    if (this.editor.scripts[this.object.uuid] === undefined) return;
     if (this.index !== - 1) {
-      this.editor.scripts[ this.object.uuid ].splice(this.index, 1);
+      this.editor.scripts[this.object.uuid].splice(this.index, 1);
     }
     this.editor.signals.scriptRemoved.dispatch(this.script);
   }
   undo() {
-    if (this.editor.scripts[ this.object.uuid ] === undefined) {
-      this.editor.scripts[ this.object.uuid ] = [];
+    if (this.editor.scripts[this.object.uuid] === undefined) {
+      this.editor.scripts[this.object.uuid] = [];
     }
-    this.editor.scripts[ this.object.uuid ].splice(this.index, 0, this.script);
+    this.editor.scripts[this.object.uuid].splice(this.index, 0, this.script);
     this.editor.signals.scriptAdded.dispatch(this.script);
   }
   toJSON() {

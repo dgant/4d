@@ -41,10 +41,10 @@ function SidebarGeometry(editor) {
         let newGeometry = geometry.clone();
         newGeometry.uuid = geometry.uuid;
         newGeometry.applyMatrix(object.matrix);
-        let cmds = [ new SetGeometryCommand(editor, object, newGeometry),
+        let cmds = [new SetGeometryCommand(editor, object, newGeometry),
           new SetPositionCommand(editor, object, new THREE.Vector3(0, 0, 0)),
           new SetRotationCommand(editor, object, new THREE.Euler(0, 0, 0)),
-          new SetScaleCommand(editor, object, new THREE.Vector3(1, 1, 1)) ];
+          new SetScaleCommand(editor, object, new THREE.Vector3(1, 1, 1))];
         editor.execute(new MultiCmdsCommand(editor, cmds), 'Flatten Geometry');
         break;
     }
@@ -94,7 +94,7 @@ function SidebarGeometry(editor) {
   const vertexNormalsButton = new UIButton(strings.getKey('sidebar/geometry/show_vertex_normals'));
   vertexNormalsButton.onClick(function() {
     const object = editor.selected;
-    if (editor.helpers[ object.id ] === undefined) {
+    if (editor.helpers[object.id] === undefined) {
       editor.addHelper(object, new VertexNormalsHelper(object));
     } else {
       editor.removeHelper(object);

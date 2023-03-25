@@ -14,17 +14,17 @@ class AddScriptCommand extends Command {
     this.script = script;
   }
   execute() {
-    if (this.editor.scripts[ this.object.uuid ] === undefined) {
-      this.editor.scripts[ this.object.uuid ] = [];
+    if (this.editor.scripts[this.object.uuid] === undefined) {
+      this.editor.scripts[this.object.uuid] = [];
     }
-    this.editor.scripts[ this.object.uuid ].push(this.script);
+    this.editor.scripts[this.object.uuid].push(this.script);
     this.editor.signals.scriptAdded.dispatch(this.script);
   }
   undo() {
-    if (this.editor.scripts[ this.object.uuid ] === undefined) return;
-    const index = this.editor.scripts[ this.object.uuid ].indexOf(this.script);
+    if (this.editor.scripts[this.object.uuid] === undefined) return;
+    const index = this.editor.scripts[this.object.uuid].indexOf(this.script);
     if (index !== - 1) {
-      this.editor.scripts[ this.object.uuid ].splice(index, 1);
+      this.editor.scripts[this.object.uuid].splice(index, 1);
     }
     this.editor.signals.scriptRemoved.dispatch(this.script);
   }

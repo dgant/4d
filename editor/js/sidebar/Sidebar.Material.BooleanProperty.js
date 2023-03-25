@@ -9,7 +9,7 @@ function SidebarMaterialBooleanProperty(editor, property, name) {
   let object = null;
   let material = null;
   function onChange() {
-    if (material[ property ] !== boolean.getValue()) {
+    if (material[property] !== boolean.getValue()) {
       editor.execute(new SetMaterialValueCommand(editor, object, property, boolean.getValue(), 0 /* TODO: currentMaterialSlot */));
     }
   }
@@ -18,7 +18,7 @@ function SidebarMaterialBooleanProperty(editor, property, name) {
     if (object.material === undefined) return;
     material = object.material;
     if (property in material) {
-      boolean.setValue(material[ property ]);
+      boolean.setValue(material[property]);
       container.setDisplay('');
     } else {
       container.setDisplay('none');

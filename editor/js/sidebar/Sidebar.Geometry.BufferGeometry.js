@@ -24,7 +24,7 @@ function SidebarGeometryBufferGeometry(editor) {
       }
       const attributes = geometry.attributes;
       for (const name in attributes) {
-        const attribute = attributes[ name ];
+        const attribute = attributes[name];
         containerAttributes.add(new UIText(name).setWidth('80px'));
         containerAttributes.add(new UIText((attribute.count).format() + ' (' + attribute.itemSize + ')').setFontSize('12px'));
         containerAttributes.add(new UIBreak());
@@ -41,7 +41,7 @@ function SidebarGeometryBufferGeometry(editor) {
         const containerMorphAttributes = new UISpan().setDisplay('inline-block').setVerticalAlign('middle').setWidth('160px');
         rowMorphAttributes.add(containerMorphAttributes);
         for (const name in morphAttributes) {
-          const morphTargets = morphAttributes[ name ];
+          const morphTargets = morphAttributes[name];
           containerMorphAttributes.add(new UIText(name).setWidth('80px'));
           containerMorphAttributes.add(new UIText((morphTargets.length).format()).setFontSize('12px'));
           containerMorphAttributes.add(new UIBreak());

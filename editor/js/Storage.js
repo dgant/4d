@@ -25,7 +25,7 @@ function Storage() {
       };
     },
     get: function (callback) {
-      const transaction = database.transaction([ 'states' ], 'readwrite');
+      const transaction = database.transaction(['states'], 'readwrite');
       const objectStore = transaction.objectStore('states');
       const request = objectStore.get(0);
       request.onsuccess = function (event) {
@@ -34,20 +34,20 @@ function Storage() {
     },
     set: function (data) {
       const start = performance.now();
-      const transaction = database.transaction([ 'states' ], 'readwrite');
+      const transaction = database.transaction(['states'], 'readwrite');
       const objectStore = transaction.objectStore('states');
       const request = objectStore.put(data, 0);
       request.onsuccess = function() {
-        console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[ 0 ] + ']', 'Saved state to IndexedDB. ' + (performance.now() - start).toFixed(2) + 'ms');
+        console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Saved state to IndexedDB. ' + (performance.now() - start).toFixed(2) + 'ms');
       };
     },
     clear: function() {
       if (database === undefined) return;
-      const transaction = database.transaction([ 'states' ], 'readwrite');
+      const transaction = database.transaction(['states'], 'readwrite');
       const objectStore = transaction.objectStore('states');
       const request = objectStore.clear();
       request.onsuccess = function() {
-        console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[ 0 ] + ']', 'Cleared IndexedDB.');
+        console.log('[' + /\d\d\:\d\d\:\d\d/.exec(new Date())[0] + ']', 'Cleared IndexedDB.');
       };
     }
   };

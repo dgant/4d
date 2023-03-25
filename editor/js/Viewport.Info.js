@@ -24,14 +24,13 @@ function ViewportInfo(editor) {
   signals.objectAdded.add(update);
   signals.objectRemoved.add(update);
   signals.geometryChanged.add(update);
-  //
+
   function update() {
     const scene = editor.scene;
     let objects = 0, vertices = 0, triangles = 0;
-    for (let i = 0, l = scene.children.length; i < l; i ++) {
-      const object = scene.children[ i ];
+    for (const object of scene.children) {
       object.traverseVisible(function (object) {
-        objects ++;
+        ++objects;
         if (object.isMesh || object.isPoints) {
           const geometry = object.geometry;
           vertices += geometry.attributes.position.count;

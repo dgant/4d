@@ -360,16 +360,16 @@ function SidebarObject(editor) {
       'decay': objectDecayRow,
       'castShadow': objectShadowRow,
       'receiveShadow': objectReceiveShadow,
-      'shadow': [ objectShadowBiasRow, objectShadowNormalBiasRow, objectShadowRadiusRow ]
+      'shadow': [objectShadowBiasRow, objectShadowNormalBiasRow, objectShadowRadiusRow]
     };
     for (const property in properties) {
-      const uiElement = properties[ property ];
+      const uiElement = properties[property];
       if (Array.isArray(uiElement) === true) {
         for (let i = 0; i < uiElement.length; i ++) {
-          uiElement[ i ].setDisplay(object[ property ] !== undefined ? '' : 'none');
+          uiElement[i].setDisplay(object[property] !== undefined ? '' : 'none');
         }
       } else {
-        uiElement.setDisplay(object[ property ] !== undefined ? '' : 'none');
+        uiElement.setDisplay(object[property] !== undefined ? '' : 'none');
       }
     }
     //

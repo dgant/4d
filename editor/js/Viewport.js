@@ -54,7 +54,7 @@ function Viewport(editor) {
     const object = transformControls.object;
     if (object !== undefined) {
       box.setFromObject(object, true);
-      const helper = editor.helpers[ object.id ];
+      const helper = editor.helpers[object.id];
       if (helper !== undefined && helper.isSkeletonHelper !== true) {
         helper.update();
       }
@@ -112,7 +112,7 @@ function Viewport(editor) {
   const onDoubleClickPosition = new THREE.Vector2();
   function getMousePosition(dom, x, y) {
     const rect = dom.getBoundingClientRect();
-    return [ (x - rect.left) / rect.width, (y - rect.top) / rect.height ];
+    return [(x - rect.left) / rect.width, (y - rect.top) / rect.height];
   }
   function handleClick() {
     if (onDownPosition.distanceTo(onUpPosition) === 0) {
@@ -135,13 +135,13 @@ function Viewport(editor) {
     document.removeEventListener('mouseup', onMouseUp);
   }
   function onTouchStart(event) {
-    const touch = event.changedTouches[ 0 ];
+    const touch = event.changedTouches[0];
     const array = getMousePosition(container.dom, touch.clientX, touch.clientY);
     onDownPosition.fromArray(array);
     document.addEventListener('touchend', onTouchEnd);
   }
   function onTouchEnd(event) {
-    const touch = event.changedTouches[ 0 ];
+    const touch = event.changedTouches[0];
     const array = getMousePosition(container.dom, touch.clientX, touch.clientY);
     onUpPosition.fromArray(array);
     handleClick();
@@ -152,7 +152,7 @@ function Viewport(editor) {
     onDoubleClickPosition.fromArray(array);
     const intersects = getIntersects(onDoubleClickPosition);
     if (intersects.length > 0) {
-      const intersect = intersects[ 0 ];
+      const intersect = intersects[0];
       signals.objectFocused.dispatch(intersect.object);
     }
   }
@@ -207,11 +207,11 @@ function Viewport(editor) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       mediaQuery.addEventListener('change', function (event) {
         renderer.setClearColor(event.matches ? 0x333333 : 0xaaaaaa);
-        updateGridColors(grid1, grid2, event.matches ? [ 0x222222, 0x888888 ] : [ 0x888888, 0x282828 ]);
+        updateGridColors(grid1, grid2, event.matches ? [0x222222, 0x888888] : [0x888888, 0x282828]);
         render();
       });
       renderer.setClearColor(mediaQuery.matches ? 0x333333 : 0xaaaaaa);
-      updateGridColors(grid1, grid2, mediaQuery.matches ? [ 0x222222, 0x888888 ] : [ 0x888888, 0x282828 ]);
+      updateGridColors(grid1, grid2, mediaQuery.matches ? [0x222222, 0x888888] : [0x888888, 0x282828]);
     }
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(container.dom.offsetWidth, container.dom.offsetHeight);
@@ -250,7 +250,7 @@ function Viewport(editor) {
     if (object.isPerspectiveCamera) {
       object.updateProjectionMatrix();
     }
-    const helper = editor.helpers[ object.id ];
+    const helper = editor.helpers[object.id];
     if (helper !== undefined && helper.isSkeletonHelper !== true) {
       helper.update();
     }
@@ -270,23 +270,20 @@ function Viewport(editor) {
     switch (backgroundType) {
       case 'None':
         scene.background = null;
-        break;
-      case 'Color':
+      break; case 'Color':
         scene.background = new THREE.Color(backgroundColor);
-        break;
-      case 'Texture':
+      break; case 'Texture':
         if (backgroundTexture) {
           scene.background = backgroundTexture;
         }
-        break;
-      case 'Equirectangular':
+      break; case 'Equirectangular':
         if (backgroundEquirectangularTexture) {
           backgroundEquirectangularTexture.mapping = THREE.EquirectangularReflectionMapping;
           scene.background = backgroundEquirectangularTexture;
           scene.backgroundBlurriness = backgroundBlurriness;
           scene.backgroundIntensity = backgroundIntensity;
         }
-        break;
+      break;
     }
     render();
   });
@@ -295,32 +292,25 @@ function Viewport(editor) {
     switch (environmentType) {
       case 'None':
         scene.environment = null;
-        break;
-      case 'Equirectangular':
+      break; case 'Equirectangular':
         scene.environment = null;
         if (environmentEquirectangularTexture) {
           environmentEquirectangularTexture.mapping = THREE.EquirectangularReflectionMapping;
           scene.environment = environmentEquirectangularTexture;
         }
-        break;
-      case 'ModelViewer':
+      break; case 'ModelViewer':
         scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
-        break;
+      break;
     }
     render();
   });
   // fog
   signals.sceneFogChanged.add(function (fogType, fogColor, fogNear, fogFar, fogDensity) {
     switch (fogType) {
-      case 'None':
-        scene.fog = null;
-        break;
-      case 'Fog':
-        scene.fog = new THREE.Fog(fogColor, fogNear, fogFar);
-        break;
-      case 'FogExp2':
-        scene.fog = new THREE.FogExp2(fogColor, fogDensity);
-        break;
+      case        'None'    : scene.fog = null;
+      break; case 'Fog'     : scene.fog = new THREE.Fog(fogColor, fogNear, fogFar);
+      break; case 'FogExp2' : scene.fog = new THREE.FogExp2(fogColor, fogDensity);
+      break;
     }
     render();
   });

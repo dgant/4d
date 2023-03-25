@@ -16,15 +16,15 @@ class SetScriptValueCommand extends Command {
     this.object = object;
     this.script = script;
     this.attributeName = attributeName;
-    this.oldValue = (script !== undefined) ? script[ this.attributeName ] : undefined;
+    this.oldValue = (script !== undefined) ? script[this.attributeName] : undefined;
     this.newValue = newValue;
   }
   execute() {
-    this.script[ this.attributeName ] = this.newValue;
+    this.script[this.attributeName] = this.newValue;
     this.editor.signals.scriptChanged.dispatch();
   }
   undo() {
-    this.script[ this.attributeName ] = this.oldValue;
+    this.script[this.attributeName] = this.oldValue;
     this.editor.signals.scriptChanged.dispatch();
   }
   update(cmd) {
@@ -33,7 +33,7 @@ class SetScriptValueCommand extends Command {
   toJSON() {
     const output = super.toJSON(this);
     output.objectUuid = this.object.uuid;
-    output.index = this.editor.scripts[ this.object.uuid ].indexOf(this.script);
+    output.index = this.editor.scripts[this.object.uuid].indexOf(this.script);
     output.attributeName = this.attributeName;
     output.oldValue = this.oldValue;
     output.newValue = this.newValue;
@@ -45,7 +45,7 @@ class SetScriptValueCommand extends Command {
     this.newValue = json.newValue;
     this.attributeName = json.attributeName;
     this.object = this.editor.objectByUuid(json.objectUuid);
-    this.script = this.editor.scripts[ json.objectUuid ][ json.index ];
+    this.script = this.editor.scripts[json.objectUuid][json.index];
   }
 }
 export { SetScriptValueCommand };

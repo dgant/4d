@@ -14,18 +14,18 @@ class SetMaterialMapCommand extends Command {
     this.name = `Set Material.${mapName}`;
     this.object = object;
     this.material = this.editor.getObjectMaterial(object, materialSlot);
-    this.oldMap = (object !== undefined) ? this.material[ mapName ] : undefined;
+    this.oldMap = (object !== undefined) ? this.material[mapName] : undefined;
     this.newMap = newMap;
     this.mapName = mapName;
   }
   execute() {
     if (this.oldMap !== null && this.oldMap !== undefined) this.oldMap.dispose();
-    this.material[ this.mapName ] = this.newMap;
+    this.material[this.mapName] = this.newMap;
     this.material.needsUpdate = true;
     this.editor.signals.materialChanged.dispatch(this.material);
   }
   undo() {
-    this.material[ this.mapName ] = this.oldMap;
+    this.material[this.mapName] = this.oldMap;
     this.material.needsUpdate = true;
     this.editor.signals.materialChanged.dispatch(this.material);
   }
@@ -58,7 +58,7 @@ class SetMaterialMapCommand extends Command {
     function extractFromCache(cache) {
       const values = [];
       for (const key in cache) {
-        const data = cache[ key ];
+        const data = cache[key];
         delete data.metadata;
         values.push(data);
       }
@@ -76,8 +76,8 @@ class SetMaterialMapCommand extends Command {
       if (json !== null) {
         const loader = new ObjectLoader();
         const images = loader.parseImages(json.images);
-        const textures = loader.parseTextures([ json ], images);
-        map = textures[ json.uuid ];
+        const textures = loader.parseTextures([json], images);
+        map = textures[json.uuid];
         map.sourceFile = json.sourceFile;
       }
       return map;

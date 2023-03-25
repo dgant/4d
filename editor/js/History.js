@@ -18,7 +18,7 @@ class History {
     });
   }
   execute(cmd, optionalName) {
-    const lastCmd = this.undos[ this.undos.length - 1 ];
+    const lastCmd = this.undos[this.undos.length - 1];
     const timeDifference = Date.now() - this.lastCmdTime;
     const isUpdatableCmd = lastCmd &&
       lastCmd.updatable &&
@@ -97,14 +97,14 @@ class History {
     }
     // Append Undos to History
     for (let i = 0; i < this.undos.length; i ++) {
-      if (this.undos[ i ].hasOwnProperty('json')) {
-        history.undos.push(this.undos[ i ].json);
+      if (this.undos[i].hasOwnProperty('json')) {
+        history.undos.push(this.undos[i].json);
       }
     }
     // Append Redos to History
     for (let i = 0; i < this.redos.length; i ++) {
-      if (this.redos[ i ].hasOwnProperty('json')) {
-        history.redos.push(this.redos[ i ].json);
+      if (this.redos[i].hasOwnProperty('json')) {
+        history.redos.push(this.redos[i].json);
       }
     }
     return history;
@@ -112,8 +112,8 @@ class History {
   fromJSON(json) {
     if (json === undefined) return;
     for (let i = 0; i < json.undos.length; i ++) {
-      const cmdJSON = json.undos[ i ];
-      const cmd = new Commands[ cmdJSON.type ](this.editor); // creates a new object of type "json.type"
+      const cmdJSON = json.undos[i];
+      const cmd = new Commands[cmdJSON.type](this.editor); // creates a new object of type "json.type"
       cmd.json = cmdJSON;
       cmd.id = cmdJSON.id;
       cmd.name = cmdJSON.name;
@@ -121,8 +121,8 @@ class History {
       this.idCounter = (cmdJSON.id > this.idCounter) ? cmdJSON.id : this.idCounter; // set last used idCounter
     }
     for (let i = 0; i < json.redos.length; i ++) {
-      const cmdJSON = json.redos[ i ];
-      const cmd = new Commands[ cmdJSON.type ](this.editor); // creates a new object of type "json.type"
+      const cmdJSON = json.redos[i];
+      const cmd = new Commands[cmdJSON.type](this.editor); // creates a new object of type "json.type"
       cmd.json = cmdJSON;
       cmd.id = cmdJSON.id;
       cmd.name = cmdJSON.name;
@@ -130,7 +130,7 @@ class History {
       this.idCounter = (cmdJSON.id > this.idCounter) ? cmdJSON.id : this.idCounter; // set last used idCounter
     }
     // Select the last executed undo-command
-    this.editor.signals.historyChanged.dispatch(this.undos[ this.undos.length - 1 ]);
+    this.editor.signals.historyChanged.dispatch(this.undos[this.undos.length - 1]);
   }
   clear() {
     this.undos = [];
@@ -145,7 +145,7 @@ class History {
     }
     this.editor.signals.sceneGraphChanged.active = false;
     this.editor.signals.historyChanged.active = false;
-    let cmd = this.undos.length > 0 ? this.undos[ this.undos.length - 1 ] : undefined;  // next cmd to pop
+    let cmd = this.undos.length > 0 ? this.undos[this.undos.length - 1] : undefined;  // next cmd to pop
     if (cmd === undefined || id > cmd.id) {
       cmd = this.redo();
       while (cmd !== undefined && id > cmd.id) {
@@ -153,7 +153,7 @@ class History {
       }
     } else {
       while (true) {
-        cmd = this.undos[ this.undos.length - 1 ];  // next cmd to pop
+        cmd = this.undos[this.undos.length - 1];  // next cmd to pop
         if (cmd === undefined || id === cmd.id) break;
         this.undo();
       }

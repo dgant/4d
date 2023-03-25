@@ -14,16 +14,16 @@ class SetValueCommand extends Command {
     this.updatable = true;
     this.object = object;
     this.attributeName = attributeName;
-    this.oldValue = (object !== undefined) ? object[ attributeName ] : undefined;
+    this.oldValue = (object !== undefined) ? object[attributeName] : undefined;
     this.newValue = newValue;
   }
   execute() {
-    this.object[ this.attributeName ] = this.newValue;
+    this.object[this.attributeName] = this.newValue;
     this.editor.signals.objectChanged.dispatch(this.object);
     // this.editor.signals.sceneGraphChanged.dispatch();
   }
   undo() {
-    this.object[ this.attributeName ] = this.oldValue;
+    this.object[this.attributeName] = this.oldValue;
     this.editor.signals.objectChanged.dispatch(this.object);
     // this.editor.signals.sceneGraphChanged.dispatch();
   }

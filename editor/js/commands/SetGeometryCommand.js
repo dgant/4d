@@ -47,7 +47,7 @@ class SetGeometryCommand extends Command {
     this.newGeometry = parseGeometry(json.newGeometry);
     function parseGeometry(data) {
       const loader = new ObjectLoader();
-      return loader.parseGeometries([ data ])[ data.uuid ];
+      return loader.parseGeometries([data])[data.uuid];
     }
   }
 }

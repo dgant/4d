@@ -54,7 +54,7 @@ function SidebarMaterialMapProperty(editor, property, name) {
   let material = null;
   function onChange() {
     const newMap = enabled.getValue() ? map.getValue() : null;
-    if (material[ property ] !== newMap) {
+    if (material[property] !== newMap) {
       if (newMap !== null) {
         const geometry = object.geometry;
         if (geometry.hasAttribute('uv') === false) console.warn('Geometry doesn\'t have uvs:', geometry);
@@ -74,25 +74,25 @@ function SidebarMaterialMapProperty(editor, property, name) {
     onChange();
   }
   function onIntensityChange() {
-    if (material[ `${ property }Intensity` ] !== intensity.getValue()) {
+    if (material[`${ property }Intensity`] !== intensity.getValue()) {
       editor.execute(new SetMaterialValueCommand(editor, object, `${ property }Intensity`, intensity.getValue(), 0 /* TODO: currentMaterialSlot */));
     }
   }
   function onScaleChange() {
-    if (material[ `${ mapType }Scale` ] !== scale.getValue()) {
+    if (material[`${ mapType }Scale`] !== scale.getValue()) {
       editor.execute(new SetMaterialValueCommand(editor, object, `${ mapType }Scale`, scale.getValue(), 0 /* TODO: currentMaterialSlot */));
     }
   }
   function onScaleXYChange() {
-    const value = [ scaleX.getValue(), scaleY.getValue() ];
-    if (material[ `${ mapType }Scale` ].x !== value[ 0 ] || material[ `${ mapType }Scale` ].y !== value[ 1 ]) {
+    const value = [scaleX.getValue(), scaleY.getValue()];
+    if (material[`${ mapType }Scale`].x !== value[0] || material[`${ mapType }Scale`].y !== value[1]) {
       editor.execute(new SetMaterialVectorCommand(editor, object, `${ mapType }Scale`, value, 0 /* TODOL currentMaterialSlot */));
     }
   }
   function onRangeChange() {
-    const value = [ rangeMin.getValue(), rangeMax.getValue() ];
-    if (material[ `${ mapType }Range` ][ 0 ] !== value[ 0 ] || material[ `${ mapType }Range` ][ 1 ] !== value[ 1 ]) {
-      editor.execute(new SetMaterialRangeCommand(editor, object, `${ mapType }Range`, value[ 0 ], value[ 1 ], 0 /* TODOL currentMaterialSlot */));
+    const value = [rangeMin.getValue(), rangeMax.getValue()];
+    if (material[`${ mapType }Range`][0] !== value[0] || material[`${ mapType }Range`][1] !== value[1]) {
+      editor.execute(new SetMaterialRangeCommand(editor, object, `${ mapType }Range`, value[0], value[1], 0 /* TODOL currentMaterialSlot */));
     }
   }
   function update() {
@@ -100,24 +100,24 @@ function SidebarMaterialMapProperty(editor, property, name) {
     if (object.material === undefined) return;
     material = object.material;
     if (property in material) {
-      if (material[ property ] !== null) {
-        map.setValue(material[ property ]);
+      if (material[property] !== null) {
+        map.setValue(material[property]);
       }
-      enabled.setValue(material[ property ] !== null);
+      enabled.setValue(material[property] !== null);
       enabled.setDisabled(map.getValue() === null);
       if (intensity !== undefined) {
-        intensity.setValue(material[ `${ property }Intensity` ]);
+        intensity.setValue(material[`${ property }Intensity`]);
       }
       if (scale !== undefined) {
-        scale.setValue(material[ `${ mapType }Scale` ]);
+        scale.setValue(material[`${ mapType }Scale`]);
       }
       if (scaleX !== undefined) {
-        scaleX.setValue(material[ `${ mapType }Scale` ].x);
-        scaleY.setValue(material[ `${ mapType }Scale` ].y);
+        scaleX.setValue(material[`${ mapType }Scale`].x);
+        scaleY.setValue(material[`${ mapType }Scale`].y);
       }
       if (rangeMin !== undefined) {
-        rangeMin.setValue(material[ `${ mapType }Range` ][ 0 ]);
-        rangeMax.setValue(material[ `${ mapType }Range` ][ 1 ]);
+        rangeMin.setValue(material[`${ mapType }Range`][0]);
+        rangeMax.setValue(material[`${ mapType }Range`][1]);
       }
       container.setDisplay('');
     } else {

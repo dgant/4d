@@ -114,14 +114,14 @@ function Script(editor) {
             });
           }
           for (let i = 0; i < errors.length; i ++) {
-            const error = errors[ i ];
+            const error = errors[i];
             error.message = error.message.replace(/Line [0-9]+: /, '');
           }
           break;
         case 'json':
           errors = [];
           jsonlint.parseError = function (message, info) {
-            message = message.split('\n')[ 3 ];
+            message = message.split('\n')[3];
             errors.push({
               lineNumber: info.loc.first_line - 1,
               message: message
@@ -134,32 +134,32 @@ function Script(editor) {
           }
           break;
         case 'glsl':
-          currentObject.material[ currentScript ] = string;
+          currentObject.material[currentScript] = string;
           currentObject.material.needsUpdate = true;
           signals.materialChanged.dispatch(currentObject.material);
           const programs = renderer.info.programs;
           valid = true;
           const parseMessage = /^(?:ERROR|WARNING): \d+:(\d+): (.*)/g;
           for (let i = 0, n = programs.length; i !== n; ++ i) {
-            const diagnostics = programs[ i ].diagnostics;
+            const diagnostics = programs[i].diagnostics;
             if (diagnostics === undefined ||
                 diagnostics.material !== currentObject.material) continue;
             if (! diagnostics.runnable) valid = false;
-            const shaderInfo = diagnostics[ currentScript ];
+            const shaderInfo = diagnostics[currentScript];
             const lineOffset = shaderInfo.prefix.split(/\r\n|\r|\n/).length;
             while (true) {
               const parseResult = parseMessage.exec(shaderInfo.log);
               if (parseResult === null) break;
               errors.push({
-                lineNumber: parseResult[ 1 ] - lineOffset,
-                message: parseResult[ 2 ]
+                lineNumber: parseResult[1] - lineOffset,
+                message: parseResult[2]
               });
             } // messages
             break;
           } // programs
       } // mode switch
       for (let i = 0; i < errors.length; i ++) {
-        const error = errors[ i ];
+        const error = errors[i];
         const message = document.createElement('div');
         message.className = 'esprima-error';
         message.textContent = error.message;

@@ -14,16 +14,16 @@ class SetMaterialColorCommand extends Command {
     this.updatable = true;
     this.object = object;
     this.material = (this.object !== undefined) ? this.editor.getObjectMaterial(object, materialSlot) : undefined;
-    this.oldValue = (this.material !== undefined) ? this.material[ attributeName ].getHex() : undefined;
+    this.oldValue = (this.material !== undefined) ? this.material[attributeName].getHex() : undefined;
     this.newValue = newValue;
     this.attributeName = attributeName;
   }
   execute() {
-    this.material[ this.attributeName ].setHex(this.newValue);
+    this.material[this.attributeName].setHex(this.newValue);
     this.editor.signals.materialChanged.dispatch(this.material);
   }
   undo() {
-    this.material[ this.attributeName ].setHex(this.oldValue);
+    this.material[this.attributeName].setHex(this.oldValue);
     this.editor.signals.materialChanged.dispatch(this.material);
   }
   update(cmd) {

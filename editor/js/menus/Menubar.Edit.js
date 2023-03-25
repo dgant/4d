@@ -96,13 +96,13 @@ function MenubarEdit(editor) {
     editor.scene.traverse(fixColorMap);
   });
   options.add(option);
-  const colorMaps = [ 'map', 'envMap', 'emissiveMap' ];
+  const colorMaps = ['map', 'envMap', 'emissiveMap'];
   function fixColorMap(obj) {
     const material = obj.material;
     if (material !== undefined) {
       if (Array.isArray(material) === true) {
         for (let i = 0; i < material.length; i ++) {
-          fixMaterial(material[ i ]);
+          fixMaterial(material[i]);
         }
       } else {
         fixMaterial(material);
@@ -113,7 +113,7 @@ function MenubarEdit(editor) {
   function fixMaterial(material) {
     let needsUpdate = material.needsUpdate;
     for (let i = 0; i < colorMaps.length; i ++) {
-      const map = material[ colorMaps[ i ] ];
+      const map = material[colorMaps[i]];
       if (map) {
         map.encoding = THREE.sRGBEncoding;
         needsUpdate = true;

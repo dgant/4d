@@ -22,7 +22,7 @@ function MenubarAdd(editor) {
     editor.execute(new AddObjectCommand(editor, mesh));
   });
   options.add(option);
-  //
+  
   options.add(new UIHorizontalRule());
   // Box
   option = new UIRow();
@@ -200,7 +200,7 @@ function MenubarAdd(editor) {
       new THREE.Vector3(2, - 2, - 0.6666666666666667),
       new THREE.Vector3(- 2, - 2, 0.6666666666666667),
       new THREE.Vector3(- 2, 2, 2)
-    ]);
+   ]);
     const geometry = new THREE.TubeGeometry(path, 64, 1, 8, false);
     const mesh = new THREE.Mesh(geometry, new THREE.MeshNormalMaterial());
     mesh.name = 'Tube';

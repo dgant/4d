@@ -34,7 +34,7 @@ function SidebarScene(editor) {
     if (Array.isArray(material)) {
       const array = [];
       for (let i = 0; i < material.length; i ++) {
-        array.push(material[ i ].name);
+        array.push(material[i].name);
       }
       return array.join(',');
     }
@@ -69,7 +69,7 @@ function SidebarScene(editor) {
     return html;
   }
   function getScript(uuid) {
-    if (editor.scripts[ uuid ] !== undefined) {
+    if (editor.scripts[uuid] !== undefined) {
       return ' <span class="type Script"></span>';
     }
     return '';
@@ -223,7 +223,7 @@ function SidebarScene(editor) {
     options.push(buildOption(scene, false));
     (function addObjects(objects, pad) {
       for (let i = 0, l = objects.length; i < l; i ++) {
-        const object = objects[ i ];
+        const object = objects[i];
         if (nodeStates.has(object) === false) {
           nodeStates.set(object, false);
         }
@@ -297,7 +297,7 @@ function SidebarScene(editor) {
   signals.objectChanged.add(function (object) {
     let options = outliner.options;
     for (let i = 0; i < options.length; i ++) {
-      let option = options[ i ];
+      let option = options[i];
       if (option.value === object.id) {
         option.innerHTML = buildHTML(object);
         return;

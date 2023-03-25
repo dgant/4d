@@ -66,7 +66,7 @@ function SidebarProjectVideo(editor) {
       const num = i.toString().padStart(5, '0');
       ffmpeg.FS('unlink', `tmp.${num}.png`);
     }
-    save(new Blob([ data.buffer ], { type: 'video/mp4' }), 'out.mp4');
+    save(new Blob([data.buffer], { type: 'video/mp4' }), 'out.mp4');
     player.dispose();
     renderButton.setDisplay('');
     progress.setDisplay('none');

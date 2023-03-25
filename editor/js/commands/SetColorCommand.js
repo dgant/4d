@@ -14,15 +14,15 @@ class SetColorCommand extends Command {
     this.updatable = true;
     this.object = object;
     this.attributeName = attributeName;
-    this.oldValue = (object !== undefined) ? this.object[ this.attributeName ].getHex() : undefined;
+    this.oldValue = (object !== undefined) ? this.object[this.attributeName].getHex() : undefined;
     this.newValue = newValue;
   }
   execute() {
-    this.object[ this.attributeName ].setHex(this.newValue);
+    this.object[this.attributeName].setHex(this.newValue);
     this.editor.signals.objectChanged.dispatch(this.object);
   }
   undo() {
-    this.object[ this.attributeName ].setHex(this.oldValue);
+    this.object[this.attributeName].setHex(this.oldValue);
     this.editor.signals.objectChanged.dispatch(this.object);
   }
   update(cmd) {

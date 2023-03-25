@@ -7,16 +7,16 @@ class SetMaterialVectorCommand extends Command {
     this.updatable = true;
     this.object = object;
     this.material = this.editor.getObjectMaterial(object, materialSlot);
-    this.oldValue = (this.material !== undefined) ? this.material[ attributeName ].toArray() : undefined;
+    this.oldValue = (this.material !== undefined) ? this.material[attributeName].toArray() : undefined;
     this.newValue = newValue;
     this.attributeName = attributeName;
   }
   execute() {
-    this.material[ this.attributeName ].fromArray(this.newValue);
+    this.material[this.attributeName].fromArray(this.newValue);
     this.editor.signals.materialChanged.dispatch(this.material);
   }
   undo() {
-    this.material[ this.attributeName ].fromArray(this.oldValue);
+    this.material[this.attributeName].fromArray(this.oldValue);
     this.editor.signals.materialChanged.dispatch(this.material);
   }
   update(cmd) {

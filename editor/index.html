@@ -69,6 +69,8 @@
 			import { Resizer } from './js/Resizer.js';
 			import { VRButton } from 'three/addons/webxr/VRButton.js';
 
+			const IS_MAC = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+
 			window.URL = window.URL || window.webkitURL;
 			window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
 
@@ -155,6 +157,36 @@
 					editor.loader.loadItemList(event.dataTransfer.items);
 				} else {
 					editor.loader.loadFiles(event.dataTransfer.files);
+				}
+			});
+			document.addEventListener('keydown', function (event) {
+				const control = IS_MAC ? event.metaKey : event.ctrlKey;
+				const signals = editor.signals;
+				switch (event.key.toLowerCase()) {
+					case 'backspace':
+						event.preventDefault(); // prevent browser back
+						// fall-through
+					case 'delete':
+						const object = editor.selected;
+						if (object === null) return;
+						const parent = object.parent;
+						if (parent !== null) editor.execute(new RemoveObjectCommand(editor, object));
+					break; case '1':
+						signals.transformModeChanged.dispatch('translate');
+					break; case '2':
+						signals.transformModeChanged.dispatch('rotate');
+					break; case '3':
+						signals.transformModeChanged.dispatch('scale');
+					break; case 'z':
+						if (control) {
+							event.preventDefault(); // Prevent browser specific hotkeys
+							if (event.shiftKey) { editor.redo(); } else { editor.undo(); }
+						}
+					break; case 'f':
+						if (editor.selected !== null) {
+							editor.focus(editor.selected);
+						}
+						break;
 				}
 			});
 

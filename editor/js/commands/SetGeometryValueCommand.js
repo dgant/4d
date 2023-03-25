@@ -13,17 +13,17 @@ class SetGeometryValueCommand extends Command {
     this.name = `Set Geometry.${attributeName}`;
     this.object = object;
     this.attributeName = attributeName;
-    this.oldValue = (object !== undefined) ? object.geometry[ attributeName ] : undefined;
+    this.oldValue = (object !== undefined) ? object.geometry[attributeName] : undefined;
     this.newValue = newValue;
   }
   execute() {
-    this.object.geometry[ this.attributeName ] = this.newValue;
+    this.object.geometry[this.attributeName] = this.newValue;
     this.editor.signals.objectChanged.dispatch(this.object);
     this.editor.signals.geometryChanged.dispatch();
     this.editor.signals.sceneGraphChanged.dispatch();
   }
   undo() {
-    this.object.geometry[ this.attributeName ] = this.oldValue;
+    this.object.geometry[this.attributeName] = this.oldValue;
     this.editor.signals.objectChanged.dispatch(this.object);
     this.editor.signals.geometryChanged.dispatch();
     this.editor.signals.sceneGraphChanged.dispatch();

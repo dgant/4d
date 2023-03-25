@@ -14,18 +14,18 @@ class SetMaterialValueCommand extends Command {
     this.updatable = true;
     this.object = object;
     this.material = this.editor.getObjectMaterial(object, materialSlot);
-    this.oldValue = (this.material !== undefined) ? this.material[ attributeName ] : undefined;
+    this.oldValue = (this.material !== undefined) ? this.material[attributeName] : undefined;
     this.newValue = newValue;
     this.attributeName = attributeName;
   }
   execute() {
-    this.material[ this.attributeName ] = this.newValue;
+    this.material[this.attributeName] = this.newValue;
     this.material.needsUpdate = true;
     this.editor.signals.objectChanged.dispatch(this.object);
     this.editor.signals.materialChanged.dispatch(this.material);
   }
   undo() {
-    this.material[ this.attributeName ] = this.oldValue;
+    this.material[this.attributeName] = this.oldValue;
     this.material.needsUpdate = true;
     this.editor.signals.objectChanged.dispatch(this.object);
     this.editor.signals.materialChanged.dispatch(this.material);

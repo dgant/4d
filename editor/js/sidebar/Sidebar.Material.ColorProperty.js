@@ -15,11 +15,11 @@ function SidebarMaterialColorProperty(editor, property, name) {
   let object = null;
   let material = null;
   function onChange() {
-    if (material[ property ].getHex() !== color.getHexValue()) {
+    if (material[property].getHex() !== color.getHexValue()) {
       editor.execute(new SetMaterialColorCommand(editor, object, property, color.getHexValue(), 0 /* TODO: currentMaterialSlot */));
     }
     if (intensity !== undefined) {
-      if (material[ `${ property }Intensity` ] !== intensity.getValue()) {
+      if (material[`${ property }Intensity`] !== intensity.getValue()) {
         editor.execute(new SetMaterialValueCommand(editor, object, `${ property }Intensity`, intensity.getValue(), /* TODO: currentMaterialSlot*/ 0));
       }
     }
@@ -29,9 +29,9 @@ function SidebarMaterialColorProperty(editor, property, name) {
     if (object.material === undefined) return;
     material = object.material;
     if (property in material) {
-      color.setHexValue(material[ property ].getHexString());
+      color.setHexValue(material[property].getHexString());
       if (intensity !== undefined) {
-        intensity.setValue(material[ `${ property }Intensity` ]);
+        intensity.setValue(material[`${ property }Intensity`]);
       }
       container.setDisplay('');
     } else {

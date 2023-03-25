@@ -26,7 +26,7 @@ class SetSceneCommand extends Command {
   execute() {
     this.editor.signals.sceneGraphChanged.active = false;
     for (let i = 0; i < this.cmdArray.length; i ++) {
-      this.cmdArray[ i ].execute();
+      this.cmdArray[i].execute();
     }
     this.editor.signals.sceneGraphChanged.active = true;
     this.editor.signals.sceneGraphChanged.dispatch();
@@ -34,7 +34,7 @@ class SetSceneCommand extends Command {
   undo() {
     this.editor.signals.sceneGraphChanged.active = false;
     for (let i = this.cmdArray.length - 1; i >= 0; i --) {
-      this.cmdArray[ i ].undo();
+      this.cmdArray[i].undo();
     }
     this.editor.signals.sceneGraphChanged.active = true;
     this.editor.signals.sceneGraphChanged.dispatch();
@@ -43,7 +43,7 @@ class SetSceneCommand extends Command {
     const output = super.toJSON(this);
     const cmds = [];
     for (let i = 0; i < this.cmdArray.length; i ++) {
-      cmds.push(this.cmdArray[ i ].toJSON());
+      cmds.push(this.cmdArray[i].toJSON());
     }
     output.cmds = cmds;
     return output;
@@ -52,8 +52,8 @@ class SetSceneCommand extends Command {
     super.fromJSON(json);
     const cmds = json.cmds;
     for (let i = 0; i < cmds.length; i ++) {
-      const cmd = new window[ cmds[ i ].type ]();  // creates a new object of type "json.type"
-      cmd.fromJSON(cmds[ i ]);
+      const cmd = new window[cmds[i].type]();  // creates a new object of type "json.type"
+      cmd.fromJSON(cmds[i]);
       this.cmdArray.push(cmd);
     }
   }

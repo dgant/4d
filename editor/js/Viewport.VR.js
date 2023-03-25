@@ -26,7 +26,7 @@ class VR {
         intersectables.push(mesh);
         // controllers
         const geometry = new THREE.BufferGeometry();
-        geometry.setFromPoints([ new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, - 5) ]);
+        geometry.setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, - 5)]);
         const controller1 = renderer.xr.getController(0);
         controller1.add(new THREE.Line(geometry));
         group.add(controller1);
@@ -63,7 +63,7 @@ class VR {
     // signals
     signals.toggleVR.add(() => {
       if (this.currentSession === null) {
-        const sessionInit = { optionalFeatures: [ 'local-floor', 'bounded-floor' ] };
+        const sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor'] };
         navigator.xr.requestSession('immersive-vr', sessionInit).then(onSessionStarted);
       } else {
         this.currentSession.end();

@@ -37,7 +37,7 @@ var APP = {
       var scriptWrapResultObj = {};
       for (var eventKey in events) {
         scriptWrapParams += ',' + eventKey;
-        scriptWrapResultObj[ eventKey ] = eventKey;
+        scriptWrapResultObj[eventKey] = eventKey;
       }
       var scriptWrapResult = JSON.stringify(scriptWrapResultObj).replace(/\"/g, '');
       for (var uuid in json.scripts) {
@@ -46,17 +46,17 @@ var APP = {
           console.warn('APP.Player: Script without object.', uuid);
           continue;
         }
-        var scripts = json.scripts[ uuid ];
+        var scripts = json.scripts[uuid];
         for (var i = 0; i < scripts.length; i ++) {
-          var script = scripts[ i ];
+          var script = scripts[i];
           var functions = (new Function(scriptWrapParams, script.source + '\nreturn ' + scriptWrapResult + ';').bind(object))(this, renderer, scene, camera);
           for (var name in functions) {
-            if (functions[ name ] === undefined) continue;
-            if (events[ name ] === undefined) {
+            if (functions[name] === undefined) continue;
+            if (events[name] === undefined) {
               console.warn('APP.Player: Event type not supported (', name, ')');
               continue;
             }
-            events[ name ].push(functions[ name ].bind(object));
+            events[name].push(functions[name].bind(object));
           }
         }
       }
@@ -84,7 +84,7 @@ var APP = {
     };
     function dispatch(array, event) {
       for (var i = 0, l = array.length; i < l; i ++) {
-        array[ i ](event);
+        array[i](event);
       }
     }
     var time, startTime, prevTime;

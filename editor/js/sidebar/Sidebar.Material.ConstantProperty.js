@@ -10,7 +10,7 @@ function SidebarMaterialConstantProperty(editor, property, name, options) {
   let material = null;
   function onChange() {
     const value = parseInt(constant.getValue());
-    if (material[ property ] !== value) {
+    if (material[property] !== value) {
       editor.execute(new SetMaterialValueCommand(editor, object, property, value, 0 /* TODO: currentMaterialSlot */));
     }
   }
@@ -19,7 +19,7 @@ function SidebarMaterialConstantProperty(editor, property, name, options) {
     if (object.material === undefined) return;
     material = object.material;
     if (property in material) {
-      constant.setValue(material[ property ]);
+      constant.setValue(material[property]);
       container.setDisplay('');
     } else {
       container.setDisplay('none');

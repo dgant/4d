@@ -70,37 +70,37 @@ function SidebarMaterial(editor) {
   const materialReflectivity = new SidebarMaterialNumberProperty(editor, 'reflectivity', strings.getKey('sidebar/material/reflectivity'));
   container.add(materialReflectivity);
   // roughness
-  const materialRoughness = new SidebarMaterialNumberProperty(editor, 'roughness', strings.getKey('sidebar/material/roughness'), [ 0, 1 ]);
+  const materialRoughness = new SidebarMaterialNumberProperty(editor, 'roughness', strings.getKey('sidebar/material/roughness'), [0, 1]);
   container.add(materialRoughness);
   // metalness
-  const materialMetalness = new SidebarMaterialNumberProperty(editor, 'metalness', strings.getKey('sidebar/material/metalness'), [ 0, 1 ]);
+  const materialMetalness = new SidebarMaterialNumberProperty(editor, 'metalness', strings.getKey('sidebar/material/metalness'), [0, 1]);
   container.add(materialMetalness);
   // clearcoat
-  const materialClearcoat = new SidebarMaterialNumberProperty(editor, 'clearcoat', strings.getKey('sidebar/material/clearcoat'), [ 0, 1 ]);
+  const materialClearcoat = new SidebarMaterialNumberProperty(editor, 'clearcoat', strings.getKey('sidebar/material/clearcoat'), [0, 1]);
   container.add(materialClearcoat);
   // clearcoatRoughness
-  const materialClearcoatRoughness = new SidebarMaterialNumberProperty(editor, 'clearcoatRoughness', strings.getKey('sidebar/material/clearcoatroughness'), [ 0, 1 ]);
+  const materialClearcoatRoughness = new SidebarMaterialNumberProperty(editor, 'clearcoatRoughness', strings.getKey('sidebar/material/clearcoatroughness'), [0, 1]);
   container.add(materialClearcoatRoughness);
   // iridescence
-  const materialIridescence = new SidebarMaterialNumberProperty(editor, 'iridescence', strings.getKey('sidebar/material/iridescence'), [ 0, 1 ]);
+  const materialIridescence = new SidebarMaterialNumberProperty(editor, 'iridescence', strings.getKey('sidebar/material/iridescence'), [0, 1]);
   container.add(materialIridescence);
   // iridescenceIOR
-  const materialIridescenceIOR = new SidebarMaterialNumberProperty(editor, 'iridescenceIOR', strings.getKey('sidebar/material/iridescenceIOR'), [ 1, 5 ]);
+  const materialIridescenceIOR = new SidebarMaterialNumberProperty(editor, 'iridescenceIOR', strings.getKey('sidebar/material/iridescenceIOR'), [1, 5]);
   container.add(materialIridescenceIOR);
   // iridescenceThicknessMax
-  const materialIridescenceThicknessMax = new SidebarMaterialRangeValueProperty(editor, 'iridescenceThicknessRange', strings.getKey('sidebar/material/iridescenceThicknessMax'), false, [ 0, Infinity ], 0, 10, 1, 'nm');
+  const materialIridescenceThicknessMax = new SidebarMaterialRangeValueProperty(editor, 'iridescenceThicknessRange', strings.getKey('sidebar/material/iridescenceThicknessMax'), false, [0, Infinity], 0, 10, 1, 'nm');
   container.add(materialIridescenceThicknessMax);
   // sheen
-  const materialSheen = new SidebarMaterialNumberProperty(editor, 'sheen', strings.getKey('sidebar/material/sheen'), [ 0, 1 ]);
+  const materialSheen = new SidebarMaterialNumberProperty(editor, 'sheen', strings.getKey('sidebar/material/sheen'), [0, 1]);
   container.add(materialSheen);
   // sheen roughness
-  const materialSheenRoughness = new SidebarMaterialNumberProperty(editor, 'sheenRoughness', strings.getKey('sidebar/material/sheenroughness'), [ 0, 1 ]);
+  const materialSheenRoughness = new SidebarMaterialNumberProperty(editor, 'sheenRoughness', strings.getKey('sidebar/material/sheenroughness'), [0, 1]);
   container.add(materialSheenRoughness);
   // sheen color
   const materialSheenColor = new SidebarMaterialColorProperty(editor, 'sheenColor', strings.getKey('sidebar/material/sheencolor'));
   container.add(materialSheenColor);
   // transmission
-  const materialTransmission = new SidebarMaterialNumberProperty(editor, 'transmission', strings.getKey('sidebar/material/transmission'), [ 0, 1 ]);
+  const materialTransmission = new SidebarMaterialNumberProperty(editor, 'transmission', strings.getKey('sidebar/material/transmission'), [0, 1]);
   container.add(materialTransmission);
   // attenuation distance
   const materialAttenuationDistance = new SidebarMaterialNumberProperty(editor, 'attenuationDistance', strings.getKey('sidebar/material/attenuationDistance'));
@@ -116,8 +116,8 @@ function SidebarMaterial(editor) {
   container.add(materialVertexColors);
   // depth packing
   const materialDepthPackingOptions = {
-    [ THREE.BasicDepthPacking ]: 'Basic',
-    [ THREE.RGBADepthPacking ]: 'RGBA'
+    [THREE.BasicDepthPacking]: 'Basic',
+    [THREE.RGBADepthPacking]: 'RGBA'
   };
   const materialDepthPacking = new SidebarMaterialConstantProperty(editor, 'depthPacking', strings.getKey('sidebar/material/depthPacking'), materialDepthPackingOptions);
   container.add(materialDepthPacking);
@@ -193,7 +193,7 @@ function SidebarMaterial(editor) {
   const materialSide = new SidebarMaterialConstantProperty(editor, 'side', strings.getKey('sidebar/material/side'), materialSideOptions);
   container.add(materialSide);
   // size
-  const materialSize = new SidebarMaterialNumberProperty(editor, 'size', strings.getKey('sidebar/material/size'), [ 0, Infinity ]);
+  const materialSize = new SidebarMaterialNumberProperty(editor, 'size', strings.getKey('sidebar/material/size'), [0, Infinity]);
   container.add(materialSize);
   // sizeAttenuation
   const materialSizeAttenuation = new SidebarMaterialBooleanProperty(editor, 'sizeAttenuation', strings.getKey('sidebar/material/sizeAttenuation'));
@@ -213,7 +213,7 @@ function SidebarMaterial(editor) {
   const materialBlending = new SidebarMaterialConstantProperty(editor, 'blending', strings.getKey('sidebar/material/blending'), materialBlendingOptions);
   container.add(materialBlending);
   // opacity
-  const materialOpacity = new SidebarMaterialNumberProperty(editor, 'opacity', strings.getKey('sidebar/material/opacity'), [ 0, 1 ]);
+  const materialOpacity = new SidebarMaterialNumberProperty(editor, 'opacity', strings.getKey('sidebar/material/opacity'), [0, 1]);
   container.add(materialOpacity);
   // transparent
   const materialTransparent = new SidebarMaterialBooleanProperty(editor, 'transparent', strings.getKey('sidebar/material/transparent'));
@@ -222,7 +222,7 @@ function SidebarMaterial(editor) {
   const materialForceSinglePass = new SidebarMaterialBooleanProperty(editor, 'forceSinglePass', strings.getKey('sidebar/material/forcesinglepass'));
   container.add(materialForceSinglePass);
   // alpha test
-  const materialAlphaTest = new SidebarMaterialNumberProperty(editor, 'alphaTest', strings.getKey('sidebar/material/alphatest'), [ 0, 1 ]);
+  const materialAlphaTest = new SidebarMaterialNumberProperty(editor, 'alphaTest', strings.getKey('sidebar/material/alphatest'), [0, 1]);
   container.add(materialAlphaTest);
   // depth test
   const materialDepthTest = new SidebarMaterialBooleanProperty(editor, 'depthTest', strings.getKey('sidebar/material/depthtest'));
@@ -260,13 +260,13 @@ function SidebarMaterial(editor) {
         editor.execute(new SetMaterialValueCommand(editor, currentObject, 'uuid', materialUUID.getValue(), currentMaterialSlot));
       }
       if (material.type !== materialClass.getValue()) {
-        material = new materialClasses[ materialClass.getValue() ]();
+        material = new materialClasses[materialClass.getValue()]();
         if (material.type === 'RawShaderMaterial') {
           material.vertexShader = vertexShaderVariables + material.vertexShader;
         }
         if (Array.isArray(currentObject.material)) {
           // don't remove the entire multi-material. just the material of the selected slot
-          editor.removeMaterial(currentObject.material[ currentMaterialSlot ]);
+          editor.removeMaterial(currentObject.material[currentMaterialSlot]);
         } else {
           editor.removeMaterial(currentObject.material);
         }
@@ -305,7 +305,7 @@ function SidebarMaterial(editor) {
       const slotOptions = {};
       currentMaterialSlot = Math.max(0, Math.min(material.length, currentMaterialSlot));
       for (let i = 0; i < material.length; i ++) {
-        slotOptions[ i ] = String(i + 1) + ': ' + material[ i ].name;
+        slotOptions[i] = String(i + 1) + ': ' + material[i].name;
       }
       materialSlotSelect.setOptions(slotOptions).setValue(currentMaterialSlot);
     }

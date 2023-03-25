@@ -32,7 +32,7 @@ function SidebarScript(editor) {
     if (object === null) {
       return;
     }
-    const scripts = editor.scripts[ object.uuid ];
+    const scripts = editor.scripts[object.uuid];
     if (scripts !== undefined && scripts.length > 0) {
       scriptsContainer.setDisplay('block');
       for (let i = 0; i < scripts.length; i ++) {
@@ -57,7 +57,7 @@ function SidebarScript(editor) {
           });
           scriptsContainer.add(remove);
           scriptsContainer.add(new UIBreak());
-        })(object, scripts[ i ]);
+        })(object, scripts[i]);
       }
     }
   }

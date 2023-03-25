@@ -11,7 +11,7 @@ class UITexture extends UISpan {
     const input = document.createElement('input');
     input.type = 'file';
     input.addEventListener('change', function (event) {
-      loadFile(event.target.files[ 0 ]);
+      loadFile(event.target.files[0]);
     });
     form.appendChild(input);
     const canvas = document.createElement('canvas');
@@ -26,7 +26,7 @@ class UITexture extends UISpan {
     canvas.addEventListener('drop', function (event) {
       event.preventDefault();
       event.stopPropagation();
-      loadFile(event.dataTransfer.files[ 0 ]);
+      loadFile(event.dataTransfer.files[0]);
     });
     this.dom.appendChild(canvas);
     function loadFile(file) {
@@ -76,7 +76,7 @@ class UITexture extends UISpan {
     return this.texture;
   }
   setValue(texture) {
-    const canvas = this.dom.children[ 0 ];
+    const canvas = this.dom.children[0];
     const context = canvas.getContext('2d');
     // Seems like context can be null if the canvas is not visible
     if (context) {
@@ -143,7 +143,7 @@ class UICubeTexture extends UIElement {
     function onTextureChanged() {
       const images = [];
       for (let i = 0; i < scope.textures.length; i ++) {
-        const texture = scope.textures[ i ].getValue();
+        const texture = scope.textures[i].getValue();
         if (texture !== null) {
           images.push(texture.isHDRTexture ? texture : texture.image);
         }
@@ -151,7 +151,7 @@ class UICubeTexture extends UIElement {
       if (images.length === 6) {
         const cubeTexture = new THREE.CubeTexture(images);
         cubeTexture.needsUpdate = true;
-        if (images[ 0 ].isHDRTexture) cubeTexture.isHDRTexture = true;
+        if (images[0].isHDRTexture) cubeTexture.isHDRTexture = true;
         scope.cubeTexture = cubeTexture;
         if (scope.onChangeCallback) scope.onChangeCallback(cubeTexture);
       }
@@ -173,15 +173,15 @@ class UICubeTexture extends UIElement {
       const images = cubeTexture.image;
       if (Array.isArray(images) === true && images.length === 6) {
         for (let i = 0; i < images.length; i ++) {
-          const image = images[ i ];
+          const image = images[i];
           const texture = new THREE.Texture(image);
-          this.textures[ i ].setValue(texture);
+          this.textures[i].setValue(texture);
         }
       }
     } else {
       const textures = this.textures;
       for (let i = 0; i < textures.length; i ++) {
-        textures[ i ].setValue(null);
+        textures[i].setValue(null);
       }
     }
     return this;
@@ -227,7 +227,7 @@ class UIOutliner extends UIDiv {
   }
   selectIndex(index) {
     if (index >= 0 && index < this.options.length) {
-      this.setValue(this.options[ index ].value);
+      this.setValue(this.options[index].value);
       const changeEvent = document.createEvent('HTMLEvents');
       changeEvent.initEvent('change', true, true);
       this.dom.dispatchEvent(changeEvent);
@@ -308,7 +308,7 @@ class UIOutliner extends UIDiv {
     //
     scope.options = [];
     for (let i = 0; i < options.length; i ++) {
-      const div = options[ i ];
+      const div = options[i];
       div.className = 'option';
       scope.dom.appendChild(div);
       scope.options.push(div);
@@ -328,7 +328,7 @@ class UIOutliner extends UIDiv {
   }
   setValue(value) {
     for (let i = 0; i < this.options.length; i ++) {
-      const element = this.options[ i ];
+      const element = this.options[i];
       if (element.value === value) {
         element.classList.add('active');
         // scroll into view
@@ -371,15 +371,15 @@ class UIPoints extends UISpan {
   }
   clear() {
     for (let i = 0; i < this.pointsUI.length; ++ i) {
-      if (this.pointsUI[ i ]) {
+      if (this.pointsUI[i]) {
         this.deletePointRow(i, true);
       }
     }
     this.lastPointIdx = 0;
   }
   deletePointRow(idx, dontUpdate) {
-    if (! this.pointsUI[ idx ]) return;
-    this.pointsList.remove(this.pointsUI[ idx ].row);
+    if (! this.pointsUI[idx]) return;
+    this.pointsList.remove(this.pointsUI[idx].row);
     this.pointsUI.splice(idx, 1);
     if (dontUpdate !== true) {
       this.update();
@@ -397,7 +397,7 @@ class UIPoints2 extends UIPoints {
       if (this.pointsUI.length === 0) {
         this.pointsList.add(this.createPointRow(0, 0));
       } else {
-        const point = this.pointsUI[ this.pointsUI.length - 1 ];
+        const point = this.pointsUI[this.pointsUI.length - 1];
         this.pointsList.add(this.createPointRow(point.x.getValue(), point.y.getValue()));
       }
       this.update();
@@ -408,7 +408,7 @@ class UIPoints2 extends UIPoints {
     const points = [];
     let count = 0;
     for (let i = 0; i < this.pointsUI.length; i ++) {
-      const pointUI = this.pointsUI[ i ];
+      const pointUI = this.pointsUI[i];
       if (! pointUI) continue;
       points.push(new THREE.Vector2(pointUI.x.getValue(), pointUI.y.getValue()));
       ++ count;
@@ -419,7 +419,7 @@ class UIPoints2 extends UIPoints {
   setValue(points) {
     this.clear();
     for (let i = 0; i < points.length; i ++) {
-      const point = points[ i ];
+      const point = points[i];
       this.pointsList.add(this.createPointRow(point.x, point.y));
     }
     this.update();
@@ -452,7 +452,7 @@ class UIPoints3 extends UIPoints {
       if (this.pointsUI.length === 0) {
         this.pointsList.add(this.createPointRow(0, 0, 0));
       } else {
-        const point = this.pointsUI[ this.pointsUI.length - 1 ];
+        const point = this.pointsUI[this.pointsUI.length - 1];
         this.pointsList.add(this.createPointRow(point.x.getValue(), point.y.getValue(), point.z.getValue()));
       }
       this.update();
@@ -463,7 +463,7 @@ class UIPoints3 extends UIPoints {
     const points = [];
     let count = 0;
     for (let i = 0; i < this.pointsUI.length; i ++) {
-      const pointUI = this.pointsUI[ i ];
+      const pointUI = this.pointsUI[i];
       if (! pointUI) continue;
       points.push(new THREE.Vector3(pointUI.x.getValue(), pointUI.y.getValue(), pointUI.z.getValue()));
       ++ count;
@@ -474,7 +474,7 @@ class UIPoints3 extends UIPoints {
   setValue(points) {
     this.clear();
     for (let i = 0; i < points.length; i ++) {
-      const point = points[ i ];
+      const point = points[i];
       this.pointsList.add(this.createPointRow(point.x, point.y, point.z));
     }
     this.update();

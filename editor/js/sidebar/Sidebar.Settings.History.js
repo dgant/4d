@@ -15,7 +15,7 @@ function SidebarSettingsHistory(editor) {
     config.setKey('settings/history', value);
     if (value) {
       alert('The history will be preserved across sessions.\nThis can have an impact on performance when working with textures.');
-      const lastUndoCmd = history.undos[ history.undos.length - 1 ];
+      const lastUndoCmd = history.undos[history.undos.length - 1];
       const lastUndoId = (lastUndoCmd !== undefined) ? lastUndoCmd.id : 0;
       editor.history.enableSerialization(lastUndoId);
     } else {
@@ -42,7 +42,7 @@ function SidebarSettingsHistory(editor) {
     }
     (function addObjects(objects) {
       for (let i = 0, l = objects.length; i < l; i ++) {
-        const object = objects[ i ];
+        const object = objects[i];
         const option = buildOption(object);
         option.innerHTML = '&nbsp;' + object.name;
         options.push(option);
@@ -50,7 +50,7 @@ function SidebarSettingsHistory(editor) {
     })(history.undos);
     (function addObjects(objects) {
       for (let i = objects.length - 1; i >= 0; i --) {
-        const object = objects[ i ];
+        const object = objects[i];
         const option = buildOption(object);
         option.innerHTML = '&nbsp;' + object.name;
         option.style.opacity = 0.3;

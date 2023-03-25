@@ -6,7 +6,7 @@ class Selector {
     // signals
     signals.intersectionsDetected.add((intersects) => {
       if (intersects.length > 0) {
-        const object = intersects[ 0 ].object;
+        const object = intersects[0].object;
         if (object.userData.object !== undefined) {
           // helper
           this.select(object.userData.object);
