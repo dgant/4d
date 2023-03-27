@@ -6,15 +6,19 @@ import Octree from './Octree.js';
 import player from './Player.js';
 import global from './Global.js';
 import { Levels } from './Levels.js';
-import * as Math4d from './Math4d.js';
 import * as Make4d from './Make4d.js';
-import { HypercubeGeometry } from './Hypercube.js';
 
 async function setup() {
   const color = new THREE.Color();
 
+  // Generate renderer
+  global.renderer = new THREE.WebGLRenderer({antialias: true});
+  global.renderer.setPixelRatio(window.devicePixelRatio);
+  global.renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(global.renderer.domElement);
+
   // Generate camera
-  global.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1000);
+  global.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 1e6);
   global.camera.position.y = constants.playerEyeLevel;  
   Make4d.bless4d(global.camera);
   global.controls = new FPSControls(global.camera, document.body);
@@ -22,16 +26,27 @@ async function setup() {
 
   // Generate scene
   global.scene = new THREE.Scene();
-  global.scene.background = new THREE.Color(0xfff0f0);
-  global.scene.fog = new THREE.Fog(0xfff0f0, 0, 20);
+  global.scene.background = new THREE.Color(0x78a8c2);
+  //global.scene.fog = new THREE.Fog(0xfff0f0, 0, 20);
   const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
   light.position.set(0.5, 1, 0.75);
 
-  // Generate renderer
-  global.renderer = new THREE.WebGLRenderer({antialias: true});
-  global.renderer.setPixelRatio(window.devicePixelRatio);
-  global.renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(global.renderer.domElement);
+  // Create skybox
+  const skyboxGeometry = new THREE.BoxGeometry(1e3, 1e3, 1e3);
+  const skyboxTexture = new THREE.TextureLoader().load('textures/Daylight Box UV.png');
+  skyboxTexture.repeat = new THREE.Vector2(0.25, 1/3);
+  const skyboxTextures = Array(6).fill().map(i => skyboxTexture.clone());
+  skyboxTextures[0].offset = new THREE.Vector2(0.00, 1/3);
+  skyboxTextures[1].offset = new THREE.Vector2(0.50, 1/3);
+  skyboxTextures[2].offset = new THREE.Vector2(0.25, 2/3);  
+  skyboxTextures[3].offset = new THREE.Vector2(0.25, 0/3);
+  //skyboxTextures[2].rotation = Math.PI;
+  skyboxTextures[4].offset = new THREE.Vector2(0.75, 1/3);
+  skyboxTextures[5].offset = new THREE.Vector2(0.25, 1/3);
+  const skyboxMaterials = skyboxTextures.map(t => new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide }));
+  const skyboxMesh = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
+  skyboxMesh.position.y -= 1e2;
+  global.scene.add(skyboxMesh);
  
   // Attach listeners
   document.addEventListener('keydown', onKeyDown);
