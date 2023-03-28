@@ -22,8 +22,15 @@ const _topLevel4d = [];
 function bless4d(me, parent = undefined) {
   _bless4d(me, parent)
   if (me.isObject3D) {
-    if (parent === undefined) {
+    if (parent === undefined || ! parent.is4d) {
       _topLevel4d.push(me);
+    }
+    if (me.material !== undefined) {
+      (Array.isArray(me.material) ? me.material : [me.material]).forEach(material => {
+        material.depthTest = false; // Might fix wrong-order rendering? Per https://stackoverflow.com/questions/61739339/threejs-is-render-order-dependent-on-object-creation-order
+        material.depthWrite = false; // This prevents occlusion while transparent
+        material.transparent = true;
+      });
     }
     me.traverse((you) => { if (you !== me) bless4d(you, me) });
   }  
@@ -38,7 +45,7 @@ function getLocalW(object) {
 function getGlobalW(object) {
   return is4d(object) ? Math4d.clampAngleTau(getLocalW(object) + getGlobalW(object.parent4d)) : 0.0;
 }
-function getDistanceW(from, to) {
+function getDistanceW01(from, to) {
   return Math4d.INVPI * Math4d.radianDistance(from, to);
 }
 function prepareToRender4d(camera) {
@@ -46,15 +53,9 @@ function prepareToRender4d(camera) {
   const cameraW = camera.getW4d()
   uniforms4d.w4dCamera.value = cameraW;
   for (const mesh of _topLevel4d) {    
-    const dw = getDistanceW(mesh.getW4d(), cameraW);
+    const dw = getDistanceW01(mesh.getW4d(), cameraW);
     const alpha = 1 - 0.25 * dw - (dw > constants.substanceThreshold ? 1.75 * dw : 0);
-    if (Array.isArray(mesh.material)) {
-      for (const material of mesh.material) {
-        material.opacity = alpha;
-      }
-    } else if (mesh.material) {
-      mesh.material.opacity = alpha;
-    }
+    (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).forEach(m => { if (m) m.opacity = alpha });
   }
 }
 
@@ -66,6 +67,6 @@ export {
   is4d,
   getGlobalW,
   getLocalW,
-  getDistanceW,
+  getDistanceW01,
   prepareToRender4d
 };

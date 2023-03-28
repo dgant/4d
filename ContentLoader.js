@@ -228,6 +228,7 @@ class ContentLoader {
             const loader = new THREE.ObjectLoader();
             loader.setResourcePath(this.texturePath);
             loader.parse(data, result =>  {
+              result.name = result.name || file.name;
               if (result.isScene) {
                 resolve(this.callbacks.onSetScene(result));
               } else {

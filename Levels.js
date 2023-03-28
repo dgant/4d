@@ -9,7 +9,7 @@ class Levels {
     this.callbacks = {};
     this.callbacks.onAddObject = object => {
       if (object.isMesh) {
-        global.terrainGroup.attach(object);        
+        global.level.attach(object);        
         Make4d.bless4d(object); // TODO: Check if it should be 4d first!
       }
     };
@@ -45,4 +45,4 @@ class Levels {
     }
   }
 }
-export { Levels };
+export default Levels;
